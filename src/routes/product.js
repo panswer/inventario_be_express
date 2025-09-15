@@ -1,0 +1,164 @@
+const { Router } = require("express");
+const { getProducts, createProduct, updateProductById, getProductById } = require("../controllers/product");
+const { authorizationFn } = require("../middlewares/authorization");
+
+const router = Router();
+
+/**
+ * @swagger
+ * /api/product:
+ *  get:
+ *      summary: Get all products
+ *      description: Get all products with page and limit
+ *      security:
+ *          - BearerAuth: []
+ *      tags:
+ *          - Product
+ *      parameters:
+ *          - in: query
+ *            name: page
+ *            description: The page number
+ *            schema:
+ *              type: integer
+ *          - in: query
+ *            name: limit
+ *            description: How many items will be return
+ *            schema:
+ *              type: integer
+ *      responses:
+ *          200:
+ *              description: list of product and total
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              products:
+ *                                  type: array
+ *                                  items:
+ *                                      type: object
+ *                                      $ref: "#/components/schemas/ProductModel"
+ *                              total:
+ *                                  type: number
+ */
+router.get("", [authorizationFn], getProducts);
+
+/**
+ * @swagger
+ * /api/product:
+ *  post:
+ *      summary: Create a product and price
+ *      description: Create a product and price
+ *      tags:
+ *          - Product
+ *          - Price
+ *      security:
+ *          - BearerAuth: []
+ *      requestBody:
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      type: object
+ *                      properties:
+ *                          name:
+ *                              type: string
+ *                          amount:
+ *                              type: number
+ *                          coin:
+ *                              type: string
+ *                              $ref: "#/components/schemas/CoinType"
+ *                      required:
+ *                          - name
+ *                          - amount
+ *                          - coin
+ *      responses:
+ *          201:
+ *              description: Product and Prices created success
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              product:
+ *                                  type: object
+ *                                  $ref: "#/components/schemas/ProductModel"
+ *                              price:
+ *                                  type: object
+ *                                  $ref: "#/components/schemas/PriceModel"
+ *                          required:
+ *                              - product
+ *                              - price
+ */
+router.post("", [authorizationFn], createProduct);
+
+/**
+ * @swagger
+ * /api/product/{productId}:
+ *  get:
+ *      summary: Get a product by id
+ *      description: Get a product by id
+ *      tags:
+ *          - Product
+ *      security:
+ *          - BearerAuth: []
+ *      parameters:
+ *          - name: productId
+ *            in: path
+ *            required: true
+ *            schema:
+ *              type: string
+ *      responses:
+ *          200:
+ *              description: Product
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              product:
+ *                                  type: object
+ *                                  $ref: '#/components/schemas/ProductModel'
+ */
+router.get("/:productId",[authorizationFn], getProductById);
+
+/**
+ * @swagger
+ * /api/product/{productId}:
+ *  put:
+ *      summary: Update a product
+ *      description: Update a product by id
+ *      tags:
+ *          - Product
+ *      security:
+ *          - BearerAuth: []
+ *      parameters:
+ *          - name: productId
+ *            in: path
+ *            required: true
+ *            schema:
+ *              type: string
+ *      requestBody:
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      type: object
+ *                      properties:
+ *                          inStock:
+ *                              type: boolean
+ *                          name:
+ *                              type: string
+ *      responses:
+ *          202:
+ *              description: Product updated
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              product:
+ *                                  type: object
+ *                                  $ref: '#/components/schemas/ProductModel'
+ */
+router.put("/:productId", [authorizationFn], updateProductById);
+
+module.exports = router;
