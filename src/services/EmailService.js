@@ -80,6 +80,8 @@ class Mailer {
             return;
         }
 
+        await passwordResetService.deleteTokenByUserId(user._id);
+
         const token = getRandomChar(3);
 
         await passwordResetService.createPasswordReset(user._id, token);
