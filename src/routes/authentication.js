@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const { signIn, signUp } = require("../controllers/authentication");
+const { signIn, signUp, resetPassword, resetPasswordVerify } = require("../controllers/authentication");
 
 const router = Router();
 
@@ -88,5 +88,97 @@ router.post("/sign-in", signIn);
  *         description: Internal server error
  */
 router.post("/sign-up", signUp);
+
+/**
+ * @swagger
+ * /api/auth/reset-password:
+ *   post:
+ *      tags:
+ *       - Authentication
+ *      summary: Send reset password
+ *      requestBody:
+ *          required: true
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      type: object
+ *                      properties:
+ *                          email:
+ *                              type: string
+ *                              example: "email@example.com"
+ *                      required:
+ *                        - email
+ *      responses:
+ *          200:
+ *              description: Possible token send
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *          500:
+ *              description: Mail service is not working
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              code:
+ *                                  type: integer
+ *                                  example: 2000
+ */
+router.post("/reset-password", resetPassword);
+
+/**
+ * @swagger
+ * /api/auth/reset-password/verify:
+ *  post:
+ *      tags:
+ *        - Authentication
+ *      summary: Update user password by token and email
+ *      requestBody:
+ *          required: true
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      type: object
+ *                      properties:
+ *                          token:
+ *                              type: string
+ *                              example: 123456
+ *                          email:
+ *                              type: string
+ *                              example: "email@example.com"
+ *                          password:
+ *                              type: string
+ *                              example: "strongPassword123"
+ *      responses:
+ *          202:
+ *              description: User password updated
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *          404:
+ *              description: token not valid
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              code:
+ *                                  type: integer
+ *                                  example: 1003
+ *          500:
+ *              description: Unknown internal error
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              code:
+ *                                  type: integer
+ *                                  example: 1004
+ */
+router.post("/reset-password/verify", resetPasswordVerify);
 
 module.exports = router;

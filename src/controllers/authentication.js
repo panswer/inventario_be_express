@@ -1,6 +1,9 @@
 const bcrypt = require("bcrypt");
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
+const UserService = require("../services/UserService");
+const EmailService = require("../services/EmailService");
+const PasswordResetService = require("../services/PasswordResetService");
 
 /**
  * Sign up controller
@@ -40,17 +43,12 @@ const signUp = async (req, res) => {
  */
 const signIn = async (req, res) => {
   const { email, password } = req.body;
+  const userService = UserService.getInstance();
 
   let user;
   try {
-    user = await User.findOne({ username: email });
+    user = userService.getUserByEmailFlow(email);
   } catch (error) {
-    return res.status(403).json({
-      code: 1001,
-    });
-  }
-
-  if (!user) {
     return res.status(403).json({
       code: 1001,
     });
@@ -73,7 +71,68 @@ const signIn = async (req, res) => {
   });
 };
 
+/**
+ * Send token to reset password
+ * 
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * 
+ * @returns {Promise<void>}
+ */
+const resetPassword = async (req, res) => {
+  const { email } = req.body;
+
+  const emailService = EmailService.getInstance();
+
+  try {
+    await emailService.sendResetPasswordEmailFlow(email);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      code: 2000,
+    });
+  }
+
+  return res.status(200).json({});
+}
+
+/**
+ * Reset password by token
+ * 
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * 
+ * @return {Promise<void>}
+ */
+const resetPasswordVerify = async (req, res) => {
+  const { email, token, password } = req.body;
+
+  const passwordResetService = PasswordResetService.getInstance();
+
+  try {
+    await passwordResetService.validateTokenByEmailFlow(email, token);
+  } catch (error) {
+    return res.status(404).json({
+      code: 1003,
+    });
+  }
+
+  const userService = UserService.getInstance();
+
+  try {
+    await userService.updateUserPassword(email, password);
+  } catch (error) {
+    return res.status(500).json({
+      code: 1004,
+    });
+  }
+
+  res.status(202).json({});
+}
+
 module.exports = {
   signIn,
   signUp,
+  resetPassword,
+  resetPasswordVerify,
 };
