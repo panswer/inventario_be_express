@@ -1,5 +1,5 @@
-const Product = require("../models/Product");
-const Price = require("../models/Price");
+const ProductService = require("../services/ProductService");
+const PriceService = require("../services/PriceService");
 
 /**
  * Get product list
@@ -17,16 +17,11 @@ const getProducts = async (req, res) => {
   const skipItems = Number(page) - 1;
   const limitNum = Number(limit);
 
-  const products = await Product.find().skip(skipItems).limit(limitNum);
+  const productService = ProductService.getInstance();
 
-  products.forEach((product) => {
-    console.log({
-      product,
-      time: typeof product.createdAt.getTime(),
-    });
-  });
+  const products = await productService.getProducts(skipItems, limitNum);
 
-  const total = await Product.find().countDocuments();
+  const total = await productService.countProducts();
 
   return res.status(200).json({
     products,
@@ -44,31 +39,29 @@ const getProducts = async (req, res) => {
  */
 const createProduct = async (req, res) => {
   const body = req.body;
-
-  const newProduct = new Product({
-    name: body.name,
-    createdBy: body.session._id,
-  });
+  const productService = ProductService.getInstance();
+  const priceService = PriceService.getInstance();
 
   let product;
   try {
-    product = await newProduct.save();
+    product = await productService.createProduct({
+      name: body.name,
+      createdBy: body.session._id,
+    });
   } catch (error) {
     return res.status(400).json({
       code: 2000,
     });
   }
 
-  const newPrice = new Price({
-    amount: body.amount,
-    coin: body.coin,
-    productId: product._id,
-    createdBy: body.session._id,
-  });
-
   let price;
   try {
-    price = await newPrice.save();
+    price = await priceService.createPrice({
+      amount: body.amount,
+      coin: body.coin,
+      productId: product._id,
+      createdBy: body.session._id,
+    });
   } catch (error) {
     return res.status(400).json({
       code: 3000,
@@ -91,10 +84,11 @@ const createProduct = async (req, res) => {
  */
 const getProductById = async (req, res) => {
   const productId = req.params.productId;
+  const productService = ProductService.getInstance();
 
   let productDb;
   try {
-    productDb = await Product.findById(productId);
+    productDb = await productService.getProductById(productId);
   } catch (error) {
     console.log(error);
     return res.status(404).json({
@@ -117,10 +111,11 @@ const getProductById = async (req, res) => {
  */
 const updateProductById = async (req, res) => {
   const productId = req.params.productId;
+  const productService = ProductService.getInstance();
 
   let productDb;
   try {
-    productDb = await Product.findById(productId);
+    productDb = await productService.getProductById(productId);
   } catch (error) {
     console.log(error);
     return res.status(404).json({
