@@ -1,5 +1,6 @@
 const { coinEnum } = require("../enums/coinEnum");
 const Price = require("../models/Price");
+const PriceService = require("../services/PriceService");
 
 /**
  * Get a list of coin
@@ -25,10 +26,11 @@ const getPriceCoinAll = (req, res) => {
  */
 const getPriceByProductId = async (req, res) => {
   const productId = req.params.productId;
+  const priceService = PriceService.getInstance();
 
   let priceDb;
   try {
-    priceDb = await Price.findOne({ productId });
+    priceDb = await priceService.getPriceByProductId(productId);
   } catch (error) {
     console.log(error);
     return res.status(404).json({
@@ -52,10 +54,11 @@ const getPriceByProductId = async (req, res) => {
 const updatePriceById = async (req, res) => {
   const priceId = req.params.priceId;
   const coin = req.params.coin;
+  const priceService = PriceService.getInstance();
 
   let priceDb;
   try {
-    priceDb = await Price.findOne({ _id: priceId, coin });
+    priceDb = await priceService.getPriceByIdAndCoin(priceId, coin);
   } catch (error) {
     console.log(error);
     return res.status(404).json({
