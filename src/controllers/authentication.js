@@ -47,7 +47,7 @@ const signIn = async (req, res) => {
 
   let user;
   try {
-    user = userService.getUserByEmailFlow(email);
+    user = await userService.getUserByEmailFlow(email);
   } catch (error) {
     return res.status(403).json({
       code: 1001,
