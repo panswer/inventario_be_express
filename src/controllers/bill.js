@@ -1,8 +1,6 @@
-const { Types } = require("mongoose");
-const Bill = require("../models/Bill");
-const Sale = require("../models/Sale");
-const Product = require("../models/Product");
 const { errorText } = require("../utils/color");
+const BillService = require("../services/BillService");
+const SaleService = require("../services/SaleService");
 
 /**
  * Create a bill
@@ -22,14 +20,12 @@ const createBill = async (req, res) => {
    * @type {Array<import('../models/Sale').SaleRequest>}
    */
   const sellers = body.sellers;
-
-  const newBill = new Bill({
-    userId: user._id,
-  });
+  const billService = BillService.getInstance();
+  const saleService = SaleService.getInstance();
 
   let billDb;
   try {
-    billDb = await newBill.save();
+    billDb = await billService.createBill(user._id);
   } catch (e) {
     console.log(errorText(e.message));
 
@@ -40,18 +36,16 @@ const createBill = async (req, res) => {
 
   try {
     await Promise.all(
-      sellers.map((sale) =>
-        new Sale({
-          billId: billDb._id,
-          coin: sale.coin,
-          count: sale.count,
-          price: sale.price,
-          productId: sale.productId,
-        }).save()
-      )
+      sellers.map(sale => saleService.createSale({
+        billId: billDb._id,
+        coin: sale.coin,
+        count: sale.count,
+        price: sale.price,
+        productId: sale.productId,
+      }))
     );
   } catch (error) {
-    console.log(errorText(e.message));
+    console.log(errorText(error.message));
 
     return res.status(500).json({
       message: "Unknown error",
@@ -79,9 +73,11 @@ const getAllBills = async (req, res) => {
   const limitNum = Number(limit);
   const skipItems = (Number(page) - 1) * limitNum;
 
-  const bills = await Bill.find().skip(skipItems).limit(limitNum);
+  const billService = BillService.getInstance();
 
-  const total = await Bill.find().countDocuments();
+  const bills = await billService.getBills(skipItems, limitNum);
+
+  const total = await billService.countBills();
 
   res.status(200).json({
     bills: JSON.parse(JSON.stringify(bills)),
@@ -99,35 +95,9 @@ const getAllBills = async (req, res) => {
  */
 const getBillDetailByBillId = async (req, res) => {
   const { billId } = req.params;
+  const billService = BillService.getInstance();
 
-  const [billDetail] = await Bill.aggregate([
-    {
-      $match: {
-        _id: new Types.ObjectId(billId),
-      },
-    },
-    {
-      $lookup: {
-        from: "sales",
-        localField: "_id",
-        foreignField: "billId",
-        as: "sales",
-      },
-    },
-    {
-      $addFields: {
-        total: {
-          $function: {
-            body: "function (sales) {return sales.map((sale) => sale.count * sale.price).reduce((prev, curr)=>prev+curr)}",
-            args: ["$sales"],
-            lang: "js",
-          },
-        },
-      },
-    },
-  ]);
-
-  await Product.populate(billDetail, { path: "sales.productId" });
+  const billDetail = await billService.getBillDetailById(billId);
 
   res.status(200).json({
     billDetail,
