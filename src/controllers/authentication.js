@@ -1,9 +1,7 @@
-const bcrypt = require("bcrypt");
-const User = require("../models/User");
-const jwt = require("jsonwebtoken");
 const UserService = require("../services/UserService");
 const EmailService = require("../services/EmailService");
 const PasswordResetService = require("../services/PasswordResetService");
+const AuthenticationService = require("../services/AuthenticationService");
 
 /**
  * Sign up controller
@@ -15,15 +13,11 @@ const PasswordResetService = require("../services/PasswordResetService");
  */
 const signUp = async (req, res) => {
   const body = req.body;
-
-  const newUser = new User({
-    username: body.email,
-    password: bcrypt.hashSync(body.password, 12),
-  });
+  const userService = UserService.getInstance();
 
   let user;
   try {
-    user = await newUser.save();
+    user = await userService.createUser(body.email, body.password);
   } catch (error) {
     return res.status(400).json({
       code: 1000,
@@ -44,6 +38,7 @@ const signUp = async (req, res) => {
 const signIn = async (req, res) => {
   const { email, password } = req.body;
   const userService = UserService.getInstance();
+  const authenticationService = AuthenticationService.getInstance();
 
   let user;
   try {
@@ -54,17 +49,13 @@ const signIn = async (req, res) => {
     });
   }
 
-  if (!bcrypt.compareSync(password, user.password)) {
+  if (!authenticationService.verifyPasswordHash(password, user.password)) {
     return res.status(403).json({
       code: 1001,
     });
   }
 
-  const secret = process.env.SERVER_JWT_SESSION_SECRET;
-
-  const authorization = jwt.sign(user.toObject(), secret, {
-    expiresIn: "1h",
-  });
+  const authorization = authenticationService.generateSessionToken(user);
 
   res.status(201).json({
     authorization,

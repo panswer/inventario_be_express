@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
+const AuthenticationService = require('./AuthenticationService');
 
 class UserService {
     /**
@@ -17,6 +18,15 @@ class UserService {
 
     static destroyInstance() {
         delete this.instance;
+    }
+
+    createUser(email, password) {
+        const authenticationService = AuthenticationService.getInstance();
+
+        return new User({
+            username: email,
+            password: authenticationService.generatePasswordHash(password),
+        }).save();
     }
 
     /**
