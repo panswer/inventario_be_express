@@ -20,6 +20,13 @@ const createBill = async (req, res) => {
    * @type {Array<import('../models/Sale').SaleRequest>}
    */
   const sellers = body.sellers;
+
+  if (!sellers || !Array.isArray(sellers) || sellers.length === 0) {
+    return res.status(400).json({
+      message: "sellers is required and must be a non-empty array",
+    });
+  }
+
   const billService = BillService.getInstance();
   const saleService = SaleService.getInstance();
 
@@ -97,7 +104,17 @@ const getBillDetailByBillId = async (req, res) => {
   const { billId } = req.params;
   const billService = BillService.getInstance();
 
-  const billDetail = await billService.getBillDetailById(billId);
+  let billDetail;
+  try {
+    billDetail = await billService.getBillDetailById(billId);
+  } catch (e) {
+    console.log(errorText(e.message));
+    return res.status(500).json({ message: "Unknown error" });
+  }
+
+  if (!billDetail) {
+    return res.status(404).json({ message: "Bill not found" });
+  }
 
   res.status(200).json({
     billDetail,

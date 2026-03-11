@@ -33,6 +33,12 @@ const getPriceByProductId = async (req, res) => {
     priceDb = await priceService.getPriceByProductId(productId);
   } catch (error) {
     console.log(error);
+    return res.status(500).json({
+      message: "Unknown error",
+    });
+  }
+
+  if (!priceDb) {
     return res.status(404).json({
       message: "Price not found",
     });

@@ -78,7 +78,7 @@ class BillService {
                 $addFields: {
                     total: {
                         $function: {
-                            body: "function (sales) {return sales.map((sale) => sale.count * sale.price).reduce((prev, curr)=>prev+curr)}",
+                            body: "function (sales) {return sales.map((sale) => sale.count * sale.price).reduce((prev, curr)=>prev+curr, 0)}",
                             args: ["$sales"],
                             lang: "js",
                         },
