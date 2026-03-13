@@ -157,10 +157,35 @@ const resetPasswordVerify = async (req, res) => {
   const { email, token, password } = req.body;
 
   const passwordResetService = PasswordResetService.getInstance();
+  const loggerService = LoggerService.getInstance();
 
   try {
     await passwordResetService.validateTokenByEmailFlow(email, token);
   } catch (error) {
+    if (error.message === "Intento de recuperación con token inválido o expirado")
+      loggerService.warn(
+        "passwordResetService@validateTokenByEmailFlow",
+        {
+          requestId: req.requestId,
+          userIp: req.user,
+          body: req.body,
+          reason: error.message,
+          type: 'logic'
+        }
+      );
+
+    if (error.message !== "Intento de recuperación con token inválido o expirado")
+      loggerService.error(
+        "passwordResetService@validateTokenByEmailFlow",
+        {
+          requestId: req.requestId,
+          userIp: req.user,
+          body: req.body,
+          reason: error.message,
+          type: 'logic'
+        }
+      );
+
     return res.status(404).json({
       code: 1003,
     });
@@ -171,6 +196,16 @@ const resetPasswordVerify = async (req, res) => {
   try {
     await userService.updateUserPassword(email, password);
   } catch (error) {
+    loggerService.error(
+      "userService@updateUserPassword",
+      {
+        requestId: req.requestId,
+        userIp: req.user,
+        body: req.body,
+        reason: error.message,
+        type: 'logic'
+      }
+    );
     return res.status(500).json({
       code: 1004,
     });

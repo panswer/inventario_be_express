@@ -1,6 +1,6 @@
 const { Router } = require("express");
-const { query } = require('express-validator');
-const { signUpValidator } = require('../middlewares/authorization');
+const { body } = require('express-validator');
+const { signUpValidator, resetPasswordVerifyValidator } = require('../middlewares/authorization');
 const { signIn, signUp, resetPassword, resetPasswordVerify } = require("../controllers/authentication");
 
 const router = Router();
@@ -90,8 +90,8 @@ router.post("/sign-in", signIn);
  *         description: Internal server error
  */
 router.post("/sign-up", [
-    query('email').isEmail().withMessage("Email is not valid"),
-    query('password').isLength({ min: 8 }).withMessage("Password must be at least 8 characters"),
+    body('email').isEmail().withMessage("Email is not valid"),
+    body('password').isLength({ min: 8 }).withMessage("Password must be at least 8 characters"),
     signUpValidator,
 ], signUp);
 
@@ -185,6 +185,14 @@ router.post("/reset-password", resetPassword);
  *                                  type: integer
  *                                  example: 1004
  */
-router.post("/reset-password/verify", resetPasswordVerify);
+router.post("/reset-password/verify",
+    [
+        body('email').isEmail().withMessage("Email is not valid"),
+        body('password').isLength({ min: 8 }).withMessage("Password must be at least 8 characters"),
+        body('token').isLength({ min: 6 }).withMessage("Token must be at least 6 characters"),
+        resetPasswordVerifyValidator,
+    ],
+    resetPasswordVerify
+);
 
 module.exports = router;

@@ -50,13 +50,13 @@ class PasswordResetService {
         const passwordReset = await this.getPasswordResetByUserId(user._id);
 
         if (!passwordReset) {
-            throw new Error('Password reset not found');
+            throw new Error("Intento de recuperación con token inválido o expirado");
         }
 
         const tokenHash = createHash(token);
 
         if (passwordReset.token !== tokenHash) {
-            throw new Error('Token is not valid');
+            throw new Error("Intento de recuperación con token inválido o expirado");
         }
 
         await this.deleteTokenByUserId(user._id);
