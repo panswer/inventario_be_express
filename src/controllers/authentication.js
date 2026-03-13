@@ -15,11 +15,22 @@ const LoggerService = require("../services/LoggerService");
 const signUp = async (req, res) => {
   const body = req.body;
   const userService = UserService.getInstance();
+  const loggerService = LoggerService.getInstance();
 
   let user;
   try {
     user = await userService.createUser(body.email, body.password);
   } catch (error) {
+    loggerService.error(
+      "userService@createUser",
+      {
+        requestId: req.requestId,
+        userIp: req.userIp,
+        body: req.body,
+        reason: error?.message ?? 'Unknown error',
+        type: 'logic'
+      }
+    );
     return res.status(400).json({
       code: 1000,
     });

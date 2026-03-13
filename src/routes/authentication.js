@@ -1,4 +1,6 @@
 const { Router } = require("express");
+const { query } = require('express-validator');
+const { signUpValidator } = require('../middlewares/authorization');
 const { signIn, signUp, resetPassword, resetPasswordVerify } = require("../controllers/authentication");
 
 const router = Router();
@@ -87,7 +89,11 @@ router.post("/sign-in", signIn);
  *       500:
  *         description: Internal server error
  */
-router.post("/sign-up", signUp);
+router.post("/sign-up", [
+    query('email').isEmail().withMessage("Email is not valid"),
+    query('password').isLength({ min: 8 }).withMessage("Password must be at least 8 characters"),
+    signUpValidator,
+], signUp);
 
 /**
  * @swagger

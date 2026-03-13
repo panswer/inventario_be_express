@@ -1,4 +1,6 @@
 const jwt = require("jsonwebtoken");
+const { validationResult } = require("express-validator");
+const LoggerService = require("../services/LoggerService");
 
 /**
  * Verify Authorization token
@@ -33,6 +35,45 @@ const authorizationFn = (req, res, next) => {
   next();
 };
 
+/**
+ * Middleware to catch error after validation
+ *
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ *
+ * @returns {void}
+ */
+const signUpValidator = (req, res, next) => {
+  const result = validationResult(req);
+
+  if (result.isEmpty()) {
+    return next();
+  }
+
+  const loggerService = LoggerService.getInstance();
+  const errors = result.array();
+  const messages = errors.map(error => error.msg);
+
+  const reason = messages.join(', ');
+
+  loggerService.warn(
+    "middleware@signUpValidator",
+    {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      body: req.body,
+      reason,
+      type: 'logic'
+    }
+  );
+
+  res.status(400).json({
+    code: 1002,
+  });
+}
+
 module.exports = {
   authorizationFn,
+  signUpValidator,
 };
