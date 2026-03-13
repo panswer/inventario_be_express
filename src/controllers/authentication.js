@@ -2,6 +2,7 @@ const UserService = require("../services/UserService");
 const EmailService = require("../services/EmailService");
 const PasswordResetService = require("../services/PasswordResetService");
 const AuthenticationService = require("../services/AuthenticationService");
+const LoggerService = require("../services/LoggerService");
 
 /**
  * Sign up controller
@@ -39,17 +40,38 @@ const signIn = async (req, res) => {
   const { email, password } = req.body;
   const userService = UserService.getInstance();
   const authenticationService = AuthenticationService.getInstance();
+  const loggerService = LoggerService.getInstance();
 
   let user;
   try {
     user = await userService.getUserByEmailFlow(email);
   } catch (error) {
+    loggerService.error(
+      'userService@getUserByEmailFlow',
+      {
+        requestId: req.requestId,
+        userIp: req.userIp,
+        body: req.body,
+        reason: error?.message ?? 'Unknown error',
+        type: 'logic'
+      }
+    );
     return res.status(403).json({
       code: 1001,
     });
   }
 
   if (!authenticationService.verifyPasswordHash(password, user.password)) {
+    loggerService.error(
+      'authenticationService@verifyPasswordHash',
+      {
+        requestId: req.requestId,
+        userIp: req.userIp,
+        body: req.body,
+        reason: "Contraseña incorrecta",
+        type: 'logic',
+      }
+    );
     return res.status(403).json({
       code: 1001,
     });

@@ -50,7 +50,7 @@ app.use(require("./src/middlewares/errorManager"));
 */
 app.listen(port, async (err) => {
   if (err) {
-    console.lo(errorText(`can't start server on port ${port}`));
+    console.log(errorText(`can't start server on port ${port}`));
     process.exit(1);
   }
 

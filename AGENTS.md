@@ -23,7 +23,7 @@ docker-compose up -d   # Start MongoDB
 ```bash
 npm test                # Run all tests
 npm run test:watch      # Watch mode
-npm run test:coverage   # Generate coverage report (target: >90%)
+npm run test:coverage   # Coverage report (target: >90%)
 ```
 
 #### Running Single Tests
@@ -33,23 +33,15 @@ npx jest __tests__/controllers/product.test.js     # Single test file
 npx jest --testNamePattern="getProducts"           # Single test by name
 ```
 
-#### Test Structure & Strategy
-```
-__tests__/
-├── controllers/   # Mock services, test HTTP status codes
-├── services/      # mongodb-memory-server (real DB)
-├── middlewares/   # Mock jsonwebtoken
-└── utils/         # No mocking (pure functions)
-```
-
+#### Test Strategy
 | Layer | Mock Strategy |
 |-------|---------------|
 | Utils | None (pure functions) |
 | Middleware | `jest.mock("jsonwebtoken")` |
-| Services | mongodb-memory-server |
+| Services | mongodb-memory-server (real DB) |
 | Controllers | Mock services with `jest.mock()` + `getInstance()` |
 
-**Service Testing Notes**: Call `service.destroyInstance()` in beforeEach/afterEach. Clear collections in afterEach.
+**Service Testing**: Call `service.destroyInstance()` in beforeEach/afterEach. Clear collections in afterEach.
 
 ---
 
@@ -74,7 +66,7 @@ src/
 | Type | Convention | Example |
 |------|------------|---------|
 | Files | camelCase | `product.js` |
-| Models | PascalCase | `Product`, `User` |
+| Models | PascalCase | `Product` |
 | Services | PascalCase | `ProductService.js` |
 | Functions | camelCase | `getProducts` |
 | Routes | lowercase | `/api/product` |
@@ -85,7 +77,7 @@ const express = require("express");           // 1. External libs
 const Product = require("../models/Product"); // 2. Internal modules
 const { authorizationFn } = require("../middlewares/authorization"); // 3. Middlewares
 ```
-Order: external libs → internal modules → utils
+Order: external libs → internal modules → middlewares → utils
 
 ---
 
@@ -113,7 +105,7 @@ module.exports = { getProducts };
 ### Error Handling
 - Use `async/await` + `try/catch`
 - Log errors: `console.log(error)`
-- Return consistent JSON responses with appropriate status codes
+- Return consistent JSON responses
 
 ### Response Status Codes
 | Status | Usage |
@@ -128,11 +120,9 @@ module.exports = { getProducts };
 
 ---
 
-## Service Layer Pattern (Singleton)
+## Service Layer (Singleton)
 
 ```javascript
-const Product = require('../models/Product');
-
 class ProductService {
   static instance;
 
@@ -144,33 +134,14 @@ class ProductService {
   static destroyInstance() {
     delete this.instance;
   }
-
-  getProducts(skip, limit) {
-    return Product.find().skip(skip).limit(limit);
-  }
 }
-
-module.exports = ProductService;
 ```
-
----
-
-## Authentication
-
-Protected routes use `authorizationFn` middleware:
-```javascript
-router.get("", [authorizationFn], controllerFn);
-// Header: Authorization: Bearer <token>
-```
-Middleware adds `req.body.session` with user data.
 
 ---
 
 ## Mongoose Models
 
 ```javascript
-const { Schema, model } = require("mongoose");
-
 const ProductSchema = new Schema({
   name: { type: String, required: [true, "name is required"] },
   createdBy: { type: Schema.Types.ObjectId, ref: "user", required: true },
@@ -182,8 +153,6 @@ const ProductSchema = new Schema({
     return ret;
   }}
 });
-
-module.exports = model("product", ProductSchema);
 ```
 
 - Always include `createdBy` referencing the user
@@ -192,21 +161,14 @@ module.exports = model("product", ProductSchema);
 
 ---
 
-## Routes
+## Authentication
 
+Protected routes use `authorizationFn` middleware:
 ```javascript
-const { Router } = require("express");
-const router = Router();
-
 router.get("", [authorizationFn], controllerFn);
-router.post("", [authorizationFn], createController);
-router.put("/:id", [authorizationFn], updateController);
-
-module.exports = router;
+// Header: Authorization: Bearer <token>
 ```
-
-- Use array for middleware: `[authorizationFn]`
-- Param routes: `:paramName`
+Middleware adds `req.body.session` with user data.
 
 ---
 
@@ -223,4 +185,3 @@ DB_NAME=<database>
 ## Notes
 - No ESLint/Prettier configured
 - API docs at `/api/doc/`
-- Jest configured with coverage in `jest.config.js`
