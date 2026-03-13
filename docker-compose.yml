@@ -10,6 +10,51 @@ services:
       - database
     env_file:
       - mongo.env
+  database-monitoring:
+    container_name: app_elastic_be
+    image: docker.elastic.co/elasticsearch/elasticsearch-wolfi:9.1.2
+    ports:
+      - 9200:9200
+    networks:
+      - database
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+  filebeat:
+    container_name: app_filebeat
+    build:
+      context: .
+      dockerfile: filebeat/Dockerfile
+    volumes:
+      - ./logger:/var/log/app_logs:ro
+      - filebeat_data:/usr/share/filebeat/data
+    networks:
+      - database
+    depends_on:
+      - database-monitoring
+    user: root
+  grafana:
+    container_name: app_grafana
+    image: grafana/grafana:11.4.0
+    ports:
+      - 3000:3000
+    networks:
+      - database
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - database-monitoring
 
 networks:
   database:
+
+volumes:
+  filebeat_data:
+    driver: local
+  grafana_data:
+    driver: local

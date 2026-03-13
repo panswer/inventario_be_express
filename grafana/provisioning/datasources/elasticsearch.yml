@@ -1,0 +1,16 @@
+apiVersion: 1
+
+datasources:
+  - name: Elasticsearch
+    uid: elasticsearch
+    type: elasticsearch
+    access: proxy
+    url: http://app_elastic_be:9200
+    database: .ds-filebeat-logs-*
+    isDefault: true
+    jsonData:
+      timeField: "@timestamp"
+      esVersion: 8
+      logMessageField: message
+      logLevelField: level
+    editable: true

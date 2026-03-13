@@ -33,67 +33,23 @@ npx jest __tests__/controllers/product.test.js     # Single test file
 npx jest --testNamePattern="getProducts"           # Single test by name
 ```
 
-#### Test Structure
+#### Test Structure & Strategy
 ```
 __tests__/
-├── controllers/        # Test HTTP responses, status codes
-├── services/          # Test business logic (mongodb-memory-server)
-├── middlewares/       # Test auth logic (mock jwt)
-└── utils/             # Test pure functions
+├── controllers/   # Mock services, test HTTP status codes
+├── services/      # mongodb-memory-server (real DB)
+├── middlewares/   # Mock jsonwebtoken
+└── utils/         # No mocking (pure functions)
 ```
-
-#### MongoDB Memory Server Setup
-Tests use `mongodb-memory-server` for real database testing:
-
-```javascript
-// jest.setup.js
-const { MongoMemoryServer } = require("mongodb-memory-server");
-const mongoose = require("mongoose");
-
-let mongoServer;
-
-beforeAll(async () => {
-  mongoServer = await MongoMemoryServer.create();
-  const mongoUri = mongoServer.getUri();
-  await mongoose.connect(mongoUri);
-}, 30000);
-
-afterAll(async () => {
-  await mongoose.disconnect();
-  if (mongoServer) {
-    await mongoServer.stop();
-  }
-}, 30000);
-
-afterEach(async () => {
-  const collections = mongoose.connection.collections;
-  for (const key in collections) {
-    await collections[key].deleteMany({});
-  }
-});
-```
-
-#### Mocking Strategy
 
 | Layer | Mock Strategy |
 |-------|---------------|
-| Utils | No mocking needed (pure functions) |
+| Utils | None (pure functions) |
 | Middleware | `jest.mock("jsonwebtoken")` |
-| Services | mongodb-memory-server (real DB) |
+| Services | mongodb-memory-server |
 | Controllers | Mock services with `jest.mock()` + `getInstance()` |
-| Email | Mock `nodemailer` |
-| Auth | Mock `bcrypt` + `jsonwebtoken` |
 
-#### Service Testing Notes
-- Services use mongodb-memory-server for real database operations
-- Always call `service.destroyInstance()` in `beforeEach`/`afterEach`
-- Clear collections in `afterEach` to ensure clean state
-- Use valid enum values for coin: `$`, `Brs.`
-
-#### Coverage Targets
-- Services: 99%+ (real DB operations)
-- Controllers: 90%+ (mocked services)
-- Overall: 78%+ (excludes routes - requires supertest)
+**Service Testing Notes**: Call `service.destroyInstance()` in beforeEach/afterEach. Clear collections in afterEach.
 
 ---
 
@@ -102,16 +58,16 @@ afterEach(async () => {
 ### File Structure
 ```
 src/
-├── controllers/    # Async request handlers
-├── models/         # Mongoose schemas (PascalCase)
-├── routes/         # Express routers
-├── middlewares/    # Auth & validation
-├── services/       # Business logic (singleton pattern)
-├── enums/          # Constants
-├── utils/          # Utilities
-├── config.js       # Environment config
-├── database.js     # MongoDB connection
-└── api.js          # Express setup
+├── controllers/   # Async request handlers
+├── models/        # Mongoose schemas (PascalCase)
+├── routes/        # Express routers
+├── middlewares/   # Auth & validation
+├── services/      # Business logic (singleton)
+├── enums/         # Constants
+├── utils/         # Utilities
+├── config.js      # Environment config
+├── database.js    # MongoDB connection
+└── api.js         # Express setup
 ```
 
 ### Naming Conventions
@@ -120,16 +76,14 @@ src/
 | Files | camelCase | `product.js` |
 | Models | PascalCase | `Product`, `User` |
 | Services | PascalCase | `ProductService.js` |
-| Enums | PascalCase | `coinEnum.js` |
 | Functions | camelCase | `getProducts` |
 | Routes | lowercase | `/api/product` |
 
-### Imports
+### Imports Order
 ```javascript
-const express = require("express");
-const Product = require("../models/Product");
-const ProductService = require("../services/ProductService");
-const { authorizationFn } = require("../middlewares/authorization");
+const express = require("express");           // 1. External libs
+const Product = require("../models/Product"); // 2. Internal modules
+const { authorizationFn } = require("../middlewares/authorization"); // 3. Middlewares
 ```
 Order: external libs → internal modules → utils
 
@@ -140,27 +94,17 @@ Order: external libs → internal modules → utils
 ```javascript
 const ProductService = require("../services/ProductService");
 
-/**
- * Get products
- * @param {import('express').Request} req
- * @param {import('express').Response} res
- */
 const getProducts = async (req, res) => {
   const { page, limit } = req.query;
-  const skipItems = Number(page) - 1;
-  const limitNum = Number(limit);
-
   const productService = ProductService.getInstance();
 
-  let products;
   try {
-    products = await productService.getProducts(skipItems, limitNum);
+    const products = await productService.getProducts(Number(page) - 1, Number(limit));
+    return res.status(200).json({ products });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal error" });
   }
-
-  return res.status(200).json({ products });
 };
 
 module.exports = { getProducts };
@@ -169,8 +113,7 @@ module.exports = { getProducts };
 ### Error Handling
 - Use `async/await` + `try/catch`
 - Log errors: `console.log(error)`
-- Return consistent JSON responses
-- Validate request body/params before DB operations
+- Return consistent JSON responses with appropriate status codes
 
 ### Response Status Codes
 | Status | Usage |
@@ -185,9 +128,7 @@ module.exports = { getProducts };
 
 ---
 
-## Service Layer Pattern
-
-Services use the singleton pattern:
+## Service Layer Pattern (Singleton)
 
 ```javascript
 const Product = require('../models/Product');
@@ -196,9 +137,7 @@ class ProductService {
   static instance;
 
   static getInstance() {
-    if (!this.instance) {
-      this.instance = new ProductService();
-    }
+    if (!this.instance) this.instance = new ProductService();
     return this.instance;
   }
 
@@ -208,14 +147,6 @@ class ProductService {
 
   getProducts(skip, limit) {
     return Product.find().skip(skip).limit(limit);
-  }
-
-  getProductById(productId) {
-    return Product.findById(productId);
-  }
-
-  createProduct(productData) {
-    return new Product(productData).save();
   }
 }
 
@@ -231,7 +162,7 @@ Protected routes use `authorizationFn` middleware:
 router.get("", [authorizationFn], controllerFn);
 // Header: Authorization: Bearer <token>
 ```
-Middleware adds `req.body.session` with user data. JWT secret: `process.env.SERVER_JWT_SESSION_SECRET`
+Middleware adds `req.body.session` with user data.
 
 ---
 
@@ -276,7 +207,6 @@ module.exports = router;
 
 - Use array for middleware: `[authorizationFn]`
 - Param routes: `:paramName`
-- Add `@swagger` annotations for API documentation
 
 ---
 
@@ -290,19 +220,7 @@ DB_NAME=<database>
 
 ---
 
-## Important Files
-| File | Purpose |
-|------|---------|
-| `index.js` | Entry point |
-| `src/config.js` | .env loading |
-| `src/database.js` | MongoDB connection |
-| `src/routes/index.js` | Main router |
-| `src/utils/color.js` | Colored logging |
-
----
-
 ## Notes
 - No ESLint/Prettier configured
 - API docs at `/api/doc/`
-- JWT expiry from auth service config
 - Jest configured with coverage in `jest.config.js`

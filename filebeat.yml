@@ -1,0 +1,24 @@
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /var/log/app_logs/*.log
+  json:
+    keys_under_root: true
+    overwrite_keys: true
+    add_error_key: true
+    message_key: message
+
+processors:
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+
+output.elasticsearch:
+  hosts: ["http://app_elastic_be:9200"]
+  index: "filebeat-logs-%{+yyyy.MM.dd}"
+
+setup.template:
+  name: "filebeat-logs"
+  pattern: "filebeat-logs-*"
+
+pipeline: ""

@@ -7,6 +7,7 @@ const express = require("express");
 const { errorText } = require("./src/utils/color");
 const { connectDb } = require("./src/database");
 const cors = require("cors");
+const requestLogger = require("./src/middlewares/requestLogger");
 
 const app = express();
 
@@ -25,6 +26,11 @@ app.use(
 );
 
 /* 
+    Request Logger
+*/
+app.use(requestLogger);
+
+/* 
     CORS
 */
 app.use(cors());
@@ -34,7 +40,12 @@ app.use(cors());
 */
 app.use("/api", require("./src/routes/index"));
 
-/* 
+/**
+ * Middleware to catch general error
+ */
+app.use(require("./src/middlewares/errorManager"));
+
+/*
     Start listen server
 */
 app.listen(port, async (err) => {
@@ -46,5 +57,5 @@ app.listen(port, async (err) => {
   console.log(`Server on port ${port}`);
   try {
     connectDb();
-  } catch (e) {}
+  } catch (e) { }
 });

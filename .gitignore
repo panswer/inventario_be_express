@@ -5,3 +5,6 @@ mongo_db/
 # Config files
 .env
 mongo.env
+
+# logger
+logger/
