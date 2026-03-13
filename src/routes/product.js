@@ -1,6 +1,9 @@
 const { Router } = require("express");
+const { body } = require('express-validator');
 const { getProducts, createProduct, updateProductById, getProductById } = require("../controllers/product");
 const { authorizationFn } = require("../middlewares/authorization");
+const { productValidation } = require("../middlewares/product");
+const { coinEnum } = require("../enums/coinEnum");
 
 const router = Router();
 
@@ -89,7 +92,13 @@ router.get("", [authorizationFn], getProducts);
  *                              - product
  *                              - price
  */
-router.post("", [authorizationFn], createProduct);
+router.post("", [
+    authorizationFn,
+    body('amount').isFloat({ min: 0.01 }).withMessage('El monto debe ser mayor a 0.01'),
+    body('coin').isIn(Object.values(coinEnum)).withMessage('La moneda no es válida'),
+    body('name').isLength({ min: 3 }).withMessage('El nombre debe tener al menos 3 caracteres'),
+    productValidation
+], createProduct);
 
 /**
  * @swagger
@@ -119,7 +128,7 @@ router.post("", [authorizationFn], createProduct);
  *                                  type: object
  *                                  $ref: '#/components/schemas/ProductModel'
  */
-router.get("/:productId",[authorizationFn], getProductById);
+router.get("/:productId", [authorizationFn], getProductById);
 
 /**
  * @swagger
@@ -159,6 +168,10 @@ router.get("/:productId",[authorizationFn], getProductById);
  *                                  type: object
  *                                  $ref: '#/components/schemas/ProductModel'
  */
-router.put("/:productId", [authorizationFn], updateProductById);
+router.put("/:productId", [
+    authorizationFn,
+    body('name').isLength({ min: 3 }).withMessage('El nombre debe tener al menos 3 caracteres'),
+    productValidation
+], updateProductById);
 
 module.exports = router;

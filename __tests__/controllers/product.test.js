@@ -146,18 +146,6 @@ describe("ProductController", () => {
       expect(mockRes.status).toHaveBeenCalledWith(404);
     });
 
-    it("should return 400 for invalid name", async () => {
-      const mockProduct = { _id: "1", name: "Test", save: jest.fn() };
-      mockReq.params.productId = "1";
-      mockReq.body = { name: "ab" };
-      mockProductService.getProductById.mockResolvedValue(mockProduct);
-
-      await productController.updateProductById(mockReq, mockRes);
-
-      expect(mockRes.status).toHaveBeenCalledWith(400);
-      expect(mockRes.json).toHaveBeenCalledWith({ message: "Name is not valid" });
-    });
-
     it("should update product successfully", async () => {
       const mockProduct = { _id: "1", name: "Test", save: jest.fn().mockResolvedValue(true) };
       mockReq.params.productId = "1";

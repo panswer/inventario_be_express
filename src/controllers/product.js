@@ -1,5 +1,6 @@
 const ProductService = require("../services/ProductService");
 const PriceService = require("../services/PriceService");
+const LoggerService = require("../services/LoggerService");
 
 /**
  * Get product list
@@ -41,6 +42,8 @@ const createProduct = async (req, res) => {
   const body = req.body;
   const productService = ProductService.getInstance();
   const priceService = PriceService.getInstance();
+  const loggerService = LoggerService.getInstance();
+
 
   let product;
   try {
@@ -49,6 +52,16 @@ const createProduct = async (req, res) => {
       createdBy: body.session._id,
     });
   } catch (error) {
+    loggerService.error(
+      "productService@createProduct",
+      {
+        requestId: req.requestId,
+        userIp: req.userIp,
+        body: req.body,
+        reason: error?.message ?? 'Unknown error',
+        type: 'logic'
+      }
+    );
     return res.status(400).json({
       code: 2000,
     });
@@ -63,6 +76,16 @@ const createProduct = async (req, res) => {
       createdBy: body.session._id,
     });
   } catch (error) {
+    loggerService.error(
+      "priceService@createPrice",
+      {
+        requestId: req.requestId,
+        userIp: req.userIp,
+        body: req.body,
+        reason: error?.message ?? 'Unknown error',
+        type: 'logic'
+      }
+    );
     return res.status(400).json({
       code: 3000,
     });
@@ -85,12 +108,22 @@ const createProduct = async (req, res) => {
 const getProductById = async (req, res) => {
   const productId = req.params.productId;
   const productService = ProductService.getInstance();
+  const loggerService = LoggerService.getInstance();
 
   let productDb;
   try {
     productDb = await productService.getProductById(productId);
   } catch (error) {
-    console.log(error);
+    loggerService.error(
+      'productService@getProductById',
+      {
+        requestId: req.requestId,
+        userIp: req.user,
+        body: req.body,
+        reason: error?.message ?? 'Unknown error',
+        type: 'logic'
+      }
+    );
     return res.status(404).json({
       message: "Product not found",
     });
@@ -112,18 +145,38 @@ const getProductById = async (req, res) => {
 const updateProductById = async (req, res) => {
   const productId = req.params.productId;
   const productService = ProductService.getInstance();
+  const loggerService = LoggerService.getInstance();
 
   let productDb;
   try {
     productDb = await productService.getProductById(productId);
   } catch (error) {
-    console.log(error);
+    loggerService.error(
+      'productService@getProductById',
+      {
+        requestId: req.requestId,
+        userIp: req.user,
+        body: req.body,
+        reason: error?.message ?? 'Unknown error',
+        type: 'logic'
+      }
+    );
     return res.status(404).json({
       message: "Product not found",
     });
   }
 
   if (!productDb) {
+    loggerService.warn(
+      'productService@getProductById',
+      {
+        requestId: req.requestId,
+        userIp: req.user,
+        body: req.body,
+        reason: "Product not found",
+        type: 'logic'
+      }
+    );
     return res.status(404).json({
       message: "Product not found",
     });
@@ -135,20 +188,21 @@ const updateProductById = async (req, res) => {
     productDb.inStock = inStock;
   }
 
-  if (name) {
-    if (typeof name === "string" && name.length > 2) {
-      productDb.name = name;
-    } else {
-      return res.status(400).json({
-        message: "Name is not valid",
-      });
-    }
-  }
+  productDb.name = name;
 
   try {
     await productDb.save();
   } catch (error) {
-    console.log(error);
+    loggerService.error(
+      'productService@updateProductById',
+      {
+        requestId: req.requestId,
+        userIp: req.user,
+        body: req.body,
+        reason: error?.message ?? 'Unknown error',
+        type: 'logic'
+      }
+    );
     return res.status(500).json({
       message: "Internal error",
     });
