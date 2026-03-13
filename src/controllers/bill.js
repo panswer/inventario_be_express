@@ -1,6 +1,7 @@
 const { errorText } = require("../utils/color");
 const BillService = require("../services/BillService");
 const SaleService = require("../services/SaleService");
+const LoggerService = require("../services/LoggerService");
 
 /**
  * Create a bill
@@ -21,20 +22,24 @@ const createBill = async (req, res) => {
    */
   const sellers = body.sellers;
 
-  if (!sellers || !Array.isArray(sellers) || sellers.length === 0) {
-    return res.status(400).json({
-      message: "sellers is required and must be a non-empty array",
-    });
-  }
-
   const billService = BillService.getInstance();
   const saleService = SaleService.getInstance();
+  const loggerService = LoggerService.getInstance();
 
   let billDb;
   try {
     billDb = await billService.createBill(user._id);
   } catch (e) {
-    console.log(errorText(e.message));
+    loggerService.error(
+      "billService@createBill",
+      {
+        requestId: req.requestId,
+        userIp: req.userIp,
+        body: req.body,
+        reason: e?.message ?? "Unknown error",
+        type: 'logic'
+      }
+    );
 
     return res.status(500).json({
       message: "Unknown error",
@@ -52,7 +57,16 @@ const createBill = async (req, res) => {
       }))
     );
   } catch (error) {
-    console.log(errorText(error.message));
+    loggerService.error(
+      'saleService@createSale',
+      {
+        requestId: req.requestId,
+        userIp: req.userIp,
+        body: req.body,
+        reason: error?.message ?? 'Unknown error',
+        type: 'logic'
+      }
+    );
 
     return res.status(500).json({
       message: "Unknown error",

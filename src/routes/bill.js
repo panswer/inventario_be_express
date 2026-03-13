@@ -1,4 +1,6 @@
 const { Router } = require("express");
+const { body } = require("express-validator");
+const { billValidation } = require("../middlewares/bill");
 const {
   createBill,
   getAllBills,
@@ -41,7 +43,13 @@ const router = Router();
  *                  ok:
  *                    type: boolean
  */
-router.post("", createBill);
+router.post("",
+  [
+    body('sellers').isArray({ min: 1 }).withMessage('No se tiene ninguna venta'),
+    billValidation,
+  ],
+  createBill
+);
 
 /**
  * @swagger
