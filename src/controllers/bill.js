@@ -62,7 +62,7 @@ const createBill = async (req, res) => {
       {
         requestId: req.requestId,
         userIp: req.userIp,
-        body: req.body,
+        body,
         reason: error?.message ?? 'Unknown error',
         type: 'logic'
       }
@@ -117,16 +117,36 @@ const getAllBills = async (req, res) => {
 const getBillDetailByBillId = async (req, res) => {
   const { billId } = req.params;
   const billService = BillService.getInstance();
+  const loggerService = LoggerService.getInstance();
 
   let billDetail;
   try {
     billDetail = await billService.getBillDetailById(billId);
   } catch (e) {
-    console.log(errorText(e.message));
+    loggerService.error(
+      'billService@getBillDetailById',
+      {
+        requestId: req.requestId,
+        userIp: req.userIp,
+        body: req.body,
+        reason: e?.message ?? 'Unknown error',
+        type: 'logic',
+      }
+    );
     return res.status(500).json({ message: "Unknown error" });
   }
 
   if (!billDetail) {
+    loggerService.warn(
+      'billService@getBillDetailById',
+      {
+        requestId: req.requestId,
+        userIp: req.userIp,
+        body: req.body,
+        reason: "Bill not found",
+        type: 'logic',
+      }
+    );
     return res.status(404).json({ message: "Bill not found" });
   }
 
