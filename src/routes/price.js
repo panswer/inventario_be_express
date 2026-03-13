@@ -1,10 +1,12 @@
 const { Router } = require("express");
+const { body } = require('express-validator');
 const {
   getPriceCoinAll,
   getPriceByProductId,
   updatePriceById,
 } = require("../controllers/price");
 const { authorizationFn } = require("../middlewares/authorization");
+const { billValidation } = require("../middlewares/bill");
 
 const router = Router();
 
@@ -84,7 +86,8 @@ router.get("/product/:productId", [authorizationFn], getPriceByProductId);
  *        in: path
  *        required: true
  *        schema:
- *          type: "#/components/schemas/CoinType"
+ *          type: string
+ *          $ref: "#/components/schemas/CoinType"
  *    requestBody:
  *      content:
  *        application/json:
@@ -105,6 +108,10 @@ router.get("/product/:productId", [authorizationFn], getPriceByProductId);
  *                  type: object
  *                  $ref: "#/components/schemas/PriceModel"
  */
-router.put("/:priceId/:coin", [authorizationFn], updatePriceById);
+router.put("/:priceId/:coin", [
+  authorizationFn,
+  body('amount').isFloat({ min: 0.01 }).withMessage('El monto debe ser mayor a 0.01'),
+  billValidation
+], updatePriceById);
 
 module.exports = router;

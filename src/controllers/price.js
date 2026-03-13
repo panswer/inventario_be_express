@@ -1,6 +1,6 @@
 const { coinEnum } = require("../enums/coinEnum");
-const Price = require("../models/Price");
 const PriceService = require("../services/PriceService");
+const LoggerService = require("../services/LoggerService");
 
 /**
  * Get a list of coin
@@ -27,18 +27,38 @@ const getPriceCoinAll = (req, res) => {
 const getPriceByProductId = async (req, res) => {
   const productId = req.params.productId;
   const priceService = PriceService.getInstance();
+  const loggerService = LoggerService.getInstance();
 
   let priceDb;
   try {
     priceDb = await priceService.getPriceByProductId(productId);
   } catch (error) {
-    console.log(error);
+    loggerService.error(
+      'priceService@getPriceByProductId',
+      {
+        requestId: req.requestId,
+        userIp: req.userIp,
+        body: req.body,
+        reason: error?.message ?? 'Unknown error',
+        type: 'logic'
+      }
+    );
     return res.status(500).json({
       message: "Unknown error",
     });
   }
 
   if (!priceDb) {
+    loggerService.warn(
+      'priceService@getPriceByProductId',
+      {
+        requestId: req.requestId,
+        userIp: req.userIp,
+        body: req.body,
+        reason: "Price not found",
+        type: 'logic',
+      }
+    );
     return res.status(404).json({
       message: "Price not found",
     });
@@ -61,18 +81,38 @@ const updatePriceById = async (req, res) => {
   const priceId = req.params.priceId;
   const coin = req.params.coin;
   const priceService = PriceService.getInstance();
+  const loggerService = LoggerService.getInstance();
 
   let priceDb;
   try {
     priceDb = await priceService.getPriceByIdAndCoin(priceId, coin);
   } catch (error) {
-    console.log(error);
+    loggerService.error(
+      'priceService@getPriceByIdAndCoin',
+      {
+        requestId: req.requestId,
+        userIp: req.userIp,
+        body: req.body,
+        reason: error?.message ?? 'Unknown error',
+        type: 'logic'
+      }
+    );
     return res.status(404).json({
       message: "Price not found",
     });
   }
 
   if (!priceDb) {
+    loggerService.warn(
+      'priceService@getPriceByIdAndCoin',
+      {
+        requestId: req.requestId,
+        userIp: req.userIp,
+        body: req.body,
+        reason: 'price not found',
+        type: 'logic'
+      }
+    );
     return res.status(404).json({
       message: "Price not found",
     });
@@ -88,6 +128,16 @@ const updatePriceById = async (req, res) => {
     if (Object.values(coinEnum).includes(coin)) {
       priceDb.coin = coin;
     } else {
+      loggerService.warn(
+        'priceService@updatePriceById',
+        {
+          requestId: req.requestId,
+          userIp: req.userIp,
+          body: req.body,
+          reason: 'Coin type not valid',
+          type: 'logic'
+        }
+      );
       return res.status(400).json({
         message: "Coin type not valid",
       });
@@ -97,7 +147,16 @@ const updatePriceById = async (req, res) => {
   try {
     await priceDb.save();
   } catch (error) {
-    console.log(error);
+    loggerService.error(
+      'priceService@updatePriceById',
+      {
+        requestId: req.requestId,
+        userIp: req.userIp,
+        body: req.body,
+        reason: error?.message ?? 'Unknown error',
+        type: 'logic'
+      }
+    );
     return res.status(500).json({
       message: "Couldn't update price",
     });
