@@ -107,14 +107,39 @@ const resetPassword = async (req, res) => {
   const { email } = req.body;
 
   const emailService = EmailService.getInstance();
+  const loggerService = LoggerService.getInstance();
 
   try {
     await emailService.sendResetPasswordEmailFlow(email);
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      code: 2000,
-    });
+    if (error?.message === "Solicitud de recuperación para email no registrado")
+      loggerService.warn(
+        "emailService@sendResetPasswordEmailFlow",
+        {
+          requestId: req.requestId,
+          userIp: req.userIp,
+          body: req.body,
+          reason: error.message,
+          type: 'logic'
+        }
+      );
+
+    if (error?.message !== "Solicitud de recuperación para email no registrado") {
+      loggerService.error(
+        "emailService@sendResetPasswordEmailFlow",
+        {
+          requestId: req.requestId,
+          userIp: req.userIp,
+          body: req.body,
+          reason: error?.message ?? 'Unknown error',
+          type: 'logic'
+        }
+      );
+
+      return res.status(500).json({
+        code: 2000,
+      });
+    }
   }
 
   return res.status(200).json({});

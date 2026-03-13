@@ -3,6 +3,7 @@ const nodemailer = require("nodemailer");
 const UserService = require("../services/UserService");
 const PasswordResetService = require("../services/PasswordResetService");
 const { getRandomChar } = require('../utils/random');
+const LoggerService = require("./LoggerService");
 
 class Mailer {
     /**
@@ -77,16 +78,25 @@ class Mailer {
         const user = await userService.getUserByEmail(email);
 
         if (!user) {
-            return;
+            throw new Error("Solicitud de recuperación para email no registrado");
         }
 
-        await passwordResetService.deleteTokenByUserId(user._id);
+        let token = '';
+        try {
+            await passwordResetService.deleteTokenByUserId(user._id);
 
-        const token = getRandomChar(3);
+            token = getRandomChar(3);
 
-        await passwordResetService.createPasswordReset(user._id, token);
+            await passwordResetService.createPasswordReset(user._id, token);
+        } catch (e) {
+            throw new Error("Fallo al generar token de recuperación");
+        }
 
-        await this.sendResetPasswordEmail(email, token);
+        try {
+            await this.sendResetPasswordEmail(email, token);
+        } catch (e) {
+            throw new Error("Error de comunicación con el proveedor de correo");
+        }
     }
 }
 
