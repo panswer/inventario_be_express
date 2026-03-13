@@ -80,9 +80,9 @@ describe("EmailService", () => {
 
     it("should not send email when user does not exist", async () => {
       const service = EmailService.getInstance();
-      await service.sendResetPasswordEmailFlow("nonexistent@test.com");
 
-      expect(mockTransporter.sendMail).not.toHaveBeenCalled();
+      await expect(service.sendResetPasswordEmailFlow("nonexistent@test.com"))
+        .rejects.toThrow("Solicitud de recuperación para email no registrado");
     });
   });
 

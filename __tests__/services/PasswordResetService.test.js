@@ -108,7 +108,7 @@ describe("PasswordResetService", () => {
       const service = PasswordResetService.getInstance();
 
       await expect(service.validateTokenByEmailFlow("test@test.com", "nonexistent_token"))
-        .rejects.toThrow("Password reset not found");
+        .rejects.toThrow("Intento de recuperación con token inválido o expirado");
     });
 
     it("should throw error when token is invalid", async () => {
@@ -126,7 +126,7 @@ describe("PasswordResetService", () => {
       const service = PasswordResetService.getInstance();
 
       await expect(service.validateTokenByEmailFlow("test@test.com", "wrong_token"))
-        .rejects.toThrow("Token is not valid");
+        .rejects.toThrow("Intento de recuperación con token inválido o expirado");
     });
   });
 

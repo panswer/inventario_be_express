@@ -1,13 +1,11 @@
 # AGENTS.md - Developer Guide
 
-This document provides guidelines for agents working on this codebase.
+Guidelines for agents working on this codebase.
 
 ## Project Overview
 - **Name**: CompraVentaBe
 - **Type**: Node.js/Express REST API with MongoDB
 - **Module System**: CommonJS (uses `require()`)
-
----
 
 ## Commands
 
@@ -19,35 +17,28 @@ docker-compose up -d   # Start MongoDB
 ```
 
 ### Testing
-
 ```bash
 npm test                # Run all tests
 npm run test:watch      # Watch mode
 npm run test:coverage   # Coverage report (target: >90%)
+
+# Single tests
+npx jest __tests__/utils/date.test.js       # Single file
+npx jest __tests__/controllers/product.test.js
+npx jest --testNamePattern="getProducts"    # By test name
 ```
 
-#### Running Single Tests
-```bash
-npx jest __tests__/utils/date.test.js              # Single file
-npx jest __tests__/controllers/product.test.js     # Single test file
-npx jest --testNamePattern="getProducts"           # Single test by name
-```
-
-#### Test Strategy
-| Layer | Mock Strategy |
-|-------|---------------|
-| Utils | None (pure functions) |
+### Test Strategy
+| Layer | Strategy |
+|-------|----------|
+| Utils | No mock (pure functions) |
 | Middleware | `jest.mock("jsonwebtoken")` |
-| Services | mongodb-memory-server (real DB) |
-| Controllers | Mock services with `jest.mock()` + `getInstance()` |
+| Services | mongodb-memory-server |
+| Controllers | Mock services + `getInstance()` |
 
-**Service Testing**: Call `service.destroyInstance()` in beforeEach/afterEach. Clear collections in afterEach.
+**Important**: Call `service.destroyInstance()` in beforeEach/afterEach. Clear collections in afterEach.
 
----
-
-## Code Style
-
-### File Structure
+## File Structure
 ```
 src/
 ├── controllers/   # Async request handlers
@@ -62,6 +53,8 @@ src/
 └── api.js         # Express setup
 ```
 
+## Code Style
+
 ### Naming Conventions
 | Type | Convention | Example |
 |------|------------|---------|
@@ -73,16 +66,16 @@ src/
 
 ### Imports Order
 ```javascript
-const express = require("express");           // 1. External libs
-const Product = require("../models/Product"); // 2. Internal modules
-const { authorizationFn } = require("../middlewares/authorization"); // 3. Middlewares
+// 1. External libs
+const express = require("express");
+// 2. Internal modules
+const Product = require("../models/Product");
+// 3. Middlewares
+const { authorizationFn } = require("../middlewares/authorization");
 ```
 Order: external libs → internal modules → middlewares → utils
 
----
-
-## Controller Pattern
-
+### Controller Pattern
 ```javascript
 const ProductService = require("../services/ProductService");
 
@@ -118,10 +111,7 @@ module.exports = { getProducts };
 | 404 | Not Found |
 | 500 | Server Error |
 
----
-
 ## Service Layer (Singleton)
-
 ```javascript
 class ProductService {
   static instance;
@@ -137,10 +127,7 @@ class ProductService {
 }
 ```
 
----
-
 ## Mongoose Models
-
 ```javascript
 const ProductSchema = new Schema({
   name: { type: String, required: [true, "name is required"] },
@@ -154,23 +141,17 @@ const ProductSchema = new Schema({
   }}
 });
 ```
-
 - Always include `createdBy` referencing the user
 - Use `timestamps` for createdAt/updatedAt
 - Convert dates to timestamps in toJSON
 
----
-
 ## Authentication
-
 Protected routes use `authorizationFn` middleware:
 ```javascript
 router.get("", [authorizationFn], controllerFn);
 // Header: Authorization: Bearer <token>
 ```
 Middleware adds `req.body.session` with user data.
-
----
 
 ## Environment Variables
 ```
@@ -179,8 +160,6 @@ SERVER_JWT_SESSION_SECRET=<secret>
 DB_HOST=<mongodb-uri>
 DB_NAME=<database>
 ```
-
----
 
 ## Notes
 - No ESLint/Prettier configured
