@@ -18,6 +18,7 @@ const router = express.Router();
 router.use("/auth", require("./authentication"));
 router.use("/product", require("./product"));
 router.use("/category", require("./category"));
+router.use("/supplier", require("./supplier"));
 router.use("/price", [authorizationFn], require("./price"));
 router.use("/bill", [authorizationFn], require("./bill"));
 router.use("/doc", swaggerRoutes);

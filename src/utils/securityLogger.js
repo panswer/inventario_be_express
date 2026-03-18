@@ -1,7 +1,7 @@
 const winston = require('winston');
 
 const securityFilter = winston.format((info) => {
-    const SENSITIVE_FIELDS = ['password', 'token', 'auth', 'secret', 'credit_card'];
+    const SENSITIVE_FIELDS = ['password', 'token', 'auth', 'secret', 'creditCard', 'phone', 'address'];
 
     function redact(obj) {
         if (!obj || typeof obj !== 'object') {
