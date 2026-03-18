@@ -26,6 +26,11 @@ npm run test:coverage   # Coverage report (target: >90%)
 npx jest __tests__/utils/date.test.js       # Single file
 npx jest __tests__/controllers/product.test.js
 npx jest --testNamePattern="getProducts"    # By test name
+
+# Jest configuration
+# - Test location: __tests__/**/*.test.js
+# - Timeout: 30 seconds
+# - Env: node
 ```
 
 ### Test Strategy
@@ -97,8 +102,25 @@ module.exports = { getProducts };
 
 ### Error Handling
 - Use `async/await` + `try/catch`
-- Log errors: `console.log(error)`
-- Return consistent JSON responses
+- Log errors via `LoggerService.getInstance().error()` or `.warn()`
+- Return consistent JSON responses with error codes (e.g., `{ code: 2000 }`)
+
+### Error Code Conventions
+| Code | Usage |
+|------|-------|
+| 2000 | Product errors |
+| 3000 | Price errors |
+| 4000+ | Custom per-entity |
+
+### JSDoc Pattern
+```javascript
+/**
+ * @param {number} skip
+ * @param {number} limit
+ * @param {Array<string>} [categories] - Optional category filter
+ * @returns {Promise<Array<Product>>}
+ */
+```
 
 ### Response Status Codes
 | Status | Usage |
@@ -112,15 +134,14 @@ module.exports = { getProducts };
 | 500 | Server Error |
 
 ## Service Layer (Singleton)
+Services use singleton pattern with `getInstance()` and `destroyInstance()`:
 ```javascript
 class ProductService {
   static instance;
-
   static getInstance() {
     if (!this.instance) this.instance = new ProductService();
     return this.instance;
   }
-
   static destroyInstance() {
     delete this.instance;
   }
@@ -144,6 +165,7 @@ const ProductSchema = new Schema({
 - Always include `createdBy` referencing the user
 - Use `timestamps` for createdAt/updatedAt
 - Convert dates to timestamps in toJSON
+- Add Swagger JSDoc annotations for API documentation
 
 ## Authentication
 Protected routes use `authorizationFn` middleware:
@@ -151,7 +173,7 @@ Protected routes use `authorizationFn` middleware:
 router.get("", [authorizationFn], controllerFn);
 // Header: Authorization: Bearer <token>
 ```
-Middleware adds `req.body.session` with user data.
+Middleware adds `session` to `req.body` with authenticated user data.
 
 ## Environment Variables
 ```
@@ -164,3 +186,5 @@ DB_NAME=<database>
 ## Notes
 - No ESLint/Prettier configured
 - API docs at `/api/doc/`
+- Request metadata (`requestId`, `userIp`) added by `requestLogger` middleware
+- Middleware adds `session` to `req.body` with authenticated user data
