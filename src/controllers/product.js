@@ -1,6 +1,7 @@
 const ProductService = require("../services/ProductService");
 const PriceService = require("../services/PriceService");
 const LoggerService = require("../services/LoggerService");
+const mongoose = require("mongoose");
 
 /**
  * Get product list
@@ -14,15 +15,16 @@ const getProducts = async (req, res) => {
   const query = req.query;
   const page = query.page || "1";
   const limit = query.limit || "10";
+  const categories = query.categories ? query.categories.split(',') : undefined;
 
   const skipItems = Number(page) - 1;
   const limitNum = Number(limit);
 
   const productService = ProductService.getInstance();
 
-  const products = await productService.getProducts(skipItems, limitNum);
+  const products = await productService.getProducts(skipItems, limitNum, categories);
 
-  const total = await productService.countProducts();
+  const total = await productService.countProducts(categories);
 
   return res.status(200).json({
     products,
@@ -44,13 +46,18 @@ const createProduct = async (req, res) => {
   const priceService = PriceService.getInstance();
   const loggerService = LoggerService.getInstance();
 
+  const productData = {
+    name: body.name,
+    createdBy: body.session._id,
+  };
+
+  if (body.categories && body.categories.length > 0) {
+    productData.categories = body.categories.map(id => new mongoose.Types.ObjectId(id));
+  }
 
   let product;
   try {
-    product = await productService.createProduct({
-      name: body.name,
-      createdBy: body.session._id,
-    });
+    product = await productService.createProduct(productData);
   } catch (error) {
     loggerService.error(
       "productService@createProduct",
@@ -182,13 +189,19 @@ const updateProductById = async (req, res) => {
     });
   }
 
-  const { inStock, name } = req.body;
+  const { inStock, name, categories } = req.body;
 
   if (typeof inStock === "boolean") {
     productDb.inStock = inStock;
   }
 
-  productDb.name = name;
+  if (name) {
+    productDb.name = name;
+  }
+
+  if (categories && Array.isArray(categories)) {
+    productDb.categories = categories.map(id => new mongoose.Types.ObjectId(id));
+  }
 
   try {
     await productDb.save();

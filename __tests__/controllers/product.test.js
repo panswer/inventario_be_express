@@ -63,7 +63,7 @@ describe("ProductController", () => {
 
       await productController.getProducts(mockReq, mockRes);
 
-      expect(mockProductService.getProducts).toHaveBeenCalledWith(0, 10);
+      expect(mockProductService.getProducts).toHaveBeenCalledWith(0, 10, undefined);
     });
   });
 

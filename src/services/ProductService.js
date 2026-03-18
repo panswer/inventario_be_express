@@ -19,23 +19,31 @@ class ProductService {
     }
 
     /**
-     * Get products with pagination
+     * Get products with pagination and optional category filter
      * 
      * @param {number} skip 
      * @param {number} limit 
+     * @param {Array<string>} [categories] - Array of category IDs to filter by (AND logic)
      * @returns {Promise<Array<import('../models/Product')>>}
      */
-    getProducts(skip, limit) {
-        return Product.find().skip(skip).limit(limit);
+    getProducts(skip, limit, categories) {
+        const filter = categories?.length 
+            ? { categories: { $all: categories } }
+            : {};
+        return Product.find(filter).populate('categories').skip(skip).limit(limit);
     }
 
     /**
      * Count total products
      * 
+     * @param {Array<string>} [categories] - Array of category IDs to filter by
      * @returns {Promise<number>}
      */
-    countProducts() {
-        return Product.find().countDocuments();
+    countProducts(categories) {
+        const filter = categories?.length 
+            ? { categories: { $all: categories } }
+            : {};
+        return Product.find(filter).countDocuments();
     }
 
     /**
@@ -45,7 +53,7 @@ class ProductService {
      * @returns {Promise<import('../models/Product')>}
      */
     getProductById(productId) {
-        return Product.findById(productId);
+        return Product.findById(productId).populate('categories');
     }
 
     /**

@@ -3,6 +3,7 @@ const { body } = require('express-validator');
 const { getProducts, createProduct, updateProductById, getProductById } = require("../controllers/product");
 const { authorizationFn } = require("../middlewares/authorization");
 const { productValidation } = require("../middlewares/product");
+const { validateCategories } = require("../middlewares/category");
 const { coinEnum } = require("../enums/coinEnum");
 
 const router = Router();
@@ -12,7 +13,7 @@ const router = Router();
  * /api/product:
  *  get:
  *      summary: Get all products
- *      description: Get all products with page and limit
+ *      description: Get all products with page and limit, optionally filtered by categories
  *      security:
  *          - BearerAuth: []
  *      tags:
@@ -28,6 +29,11 @@ const router = Router();
  *            description: How many items will be return
  *            schema:
  *              type: integer
+ *          - in: query
+ *            name: categories
+ *            description: Comma-separated category IDs to filter by (AND logic)
+ *            schema:
+ *              type: string
  *      responses:
  *          200:
  *              description: list of product and total
@@ -70,6 +76,10 @@ router.get("", [authorizationFn], getProducts);
  *                          coin:
  *                              type: string
  *                              $ref: "#/components/schemas/CoinType"
+ *                          categories:
+ *                              type: array
+ *                              items:
+ *                                  type: string
  *                      required:
  *                          - name
  *                          - amount
@@ -97,7 +107,8 @@ router.post("", [
     body('amount').isFloat({ min: 0.01 }).withMessage('El monto debe ser mayor a 0.01'),
     body('coin').isIn(Object.values(coinEnum)).withMessage('La moneda no es válida'),
     body('name').isLength({ min: 3 }).withMessage('El nombre debe tener al menos 3 caracteres'),
-    productValidation
+    productValidation,
+    validateCategories
 ], createProduct);
 
 /**
@@ -156,6 +167,10 @@ router.get("/:productId", [authorizationFn], getProductById);
  *                              type: boolean
  *                          name:
  *                              type: string
+ *                          categories:
+ *                              type: array
+ *                              items:
+ *                                  type: string
  *      responses:
  *          202:
  *              description: Product updated
@@ -171,7 +186,8 @@ router.get("/:productId", [authorizationFn], getProductById);
 router.put("/:productId", [
     authorizationFn,
     body('name').isLength({ min: 3 }).withMessage('El nombre debe tener al menos 3 caracteres'),
-    productValidation
+    productValidation,
+    validateCategories
 ], updateProductById);
 
 module.exports = router;

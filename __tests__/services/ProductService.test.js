@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const ProductService = require("../../src/services/ProductService");
 const Product = require("../../src/models/Product");
+require("../../src/models/Category");
 
 describe("ProductService", () => {
   beforeEach(() => {

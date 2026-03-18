@@ -4,20 +4,15 @@ const { Schema, model } = require("mongoose");
  * @swagger
  * components:
  *  schemas:
- *      ProductModel:
+ *      CategoryModel:
  *          type: object
  *          properties:
  *              _id:
  *                  type: string
  *              name:
  *                  type: string
- *              inStock:
+ *              isEnabled:
  *                  type: boolean
- *              categories:
- *                  type: array
- *                  items:
- *                    type: object
- *                    $ref: '#/components/schemas/CategoryModel'
  *              createdBy:
  *                  type: string
  *              createdAt:
@@ -27,35 +22,22 @@ const { Schema, model } = require("mongoose");
  *          required:
  *            - _id
  *            - name
+ *            - isEnabled
  *            - createdBy
  *            - createdAt
  *            - updatedAt
- *      ProductPriceModel:
- *          type: object
- *          allOf:
- *              - $ref: '#/components/schemas/ProductModel'
- *          properties:
- *              prices:
- *                type: array
- *                items:
- *                    type: object
- *                    $ref: '#/components/schemas/PriceModel'
  */
 
-const ProductSchema = new Schema(
+const CategorySchema = new Schema(
   {
     name: {
       type: String,
       required: [true, "name is required"],
     },
-    inStock: {
+    isEnabled: {
       type: Boolean,
       default: true,
     },
-    categories: [{
-      type: Schema.Types.ObjectId,
-      ref: "category",
-    }],
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "user",
@@ -68,14 +50,14 @@ const ProductSchema = new Schema(
       updatedAt: "updatedAt",
     },
     toJSON: {
-      transform: function (productSch, product) {
-        product.createdAt = productSch.createdAt.getTime();
-        product.updatedAt = productSch.updatedAt.getTime();
+      transform: function (categorySch, category) {
+        category.createdAt = categorySch.createdAt.getTime();
+        category.updatedAt = categorySch.updatedAt.getTime();
 
-        return product;
+        return category;
       },
     },
   }
 );
 
-module.exports = model("product", ProductSchema);
+module.exports = model("category", CategorySchema);
