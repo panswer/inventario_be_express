@@ -4,6 +4,7 @@ const { getProducts, createProduct, updateProductById, getProductById } = requir
 const { authorizationFn } = require("../middlewares/authorization");
 const { productValidation } = require("../middlewares/product");
 const { validateCategories } = require("../middlewares/category");
+const { imageValidation } = require("../middlewares/imageValidation");
 const { coinEnum } = require("../enums/coinEnum");
 
 const router = Router();
@@ -57,7 +58,7 @@ router.get("", [authorizationFn], getProducts);
  * /api/product:
  *  post:
  *      summary: Create a product and price
- *      description: Create a product and price
+ *      description: Create a product and price with optional image
  *      tags:
  *          - Product
  *          - Price
@@ -65,7 +66,7 @@ router.get("", [authorizationFn], getProducts);
  *          - BearerAuth: []
  *      requestBody:
  *          content:
- *              application/json:
+ *              multipart/form-data:
  *                  schema:
  *                      type: object
  *                      properties:
@@ -80,6 +81,10 @@ router.get("", [authorizationFn], getProducts);
  *                              type: array
  *                              items:
  *                                  type: string
+ *                          image:
+ *                              type: string
+ *                              format: binary
+ *                              description: Product image (jpg, jpeg, svg - max 2MB)
  *                      required:
  *                          - name
  *                          - amount
@@ -108,7 +113,8 @@ router.post("", [
     body('coin').isIn(Object.values(coinEnum)).withMessage('La moneda no es válida'),
     body('name').isLength({ min: 3 }).withMessage('El nombre debe tener al menos 3 caracteres'),
     productValidation,
-    validateCategories
+    validateCategories,
+    imageValidation
 ], createProduct);
 
 /**
@@ -146,7 +152,7 @@ router.get("/:productId", [authorizationFn], getProductById);
  * /api/product/{productId}:
  *  put:
  *      summary: Update a product
- *      description: Update a product by id
+ *      description: Update a product by id with optional image
  *      tags:
  *          - Product
  *      security:
@@ -159,7 +165,7 @@ router.get("/:productId", [authorizationFn], getProductById);
  *              type: string
  *      requestBody:
  *          content:
- *              application/json:
+ *              multipart/form-data:
  *                  schema:
  *                      type: object
  *                      properties:
@@ -171,6 +177,10 @@ router.get("/:productId", [authorizationFn], getProductById);
  *                              type: array
  *                              items:
  *                                  type: string
+ *                          image:
+ *                              type: string
+ *                              format: binary
+ *                              description: Product image (jpg, jpeg, svg - max 2MB)
  *      responses:
  *          202:
  *              description: Product updated
@@ -187,7 +197,8 @@ router.put("/:productId", [
     authorizationFn,
     body('name').isLength({ min: 3 }).withMessage('El nombre debe tener al menos 3 caracteres'),
     productValidation,
-    validateCategories
+    validateCategories,
+    imageValidation
 ], updateProductById);
 
 module.exports = router;

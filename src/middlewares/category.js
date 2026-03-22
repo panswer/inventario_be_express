@@ -50,27 +50,17 @@ const categoryValidation = (req, res, next) => {
  * @returns {void}
  */
 const validateCategories = async (req, res, next) => {
-    const { categories } = req.body;
+    let { categories } = req.body;
     const loggerService = LoggerService.getInstance();
+
+    if (typeof categories === 'string' && categories.length > 0) {
+        categories = categories.split(',').map(id => id.trim()).filter(id => id);
+    }
+
+    req.body.categories = categories;
 
     if (!categories || !categories.length) {
         return next();
-    }
-
-    if (!Array.isArray(categories)) {
-        loggerService.warn(
-            'middleware@validateCategories',
-            {
-                requestId: req.requestId,
-                userIp: req.userIp,
-                body: req.body,
-                reason: 'Categories must be an array',
-                type: 'logic'
-            }
-        );
-        return res.status(400).json({
-            code: 4002,
-        });
     }
 
     const categoryService = CategoryService.getInstance();

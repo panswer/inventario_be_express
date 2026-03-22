@@ -1,13 +1,14 @@
 /* 
     Load config
 */
-require("./src/config");
+const { uploadTempDir, maxFileSize, uploadDir } = require("./src/config");
 
 const express = require("express");
 const { errorText } = require("./src/utils/color");
 const { connectDb } = require("./src/database");
 const cors = require("cors");
 const requestLogger = require("./src/middlewares/requestLogger");
+const fileUpload = require("express-fileupload");
 
 const app = express();
 
@@ -34,6 +35,21 @@ app.use(requestLogger);
     CORS
 */
 app.use(cors());
+
+/* 
+    Static files (uploads)
+*/
+app.use("/uploads", express.static(uploadDir));
+
+/* 
+    File Upload
+*/
+app.use(fileUpload({
+  limits: { fileSize: maxFileSize },
+  abortOnLimit: true,
+  useTempFiles: true,
+  tempFileDir: uploadTempDir,
+}));
 
 /* 
     APIs

@@ -13,6 +13,9 @@ const { Schema, model } = require("mongoose");
  *                  type: string
  *              inStock:
  *                  type: boolean
+ *              image:
+ *                  type: string
+ *                  description: Path to product image
  *              categories:
  *                  type: array
  *                  items:
@@ -51,6 +54,10 @@ const ProductSchema = new Schema(
     inStock: {
       type: Boolean,
       default: true,
+    },
+    image: {
+      type: String,
+      default: null,
     },
     categories: [{
       type: Schema.Types.ObjectId,

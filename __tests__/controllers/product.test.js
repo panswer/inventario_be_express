@@ -2,9 +2,11 @@ const productController = require("../../src/controllers/product");
 
 jest.mock("../../src/services/ProductService");
 jest.mock("../../src/services/PriceService");
+jest.mock("../../src/utils/fileUpload");
 
 const ProductService = require("../../src/services/ProductService");
 const PriceService = require("../../src/services/PriceService");
+const { saveProductImage, deleteProductImage } = require("../../src/utils/fileUpload");
 
 describe("ProductController", () => {
   let mockReq;
@@ -19,6 +21,7 @@ describe("ProductController", () => {
       query: {},
       body: {},
       params: {},
+      files: null,
     };
 
     mockRes = {
@@ -39,6 +42,8 @@ describe("ProductController", () => {
 
     ProductService.getInstance.mockReturnValue(mockProductService);
     PriceService.getInstance.mockReturnValue(mockPriceService);
+    saveProductImage.mockReturnValue("test-image.jpg");
+    deleteProductImage.mockImplementation(() => {});
   });
 
   describe("getProducts", () => {
@@ -134,6 +139,70 @@ describe("ProductController", () => {
       expect(mockRes.status).toHaveBeenCalledWith(201);
       expect(mockRes.json).toHaveBeenCalledWith({ product: mockProduct, price: mockPrice });
     });
+
+    it("should create product with image", async () => {
+      const mockProduct = { _id: "product123", name: "Test", image: "/uploads/test-image.jpg" };
+      const mockPrice = { _id: "price123", amount: 100 };
+      mockReq.body = { 
+        name: "Test", 
+        amount: 100, 
+        coin: "USD", 
+        session: { _id: "user123" } 
+      };
+      mockReq.files = {
+        image: {
+          tempFilePath: "/tmp/test-image.jpg",
+          mimetype: "image/jpeg",
+        },
+      };
+      mockProductService.createProduct.mockResolvedValue(mockProduct);
+      mockPriceService.createPrice.mockResolvedValue(mockPrice);
+
+      await productController.createProduct(mockReq, mockRes);
+
+      expect(saveProductImage).toHaveBeenCalledWith(mockReq.files.image);
+      expect(mockRes.status).toHaveBeenCalledWith(201);
+    });
+
+    it("should delete image if product creation fails after image save", async () => {
+      mockReq.body = { name: "Test", session: { _id: "user123" } };
+      mockReq.files = {
+        image: {
+          tempFilePath: "/tmp/test-image.jpg",
+          mimetype: "image/jpeg",
+        },
+      };
+      mockProductService.createProduct.mockRejectedValue(new Error("Error"));
+
+      await productController.createProduct(mockReq, mockRes);
+
+      expect(deleteProductImage).toHaveBeenCalledWith("test-image.jpg");
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({ code: 2000 });
+    });
+
+    it("should return 400 if image save fails", async () => {
+      mockReq.body = { 
+        name: "Test", 
+        amount: 100, 
+        coin: "USD", 
+        session: { _id: "user123" } 
+      };
+      mockReq.files = {
+        image: {
+          tempFilePath: "/tmp/test-image.jpg",
+          mimetype: "image/jpeg",
+        },
+      };
+      saveProductImage.mockImplementation(() => {
+        throw new Error("Invalid format");
+      });
+
+      await productController.createProduct(mockReq, mockRes);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({ code: 2001 });
+    });
   });
 
   describe("updateProductById", () => {
@@ -157,6 +226,55 @@ describe("ProductController", () => {
       expect(mockProduct.name).toBe("Updated Name");
       expect(mockProduct.save).toHaveBeenCalled();
       expect(mockRes.status).toHaveBeenCalledWith(200);
+    });
+
+    it("should update product with new image and delete old image", async () => {
+      const mockProduct = { 
+        _id: "1", 
+        name: "Test", 
+        image: "old-image.jpg",
+        save: jest.fn().mockResolvedValue(true) 
+      };
+      mockReq.params.productId = "1";
+      mockReq.body = { name: "Updated Name" };
+      mockReq.files = {
+        image: {
+          tempFilePath: "/tmp/new-image.jpg",
+          mimetype: "image/jpeg",
+        },
+      };
+      mockProductService.getProductById.mockResolvedValue(mockProduct);
+
+      await productController.updateProductById(mockReq, mockRes);
+
+      expect(saveProductImage).toHaveBeenCalledWith(mockReq.files.image);
+      expect(deleteProductImage).toHaveBeenCalledWith("old-image.jpg");
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+    });
+
+    it("should return 400 if image save fails", async () => {
+      const mockProduct = { 
+        _id: "1", 
+        name: "Test", 
+        save: jest.fn() 
+      };
+      mockReq.params.productId = "1";
+      mockReq.body = { name: "Updated Name" };
+      mockReq.files = {
+        image: {
+          tempFilePath: "/tmp/test-image.jpg",
+          mimetype: "image/jpeg",
+        },
+      };
+      mockProductService.getProductById.mockResolvedValue(mockProduct);
+      saveProductImage.mockImplementation(() => {
+        throw new Error("Invalid format");
+      });
+
+      await productController.updateProductById(mockReq, mockRes);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({ code: 2001 });
     });
   });
 });

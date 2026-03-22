@@ -2,6 +2,7 @@ const ProductService = require("../services/ProductService");
 const PriceService = require("../services/PriceService");
 const LoggerService = require("../services/LoggerService");
 const mongoose = require("mongoose");
+const { saveProductImage, deleteProductImage } = require("../utils/fileUpload");
 
 /**
  * Get product list
@@ -55,10 +56,33 @@ const createProduct = async (req, res) => {
     productData.categories = body.categories.map(id => new mongoose.Types.ObjectId(id));
   }
 
+  if (req.files?.image) {
+    try {
+      productData.image = saveProductImage(req.files.image);
+    } catch (error) {
+      loggerService.error(
+        "fileUpload@saveProductImage",
+        {
+          requestId: req.requestId,
+          userIp: req.userIp,
+          body: req.body,
+          reason: error?.message ?? 'Unknown error',
+          type: 'logic'
+        }
+      );
+      return res.status(400).json({
+        code: 2001,
+      });
+    }
+  }
+
   let product;
   try {
     product = await productService.createProduct(productData);
   } catch (error) {
+    if (productData.image) {
+      deleteProductImage(productData.image);
+    }
     loggerService.error(
       "productService@createProduct",
       {
@@ -162,7 +186,7 @@ const updateProductById = async (req, res) => {
       'productService@getProductById',
       {
         requestId: req.requestId,
-        userIp: req.user,
+        userIp: req.userIp,
         body: req.body,
         reason: error?.message ?? 'Unknown error',
         type: 'logic'
@@ -178,7 +202,7 @@ const updateProductById = async (req, res) => {
       'productService@getProductById',
       {
         requestId: req.requestId,
-        userIp: req.user,
+        userIp: req.userIp,
         body: req.body,
         reason: "Product not found",
         type: 'logic'
@@ -190,6 +214,7 @@ const updateProductById = async (req, res) => {
   }
 
   const { inStock, name, categories } = req.body;
+  const oldImage = productDb.image;
 
   if (typeof inStock === "boolean") {
     productDb.inStock = inStock;
@@ -203,14 +228,37 @@ const updateProductById = async (req, res) => {
     productDb.categories = categories.map(id => new mongoose.Types.ObjectId(id));
   }
 
+  if (req.files?.image) {
+    try {
+      productDb.image = saveProductImage(req.files.image);
+    } catch (error) {
+      loggerService.error(
+        "fileUpload@saveProductImage",
+        {
+          requestId: req.requestId,
+          userIp: req.userIp,
+          body: req.body,
+          reason: error?.message ?? 'Unknown error',
+          type: 'logic'
+        }
+      );
+      return res.status(400).json({
+        code: 2001,
+      });
+    }
+  }
+
   try {
     await productDb.save();
   } catch (error) {
+    if (productDb.image !== oldImage && oldImage) {
+      deleteProductImage(productDb.image);
+    }
     loggerService.error(
       'productService@updateProductById',
       {
         requestId: req.requestId,
-        userIp: req.user,
+        userIp: req.userIp,
         body: req.body,
         reason: error?.message ?? 'Unknown error',
         type: 'logic'
@@ -219,6 +267,10 @@ const updateProductById = async (req, res) => {
     return res.status(500).json({
       message: "Internal error",
     });
+  }
+
+  if (productDb.image !== oldImage && oldImage) {
+    deleteProductImage(oldImage);
   }
 
   res.status(200).json(productDb);
