@@ -19,7 +19,7 @@ const router = Router();
  * /api/stock:
  *  get:
  *      summary: Get all stocks
- *      description: Get all stocks with pagination
+ *      description: Get all stocks with pagination, optionally filtered by warehouse
  *      tags:
  *          - Stock
  *      security:
@@ -35,6 +35,11 @@ const router = Router();
  *            schema:
  *              type: integer
  *              default: 10
+ *          - name: warehouseId
+ *            in: query
+ *            schema:
+ *              type: string
+ *            description: Filter by warehouse ID
  *      responses:
  *          200:
  *              description: Get stocks success
@@ -115,7 +120,7 @@ router.get("/product/:productId", [authorizationFn], getStockByProductId);
  * /api/stock:
  *  post:
  *      summary: Create a new stock entry
- *      description: Create a new stock entry for a product
+ *      description: Create a new stock entry for a product in a warehouse
  *      tags:
  *          - Stock
  *      security:
@@ -129,12 +134,15 @@ router.get("/product/:productId", [authorizationFn], getStockByProductId);
  *                      properties:
  *                          productId:
  *                              type: string
+ *                          warehouseId:
+ *                              type: string
  *                          quantity:
  *                              type: number
  *                          minQuantity:
  *                              type: number
  *                      required:
  *                          - productId
+ *                          - warehouseId
  *      responses:
  *          201:
  *              description: Stock created successfully
@@ -149,6 +157,7 @@ router.get("/product/:productId", [authorizationFn], getStockByProductId);
 router.post("", [
     authorizationFn,
     body('productId').notEmpty().withMessage('productId is required'),
+    body('warehouseId').notEmpty().withMessage('warehouseId is required'),
     body('quantity').optional().isFloat({ min: 0 }).withMessage('quantity must be >= 0'),
     body('minQuantity').optional().isFloat({ min: 0 }).withMessage('minQuantity must be >= 0'),
     stockValidation,

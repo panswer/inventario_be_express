@@ -21,6 +21,8 @@ router.use("/category", require("./category"));
 router.use("/supplier", require("./supplier"));
 router.use("/price", [authorizationFn], require("./price"));
 router.use("/stock", [authorizationFn], require("./stock"));
+router.use("/warehouse", [authorizationFn], require("./warehouse"));
+router.use("/transfer", [authorizationFn], require("./transfer"));
 router.use("/bill", [authorizationFn], require("./bill"));
 router.use("/doc", swaggerRoutes);
 

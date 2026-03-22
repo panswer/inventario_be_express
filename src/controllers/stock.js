@@ -13,13 +13,14 @@ const getStocks = async (req, res) => {
     const query = req.query;
     const page = query.page || "1";
     const limit = query.limit || "10";
+    const warehouseId = query.warehouseId;
 
     const skipItems = Number(page) - 1;
     const limitNum = Number(limit);
 
     const stockService = StockService.getInstance();
 
-    const { stocks, total } = await stockService.getStocks(skipItems, limitNum);
+    const { stocks, total } = await stockService.getStocks(skipItems, limitNum, warehouseId);
 
     return res.status(200).json({
         stocks,
@@ -138,6 +139,7 @@ const createStock = async (req, res) => {
 
     const stockData = {
         productId: body.productId,
+        warehouseId: body.warehouseId,
         quantity: body.quantity || 0,
         minQuantity: body.minQuantity || 0,
         createdBy: body.session._id,

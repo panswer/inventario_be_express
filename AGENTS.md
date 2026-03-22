@@ -22,18 +22,17 @@ npm test                # Run all tests
 npm run test:watch      # Watch mode
 npm run test:coverage   # Coverage report (target: >90%)
 
-# Single tests
-npx jest __tests__/utils/date.test.js       # Single file
+# Single test files
+npx jest __tests__/utils/date.test.js
 npx jest __tests__/controllers/product.test.js
-npx jest --testNamePattern="getProducts"    # By test name
+npx jest __tests__/services/ProductService.test.js
 
-# Jest configuration
-# - Test location: __tests__/**/*.test.js
-# - Timeout: 30 seconds
-# - Env: node
+# Run by test name pattern
+npx jest --testNamePattern="getProducts"
+npx jest --testNamePattern="should create" --testPathPattern="product"
 ```
 
-### Test Strategy
+**Test Strategy**:
 | Layer | Strategy |
 |-------|----------|
 | Utils | No mock (pure functions) |
@@ -41,21 +40,22 @@ npx jest --testNamePattern="getProducts"    # By test name
 | Services | mongodb-memory-server |
 | Controllers | Mock services + `getInstance()` |
 
-**Important**: Call `service.destroyInstance()` in beforeEach/afterEach. Clear collections in afterEach.
+**Important**: Call `service.destroyInstance()` in `beforeEach`/`afterEach`. Clear collections in `afterEach`.
 
 ## File Structure
 ```
 src/
-├── controllers/   # Async request handlers
+├── controllers/   # Async request handlers (camelCase)
 ├── models/        # Mongoose schemas (PascalCase)
-├── routes/        # Express routers
+├── routes/        # Express routers (lowercase)
 ├── middlewares/   # Auth & validation
-├── services/      # Business logic (singleton)
+├── services/      # Business logic (singleton, PascalCase)
 ├── enums/         # Constants
 ├── utils/         # Utilities
 ├── config.js      # Environment config
 ├── database.js    # MongoDB connection
-└── api.js         # Express setup
+└── api.js         # Express setup + Swagger
+__tests__/         # Mirror of src/ structure
 ```
 
 ## Code Style
@@ -63,36 +63,50 @@ src/
 ### Naming Conventions
 | Type | Convention | Example |
 |------|------------|---------|
-| Files | camelCase | `product.js` |
-| Models | PascalCase | `Product` |
-| Services | PascalCase | `ProductService.js` |
+| Files (controllers) | camelCase | `product.js` |
+| Files (services) | PascalCase | `ProductService.js` |
+| Files (models) | PascalCase | `Product.js` |
 | Functions | camelCase | `getProducts` |
 | Routes | lowercase | `/api/product` |
+| Enums | camelCase | `coinEnum` |
+| Enum values | camelCase | `dollar`, `bolivar` |
 
-### Imports Order
+### Import Order
 ```javascript
-// 1. External libs
-const express = require("express");
-// 2. Internal modules
-const Product = require("../models/Product");
-// 3. Middlewares
-const { authorizationFn } = require("../middlewares/authorization");
+// 1. External libs (express, mongoose, jwt, etc.)
+// 2. Internal models (Product, User, etc.)
+// 3. Internal services
+// 4. Internal middlewares
+// 5. Enums
+// 6. Utils
 ```
-Order: external libs → internal modules → middlewares → utils
 
 ### Controller Pattern
 ```javascript
 const ProductService = require("../services/ProductService");
+const LoggerService = require("../services/LoggerService");
 
+/**
+ * Get product list
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @returns {Promise<void>}
+ */
 const getProducts = async (req, res) => {
   const { page, limit } = req.query;
   const productService = ProductService.getInstance();
+  const loggerService = LoggerService.getInstance();
 
   try {
     const products = await productService.getProducts(Number(page) - 1, Number(limit));
     return res.status(200).json({ products });
   } catch (error) {
-    console.log(error);
+    loggerService.error("productService@getProducts", {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      reason: error?.message ?? "Unknown error",
+      type: "logic"
+    });
     return res.status(500).json({ message: "Internal error" });
   }
 };
@@ -100,41 +114,7 @@ const getProducts = async (req, res) => {
 module.exports = { getProducts };
 ```
 
-### Error Handling
-- Use `async/await` + `try/catch`
-- Log errors via `LoggerService.getInstance().error()` or `.warn()`
-- Return consistent JSON responses with error codes (e.g., `{ code: 2000 }`)
-
-### Error Code Conventions
-| Code | Usage |
-|------|-------|
-| 2000 | Product errors |
-| 3000 | Price errors |
-| 4000+ | Custom per-entity |
-
-### JSDoc Pattern
-```javascript
-/**
- * @param {number} skip
- * @param {number} limit
- * @param {Array<string>} [categories] - Optional category filter
- * @returns {Promise<Array<Product>>}
- */
-```
-
-### Response Status Codes
-| Status | Usage |
-|--------|-------|
-| 200 | Success |
-| 201 | Created |
-| 400 | Bad Request |
-| 401 | Unauthorized |
-| 403 | Forbidden |
-| 404 | Not Found |
-| 500 | Server Error |
-
-## Service Layer (Singleton)
-Services use singleton pattern with `getInstance()` and `destroyInstance()`:
+### Service Layer (Singleton)
 ```javascript
 class ProductService {
   static instance;
@@ -148,7 +128,7 @@ class ProductService {
 }
 ```
 
-## Mongoose Models
+### Mongoose Models
 ```javascript
 const ProductSchema = new Schema({
   name: { type: String, required: [true, "name is required"] },
@@ -162,18 +142,60 @@ const ProductSchema = new Schema({
   }}
 });
 ```
-- Always include `createdBy` referencing the user
-- Use `timestamps` for createdAt/updatedAt
-- Convert dates to timestamps in toJSON
-- Add Swagger JSDoc annotations for API documentation
+- Always include `createdBy` referencing User
+- Use `timestamps` for automatic dates
+- Convert dates to timestamps in `toJSON`
+- Include Swagger JSDoc annotations
+
+**For User model**, remove password in transforms:
+```javascript
+toJSON: {
+  transform: function (_, user) {
+    delete user.password;
+    return user;
+  }
+}
+```
+
+### Routes Definition
+```javascript
+router.post("", [
+  authorizationFn,  // Auth first
+  body('name').isLength({ min: 3 }).withMessage("Min 3 chars"),
+  validationMiddleware,  // Validation last
+], controllerFn);
+```
+
+### Error Handling
+- Use `async/await` + `try/catch`
+- Log errors via `LoggerService.getInstance().error()` or `.warn()`
+- Include `requestId`, `userIp` in logs
+
+**Error Codes**:
+| Code | Entity |
+|------|--------|
+| 1000-1999 | User/Auth |
+| 2000 | Product |
+| 3000 | Price |
+| 4000+ | Custom |
+
+### Response Patterns
+```javascript
+// Success
+return res.status(200).json({ products, total });
+
+// Created
+return res.status(201).json({ product });
+
+// Error with code
+return res.status(400).json({ code: 2000 });
+
+// Not found
+return res.status(404).json({ message: "Not found" });
+```
 
 ## Authentication
-Protected routes use `authorizationFn` middleware:
-```javascript
-router.get("", [authorizationFn], controllerFn);
-// Header: Authorization: Bearer <token>
-```
-Middleware adds `session` to `req.body` with authenticated user data.
+Protected routes use `authorizationFn` middleware. Header: `Authorization: Bearer <token>`. Adds `session` to `req.body`.
 
 ## Environment Variables
 ```
@@ -186,5 +208,4 @@ DB_NAME=<database>
 ## Notes
 - No ESLint/Prettier configured
 - API docs at `/api/doc/`
-- Request metadata (`requestId`, `userIp`) added by `requestLogger` middleware
-- Middleware adds `session` to `req.body` with authenticated user data
+- `requestLogger` middleware adds `requestId`, `userIp` to req

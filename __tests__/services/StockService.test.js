@@ -2,17 +2,28 @@ const mongoose = require("mongoose");
 const StockService = require("../../src/services/StockService");
 const Stock = require("../../src/models/Stock");
 const Product = require("../../src/models/Product");
+const Warehouse = require("../../src/models/Warehouse");
 require("../../src/models/Price");
 
 describe("StockService", () => {
-  beforeEach(() => {
+  let warehouseId;
+
+  beforeEach(async () => {
     StockService.destroyInstance();
+    const userId = new mongoose.Types.ObjectId();
+    const warehouse = await Warehouse.create({
+      name: "Test Warehouse",
+      address: "Test Address",
+      createdBy: userId
+    });
+    warehouseId = warehouse._id;
   });
 
   afterEach(async () => {
     StockService.destroyInstance();
     await Stock.deleteMany({});
     await Product.deleteMany({});
+    await Warehouse.deleteMany({});
   });
 
   describe("getInstance", () => {
@@ -29,6 +40,7 @@ describe("StockService", () => {
       const productId = new mongoose.Types.ObjectId();
       const stockData = {
         productId,
+        warehouseId,
         quantity: 100,
         minQuantity: 10,
         createdBy: userId,
@@ -48,6 +60,7 @@ describe("StockService", () => {
       const productId = new mongoose.Types.ObjectId();
       const stockData = {
         productId,
+        warehouseId,
         createdBy: userId,
       };
 
@@ -66,6 +79,7 @@ describe("StockService", () => {
 
       const stock = await Stock.create({
         productId: product._id,
+        warehouseId,
         quantity: 50,
         minQuantity: 5,
         createdBy: userId,
@@ -96,6 +110,7 @@ describe("StockService", () => {
 
       await Stock.create({
         productId: product._id,
+        warehouseId,
         quantity: 75,
         minQuantity: 15,
         createdBy: userId,
@@ -127,6 +142,7 @@ describe("StockService", () => {
         const product = await Product.create({ name: `Product ${i}`, createdBy: userId });
         await Stock.create({
           productId: product._id,
+          warehouseId,
           quantity: i * 10,
           createdBy: userId,
         });
@@ -148,6 +164,7 @@ describe("StockService", () => {
 
       const stock = await Stock.create({
         productId,
+        warehouseId,
         quantity: 100,
         minQuantity: 10,
         createdBy: userId,
@@ -177,6 +194,7 @@ describe("StockService", () => {
 
       const stock = await Stock.create({
         productId,
+        warehouseId,
         quantity: 100,
         createdBy: userId,
       });
@@ -204,6 +222,7 @@ describe("StockService", () => {
 
       const stock = await Stock.create({
         productId,
+        warehouseId,
         quantity: 100,
         minQuantity: 0,
         createdBy: userId,
@@ -221,6 +240,7 @@ describe("StockService", () => {
 
       const stock = await Stock.create({
         productId,
+        warehouseId,
         quantity: 20,
         minQuantity: 10,
         createdBy: userId,
@@ -238,6 +258,7 @@ describe("StockService", () => {
 
       const stock = await Stock.create({
         productId,
+        warehouseId,
         quantity: 20,
         minQuantity: 10,
         createdBy: userId,

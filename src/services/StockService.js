@@ -19,7 +19,7 @@ class StockService {
     }
 
     /**
-     * Build aggregation pipeline with latest price lookup
+     * Build aggregation pipeline with latest price lookup and warehouse lookup
      * 
      * @param {Array} pipeline - Additional pipeline stages
      * @returns {Array}
@@ -33,6 +33,17 @@ class StockService {
                 as: 'productId'
             }},
             { $unwind: '$productId' },
+            { $lookup: {
+                from: 'warehouses',
+                localField: 'warehouseId',
+                foreignField: '_id',
+                as: 'warehouseId'
+            }},
+            { $unwind: {
+                path: '$warehouseId',
+                preserveNullAndEmptyArrays: true
+            }},
+            { $match: { 'warehouseId.isEnabled': true } },
             { $lookup: {
                 from: 'categories',
                 let: { catIds: '$productId.categories' },
@@ -68,17 +79,26 @@ class StockService {
      * 
      * @param {number} skip 
      * @param {number} limit 
+     * @param {string} [warehouseId] - Optional warehouse filter
      * @returns {Promise<{stocks: Array, total: number}>}
      */
-    getStocks(skip, limit) {
-        const pipeline = this.buildAggregationPipeline([
+    getStocks(skip, limit, warehouseId) {
+        const pipelineStages = [];
+        
+        if (warehouseId) {
+            pipelineStages.push({ 
+                $match: { warehouseId: new mongoose.Types.ObjectId(warehouseId) } 
+            });
+        }
+        
+        pipelineStages.push(...this.buildAggregationPipeline([
             { $facet: {
                 data: [{ $skip: skip }, { $limit: limit }],
                 total: [{ $count: 'count' }]
             }}
-        ]);
+        ]));
 
-        return Stock.aggregate(pipeline).then(result => {
+        return Stock.aggregate(pipelineStages).then(result => {
             const stocks = result[0].data;
             const total = result[0].total[0]?.count || 0;
             return { stocks, total };
@@ -101,6 +121,17 @@ class StockService {
     }
 
     /**
+     * Get stock by product and warehouse ID
+     * 
+     * @param {string} productId 
+     * @param {string} warehouseId
+     * @returns {Promise<import('../models/Stock')|null>}
+     */
+    getStockByProductAndWarehouse(productId, warehouseId) {
+        return Stock.findOne({ productId, warehouseId });
+    }
+
+    /**
      * Get stock by product ID with latest price
      * 
      * @param {string} productId 
@@ -113,6 +144,21 @@ class StockService {
         ];
 
         return Stock.aggregate(pipeline).then(result => result[0] || null);
+    }
+
+    /**
+     * Get all stock entries for a product across all warehouses
+     * 
+     * @param {string} productId 
+     * @returns {Promise<Array>}
+     */
+    getStocksByProductId(productId) {
+        const pipeline = [
+            { $match: { productId: new mongoose.Types.ObjectId(productId) } },
+            ...this.buildAggregationPipeline()
+        ];
+
+        return Stock.aggregate(pipeline);
     }
 
     /**
@@ -177,6 +223,37 @@ class StockService {
             { $inc: { quantity: -amount } },
             { new: true }
         ).populate('productId');
+    }
+
+    /**
+     * Add stock by product and warehouse (creates if not exists)
+     * 
+     * @param {string} productId 
+     * @param {string} warehouseId 
+     * @param {number} quantity 
+     * @param {string} createdBy 
+     * @returns {Promise<import('../models/Stock')>}
+     */
+    async addStockByProductAndWarehouse(productId, warehouseId, quantity, createdBy) {
+        let stock = await Stock.findOne({ productId, warehouseId });
+        
+        if (stock) {
+            stock = await Stock.findByIdAndUpdate(
+                stock._id,
+                { $inc: { quantity } },
+                { new: true }
+            );
+        } else {
+            stock = new Stock({
+                productId,
+                warehouseId,
+                quantity,
+                createdBy
+            });
+            stock = await stock.save();
+        }
+        
+        return stock;
     }
 }
 

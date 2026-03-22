@@ -13,6 +13,17 @@ const { Schema, model } = require("mongoose");
  *          type: number
  *        minQuantity:
  *          type: number
+ *        warehouseId:
+ *          type: object
+ *          properties:
+ *            _id:
+ *              type: string
+ *            name:
+ *              type: string
+ *            address:
+ *              type: string
+ *            isEnabled:
+ *              type: boolean
  *        productId:
  *          type: object
  *          properties:
@@ -39,22 +50,6 @@ const { Schema, model } = require("mongoose");
  *              type: integer
  *            updatedAt:
  *              type: integer
- *        price:
- *          type: object
- *          properties:
- *            _id:
- *              type: string
- *            amount:
- *              type: number
- *            coin:
- *              type: string
- *              enum:
- *                - "$"
- *                - "Brs."
- *            createdAt:
- *              type: integer
- *            updatedAt:
- *              type: integer
  *        createdAt:
  *          type: integer
  *        updatedAt:
@@ -63,6 +58,7 @@ const { Schema, model } = require("mongoose");
  *        - _id
  *        - quantity
  *        - productId
+ *        - warehouseId
  *        - createdAt
  *        - updatedAt
  */
@@ -73,6 +69,7 @@ const StockSchema = new Schema(
       type: Number,
       required: [true, "quantity is required"],
       default: 0,
+      min: [0, "quantity cannot be negative"],
     },
     minQuantity: {
       type: Number,
@@ -82,6 +79,11 @@ const StockSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "product",
       required: [true, "productId is required"],
+    },
+    warehouseId: {
+      type: Schema.Types.ObjectId,
+      ref: "warehouse",
+      required: [true, "warehouseId is required"],
     },
     createdBy: {
       type: Schema.Types.ObjectId,
@@ -103,5 +105,7 @@ const StockSchema = new Schema(
     },
   }
 );
+
+StockSchema.index({ productId: 1, warehouseId: 1 }, { unique: true });
 
 module.exports = model("stock", StockSchema);
