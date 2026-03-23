@@ -6,6 +6,7 @@ const {
   updatePriceById,
 } = require("../controllers/price");
 const { authorizationFn } = require("../middlewares/authorization");
+const { isAdminOrManager, isCashierOrHigher } = require("../middlewares/roleAuthorization");
 const { billValidation } = require("../middlewares/bill");
 
 const router = Router();
@@ -64,7 +65,7 @@ router.get("/coin", getPriceCoinAll);
  *                                  type: object
  *                                  $ref: "#/components/schemas/PriceModel"
  */
-router.get("/product/:productId", [authorizationFn], getPriceByProductId);
+router.get("/product/:productId", [authorizationFn, isCashierOrHigher], getPriceByProductId);
 
 /**
  * @swagger
@@ -110,6 +111,7 @@ router.get("/product/:productId", [authorizationFn], getPriceByProductId);
  */
 router.put("/:priceId/:coin", [
   authorizationFn,
+  isAdminOrManager,
   body('amount').isFloat({ min: 0.01 }).withMessage('El monto debe ser mayor a 0.01'),
   billValidation
 ], updatePriceById);

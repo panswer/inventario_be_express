@@ -16,6 +16,7 @@ const router = express.Router();
  */
 
 router.use("/auth", require("./authentication"));
+router.use("/users", [authorizationFn], require("./user"));
 router.use("/product", require("./product"));
 router.use("/category", require("./category"));
 router.use("/supplier", require("./supplier"));

@@ -2,6 +2,7 @@ const { Router } = require("express");
 const { query } = require("express-validator");
 const controller = require("../controllers/stockMovement");
 const { authorizationFn } = require("../middlewares/authorization");
+const { isAdminOrManager } = require("../middlewares/roleAuthorization");
 const { stockMovementValidation } = require("../middlewares/stockMovement");
 
 const router = Router();
@@ -75,6 +76,7 @@ router.get(
   "",
   [
     authorizationFn,
+    isAdminOrManager,
     query("type").optional().isIn(["initial", "in", "out", "adjust", "transfer"]),
     stockMovementValidation,
   ],
@@ -109,7 +111,7 @@ router.get(
  */
 router.get(
   "/product/:productId",
-  [authorizationFn],
+  [authorizationFn, isAdminOrManager],
   controller.getMovementsByProduct
 );
 
@@ -144,7 +146,7 @@ router.get(
  */
 router.get(
   "/product/:productId/warehouse/:warehouseId",
-  [authorizationFn],
+  [authorizationFn, isAdminOrManager],
   controller.getMovementsByProductAndWarehouse
 );
 

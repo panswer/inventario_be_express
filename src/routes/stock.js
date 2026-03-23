@@ -10,6 +10,7 @@ const {
     removeStock,
 } = require("../controllers/stock");
 const { authorizationFn } = require("../middlewares/authorization");
+const { isAdminOrManager, isCashierOrHigher } = require("../middlewares/roleAuthorization");
 const { stockValidation } = require("../middlewares/stock");
 
 const router = Router();
@@ -55,7 +56,7 @@ const router = Router();
  *                              total:
  *                                  type: integer
  */
-router.get("", [authorizationFn], getStocks);
+router.get("", [authorizationFn, isCashierOrHigher], getStocks);
 
 /**
  * @swagger
@@ -84,7 +85,7 @@ router.get("", [authorizationFn], getStocks);
  *                              stock:
  *                                  $ref: "#/components/schemas/StockModel"
  */
-router.get("/:stockId", [authorizationFn], getStockById);
+router.get("/:stockId", [authorizationFn, isCashierOrHigher], getStockById);
 
 /**
  * @swagger
@@ -113,7 +114,7 @@ router.get("/:stockId", [authorizationFn], getStockById);
  *                              stock:
  *                                  $ref: "#/components/schemas/StockModel"
  */
-router.get("/product/:productId", [authorizationFn], getStockByProductId);
+router.get("/product/:productId", [authorizationFn, isCashierOrHigher], getStockByProductId);
 
 /**
  * @swagger
@@ -156,6 +157,7 @@ router.get("/product/:productId", [authorizationFn], getStockByProductId);
  */
 router.post("", [
     authorizationFn,
+    isAdminOrManager,
     body('productId').notEmpty().withMessage('productId is required'),
     body('warehouseId').notEmpty().withMessage('warehouseId is required'),
     body('quantity').optional().isFloat({ min: 0 }).withMessage('quantity must be >= 0'),
@@ -203,6 +205,7 @@ router.post("", [
  */
 router.put("/:stockId", [
     authorizationFn,
+    isAdminOrManager,
     body('minQuantity').isFloat({ min: 0 }).withMessage('minQuantity must be >= 0'),
     stockValidation,
 ], updateStock);
@@ -247,6 +250,7 @@ router.put("/:stockId", [
  */
 router.patch("/:stockId/add", [
     authorizationFn,
+    isAdminOrManager,
     body('amount').isFloat({ min: 0.01 }).withMessage('amount must be > 0'),
     stockValidation,
 ], addStock);
@@ -286,6 +290,7 @@ router.patch("/:stockId/add", [
  */
 router.patch("/:stockId/remove", [
     authorizationFn,
+    isAdminOrManager,
     body('amount').isFloat({ min: 0.01 }).withMessage('amount must be > 0'),
     stockValidation,
 ], removeStock);

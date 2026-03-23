@@ -2,6 +2,8 @@ const { Router } = require("express");
 const { body } = require("express-validator");
 const { billValidation } = require("../middlewares/bill");
 const { salesValidation } = require("../middlewares/salesValidation");
+const { authorizationFn } = require("../middlewares/authorization");
+const { isAdminOrManager, isAdminOrManagerOrCashier } = require("../middlewares/roleAuthorization");
 const {
   createBill,
   getAllBills,
@@ -46,6 +48,8 @@ const router = Router();
  */
 router.post("",
   [
+    authorizationFn,
+    isAdminOrManagerOrCashier,
     body('sellers').isArray({ min: 1 }).withMessage('No se tiene ninguna venta'),
     salesValidation,
     billValidation,
@@ -90,7 +94,7 @@ router.post("",
  *                              total:
  *                                  type: number
  */
-router.get("", getAllBills);
+router.get("", [authorizationFn, isAdminOrManager], getAllBills);
 
 /**
  * @swagger
@@ -120,6 +124,6 @@ router.get("", getAllBills);
  *                                  type: object
  *                                  $ref: '#/components/schemas/BillDetailModel'
  */
-router.get("/detail/:billId", getBillDetailByBillId);
+router.get("/detail/:billId", [authorizationFn, isAdminOrManager], getBillDetailByBillId);
 
 module.exports = router;

@@ -2,6 +2,7 @@ const { Router } = require("express");
 const { body } = require('express-validator');
 const { getCategories, getCategoryById, createCategory, updateCategoryById, toggleCategory } = require("../controllers/category");
 const { authorizationFn } = require("../middlewares/authorization");
+const { isAdminOrManager } = require("../middlewares/roleAuthorization");
 const { categoryValidation } = require("../middlewares/category");
 
 const router = Router();
@@ -36,7 +37,7 @@ const router = Router();
  *                                      type: object
  *                                      $ref: "#/components/schemas/CategoryModel"
  */
-router.get("", [authorizationFn], getCategories);
+router.get("", [authorizationFn, isAdminOrManager], getCategories);
 
 /**
  * @swagger
@@ -72,6 +73,7 @@ router.get("", [authorizationFn], getCategories);
  */
 router.post("", [
     authorizationFn,
+    isAdminOrManager,
     body('name').isLength({ min: 2 }).withMessage('El nombre debe tener al menos 2 caracteres'),
     categoryValidation
 ], createCategory);
@@ -104,7 +106,7 @@ router.post("", [
  *                                  type: object
  *                                  $ref: '#/components/schemas/CategoryModel'
  */
-router.get("/:categoryId", [authorizationFn], getCategoryById);
+router.get("/:categoryId", [authorizationFn, isAdminOrManager], getCategoryById);
 
 /**
  * @swagger
@@ -144,6 +146,7 @@ router.get("/:categoryId", [authorizationFn], getCategoryById);
  */
 router.put("/:categoryId", [
     authorizationFn,
+    isAdminOrManager,
     body('name').isLength({ min: 2 }).withMessage('El nombre debe tener al menos 2 caracteres'),
     categoryValidation
 ], updateCategoryById);
@@ -176,6 +179,6 @@ router.put("/:categoryId", [
  *                                  type: object
  *                                  $ref: '#/components/schemas/CategoryModel'
  */
-router.patch("/:categoryId/toggle", [authorizationFn], toggleCategory);
+router.patch("/:categoryId/toggle", [authorizationFn, isAdminOrManager], toggleCategory);
 
 module.exports = router;

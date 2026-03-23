@@ -2,6 +2,7 @@ const { Router } = require("express");
 const { body } = require('express-validator');
 const { getSuppliers, getSupplierById, createSupplier, updateSupplierById, toggleSupplier } = require("../controllers/supplier");
 const { authorizationFn } = require("../middlewares/authorization");
+const { isAdminOrManager } = require("../middlewares/roleAuthorization");
 const { supplierValidation } = require("../middlewares/supplier");
 
 const router = Router();
@@ -36,7 +37,7 @@ const router = Router();
  *                                      type: object
  *                                      $ref: "#/components/schemas/SupplierModel"
  */
-router.get("", [authorizationFn], getSuppliers);
+router.get("", [authorizationFn, isAdminOrManager], getSuppliers);
 
 /**
  * @swagger
@@ -81,6 +82,7 @@ router.get("", [authorizationFn], getSuppliers);
  */
 router.post("", [
     authorizationFn,
+    isAdminOrManager,
     body('name').isLength({ min: 2 }).withMessage('El nombre debe tener al menos 2 caracteres'),
     body('rif').isLength({ min: 2 }).withMessage('El rif debe tener al menos 2 caracteres'),
     supplierValidation
@@ -114,7 +116,7 @@ router.post("", [
  *                                  type: object
  *                                  $ref: '#/components/schemas/SupplierModel'
  */
-router.get("/:supplierId", [authorizationFn], getSupplierById);
+router.get("/:supplierId", [authorizationFn, isAdminOrManager], getSupplierById);
 
 /**
  * @swagger
@@ -162,6 +164,7 @@ router.get("/:supplierId", [authorizationFn], getSupplierById);
  */
 router.put("/:supplierId", [
     authorizationFn,
+    isAdminOrManager,
     body('name').optional().isLength({ min: 2 }).withMessage('El nombre debe tener al menos 2 caracteres'),
     body('rif').optional().isLength({ min: 2 }).withMessage('El rif debe tener al menos 2 caracteres'),
     supplierValidation
@@ -195,6 +198,6 @@ router.put("/:supplierId", [
  *                                  type: object
  *                                  $ref: '#/components/schemas/SupplierModel'
  */
-router.patch("/:supplierId/toggle", [authorizationFn], toggleSupplier);
+router.patch("/:supplierId/toggle", [authorizationFn, isAdminOrManager], toggleSupplier);
 
 module.exports = router;

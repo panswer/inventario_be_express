@@ -13,7 +13,7 @@ describe("Product Routes", () => {
   beforeAll(async () => {
     app = createTestApp();
     userId = new mongoose.Types.ObjectId();
-    token = jwt.sign({ _id: userId }, process.env.SERVER_JWT_SESSION_SECRET);
+    token = jwt.sign({ _id: userId, role: "admin" }, process.env.SERVER_JWT_SESSION_SECRET);
   });
 
   beforeEach(async () => {

@@ -8,6 +8,7 @@ const {
   deleteWarehouse
 } = require("../controllers/warehouse");
 const { authorizationFn } = require("../middlewares/authorization");
+const { isAdminOrManager } = require("../middlewares/roleAuthorization");
 const { warehouseValidation } = require("../middlewares/warehouse");
 
 const router = Router();
@@ -49,7 +50,7 @@ const router = Router();
  *                              total:
  *                                  type: number
  */
-router.get("", [authorizationFn], getWarehouses);
+router.get("", [authorizationFn, isAdminOrManager], getWarehouses);
 
 /**
  * @swagger
@@ -79,7 +80,7 @@ router.get("", [authorizationFn], getWarehouses);
  *                                  type: object
  *                                  $ref: '#/components/schemas/WarehouseModel'
  */
-router.get("/:warehouseId", [authorizationFn], getWarehouseById);
+router.get("/:warehouseId", [authorizationFn, isAdminOrManager], getWarehouseById);
 
 /**
  * @swagger
@@ -118,6 +119,7 @@ router.get("/:warehouseId", [authorizationFn], getWarehouseById);
  */
 router.post("", [
   authorizationFn,
+  isAdminOrManager,
   body('name').isLength({ min: 2 }).withMessage('El nombre debe tener al menos 2 caracteres'),
   body('address').isLength({ min: 5 }).withMessage('La direccion debe tener al menos 5 caracteres'),
   warehouseValidation
@@ -165,6 +167,7 @@ router.post("", [
  */
 router.put("/:warehouseId", [
   authorizationFn,
+  isAdminOrManager,
   body('name').optional().isLength({ min: 2 }).withMessage('El nombre debe tener al menos 2 caracteres'),
   body('address').optional().isLength({ min: 5 }).withMessage('La direccion debe tener al menos 5 caracteres'),
   warehouseValidation
@@ -198,6 +201,6 @@ router.put("/:warehouseId", [
  *                                  type: object
  *                                  $ref: '#/components/schemas/WarehouseModel'
  */
-router.delete("/:warehouseId", [authorizationFn], deleteWarehouse);
+router.delete("/:warehouseId", [authorizationFn, isAdminOrManager], deleteWarehouse);
 
 module.exports = router;

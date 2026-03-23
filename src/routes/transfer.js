@@ -2,6 +2,7 @@ const { Router } = require("express");
 const { body } = require('express-validator');
 const { transferStock, getProductStockByWarehouse } = require("../controllers/transfer");
 const { authorizationFn } = require("../middlewares/authorization");
+const { isAdminOrManager } = require("../middlewares/roleAuthorization");
 const { warehouseValidation } = require("../middlewares/warehouse");
 
 const router = Router();
@@ -54,6 +55,7 @@ const router = Router();
  */
 router.post("", [
   authorizationFn,
+  isAdminOrManager,
   body('productId').notEmpty().withMessage('productId es requerido'),
   body('fromWarehouseId').notEmpty().withMessage('fromWarehouseId es requerido'),
   body('toWarehouseId').notEmpty().withMessage('toWarehouseId es requerido'),
@@ -91,6 +93,6 @@ router.post("", [
  *                                      type: object
  *                                      $ref: '#/components/schemas/StockModel'
  */
-router.get("/product/:productId", [authorizationFn], getProductStockByWarehouse);
+router.get("/product/:productId", [authorizationFn, isAdminOrManager], getProductStockByWarehouse);
 
 module.exports = router;

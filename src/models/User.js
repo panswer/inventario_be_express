@@ -1,9 +1,13 @@
 const { Schema, model } = require("mongoose");
+const { userRoleEnum } = require("../enums/userRoleEnum");
+
+const roles = Object.values(userRoleEnum);
 
 /**
  * @typedef {object} UserSchema
  * @property {string} _id
  * @property {string} username
+ * @property {string} role
  * @property {number} createdAt
  * @property {number} updatedAt
  */
@@ -21,6 +25,10 @@ const { Schema, model } = require("mongoose");
  *        username:
  *          type: string
  *          example: example@mailinator.com
+ *        role:
+ *          type: string
+ *          enum: [admin, manager, cashier, user]
+ *          example: admin
  *        createdAt:
  *          type: integer
  *          example: 1745250570613
@@ -47,6 +55,14 @@ const UserSchema = new Schema(
       type: String,
       required: [true, "password is required"],
     },
+    role: {
+      type: String,
+      enum: {
+        values: roles,
+        message: "role must be one of: admin, manager, cashier, user",
+      },
+      default: userRoleEnum.user,
+    },
   },
   {
     timestamps: {
@@ -56,6 +72,7 @@ const UserSchema = new Schema(
     toJSON: {
       transform: function (userSch, user) {
         delete user.password;
+        delete user.__v;
         user.createdAt = userSch.createdAt.getTime();
         user.updatedAt = userSch.updatedAt.getTime();
 

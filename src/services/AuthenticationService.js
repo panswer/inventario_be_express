@@ -63,8 +63,13 @@ class AuthenticationService {
      * @returns {string}
      */
     generateSessionToken(user) {
+        const userObj = user.toObject ? user.toObject() : user;
         return jwt.sign(
-            user.toObject(),
+            {
+                _id: userObj._id,
+                username: userObj.username,
+                role: userObj.role,
+            },
             AuthenticationService.secret,
             {
                 expiresIn: "1h",
