@@ -11,10 +11,10 @@ describe("Sale Model", () => {
 
   describe("Schema Validation", () => {
     it("should throw error when count is missing", async () => {
-      const productId = new mongoose.Types.ObjectId();
+      const stockId = new mongoose.Types.ObjectId();
       const billId = new mongoose.Types.ObjectId();
       const sale = new Sale({
-        productId,
+        stockId,
         price: 50,
         billId,
         coin: "$",
@@ -23,7 +23,7 @@ describe("Sale Model", () => {
       await expect(sale.save()).rejects.toThrow("It's required how many items");
     });
 
-    it("should throw error when productId is missing", async () => {
+    it("should throw error when stockId is missing", async () => {
       const billId = new mongoose.Types.ObjectId();
       const sale = new Sale({
         count: 2,
@@ -32,15 +32,15 @@ describe("Sale Model", () => {
         coin: "$",
       });
 
-      await expect(sale.save()).rejects.toThrow("productId is required");
+      await expect(sale.save()).rejects.toThrow("stockId is required");
     });
 
     it("should throw error when price is missing", async () => {
-      const productId = new mongoose.Types.ObjectId();
+      const stockId = new mongoose.Types.ObjectId();
       const billId = new mongoose.Types.ObjectId();
       const sale = new Sale({
         count: 2,
-        productId,
+        stockId,
         billId,
         coin: "$",
       });
@@ -49,10 +49,10 @@ describe("Sale Model", () => {
     });
 
     it("should throw error when billId is missing", async () => {
-      const productId = new mongoose.Types.ObjectId();
+      const stockId = new mongoose.Types.ObjectId();
       const sale = new Sale({
         count: 2,
-        productId,
+        stockId,
         price: 50,
         coin: "$",
       });
@@ -61,11 +61,11 @@ describe("Sale Model", () => {
     });
 
     it("should throw error when coin is missing", async () => {
-      const productId = new mongoose.Types.ObjectId();
+      const stockId = new mongoose.Types.ObjectId();
       const billId = new mongoose.Types.ObjectId();
       const sale = new Sale({
         count: 2,
-        productId,
+        stockId,
         price: 50,
         billId,
       });
@@ -74,11 +74,11 @@ describe("Sale Model", () => {
     });
 
     it("should throw error for invalid coin enum", async () => {
-      const productId = new mongoose.Types.ObjectId();
+      const stockId = new mongoose.Types.ObjectId();
       const billId = new mongoose.Types.ObjectId();
       const sale = new Sale({
         count: 2,
-        productId,
+        stockId,
         price: 50,
         billId,
         coin: "INVALID",
@@ -88,11 +88,11 @@ describe("Sale Model", () => {
     });
 
     it("should create sale with valid coin '$'", async () => {
-      const productId = new mongoose.Types.ObjectId();
+      const stockId = new mongoose.Types.ObjectId();
       const billId = new mongoose.Types.ObjectId();
       const sale = new Sale({
         count: 2,
-        productId,
+        stockId,
         price: 50,
         billId,
         coin: "$",
@@ -105,11 +105,11 @@ describe("Sale Model", () => {
     });
 
     it("should create sale with valid coin 'Brs.'", async () => {
-      const productId = new mongoose.Types.ObjectId();
+      const stockId = new mongoose.Types.ObjectId();
       const billId = new mongoose.Types.ObjectId();
       const sale = new Sale({
         count: 2,
-        productId,
+        stockId,
         price: 50,
         billId,
         coin: "Brs.",
@@ -122,11 +122,11 @@ describe("Sale Model", () => {
     });
 
     it("should throw error when count is less than 1", async () => {
-      const productId = new mongoose.Types.ObjectId();
+      const stockId = new mongoose.Types.ObjectId();
       const billId = new mongoose.Types.ObjectId();
       const sale = new Sale({
         count: 0,
-        productId,
+        stockId,
         price: 50,
         billId,
         coin: "$",
@@ -138,11 +138,11 @@ describe("Sale Model", () => {
 
   describe("Timestamps", () => {
     it("should have createdAt and updatedAt fields", async () => {
-      const productId = new mongoose.Types.ObjectId();
+      const stockId = new mongoose.Types.ObjectId();
       const billId = new mongoose.Types.ObjectId();
       const sale = await Sale.create({
         count: 2,
-        productId,
+        stockId,
         price: 50,
         billId,
         coin: "$",

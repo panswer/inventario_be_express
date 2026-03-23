@@ -206,7 +206,7 @@ describe("StockController", () => {
     it("should remove stock successfully", async () => {
       const mockStock = { _id: "1", quantity: 50 };
       mockReq.params.stockId = "stock123";
-      mockReq.body = { amount: 50 };
+      mockReq.body = { amount: 50, session: { _id: "user123" } };
       mockStockService.removeStock.mockResolvedValue(mockStock);
 
       await stockController.removeStock(mockReq, mockRes);
@@ -217,7 +217,7 @@ describe("StockController", () => {
 
     it("should return 400 when would go below minimum stock", async () => {
       mockReq.params.stockId = "stock123";
-      mockReq.body = { amount: 100 };
+      mockReq.body = { amount: 100, session: { _id: "user123" } };
       mockStockService.removeStock.mockResolvedValue(null);
 
       await stockController.removeStock(mockReq, mockRes);

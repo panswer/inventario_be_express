@@ -5,7 +5,7 @@ const { coinEnum } = require("../enums/coinEnum");
  * @typedef {object} SaleSchema
  * @property {string} _id
  * @property {number} count
- * @property {string} productId
+ * @property {string} stockId
  * @property {number} price
  * @property {string} billId
  * @property {string} coin
@@ -14,7 +14,7 @@ const { coinEnum } = require("../enums/coinEnum");
  * 
  * @typedef {object} SaleRequest
  * @property {number} count
- * @property {string} productId
+ * @property {string} stockId
  * @property {number} price
  * @property {string} coin
  */
@@ -28,17 +28,14 @@ const { coinEnum } = require("../enums/coinEnum");
  *          properties:
  *              count:
  *                  type: number
- *              productId:
+ *              stockId:
  *                  type: string
- *              price:
- *                  type: number
  *              coin:
  *                  type: string
  *                  $ref: "#/components/schemas/CoinType"
  *          required:
  *            - count
- *            - productId
- *            - price
+ *            - stockId
  *            - coin
  *      SaleModel:
  *          type: object
@@ -47,7 +44,7 @@ const { coinEnum } = require("../enums/coinEnum");
  *                  type: string
  *              count:
  *                  type: number
- *              productId:
+ *              stockId:
  *                  type: string
  *              price:
  *                  type: string
@@ -63,7 +60,7 @@ const { coinEnum } = require("../enums/coinEnum");
  *          required:
  *            - _id
  *            - count
- *            - productId
+ *            - stockId
  *            - price
  *            - billId
  *            - coin
@@ -78,10 +75,10 @@ const SaleSchema = new Schema(
       min: 1,
       required: [true, "It's required how many items"],
     },
-    productId: {
+    stockId: {
       type: Schema.Types.ObjectId,
-      required: [true, "productId is required"],
-      ref: "product",
+      required: [true, "stockId is required"],
+      ref: "stock",
     },
     price: {
       type: Number,

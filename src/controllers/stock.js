@@ -286,7 +286,7 @@ const removeStock = async (req, res) => {
 
     let stockDb;
     try {
-        stockDb = await stockService.removeStock(stockId, body.amount);
+        stockDb = await stockService.removeStock(stockId, body.amount, body.session._id);
     } catch (error) {
         loggerService.error(
             'stockService@removeStock',

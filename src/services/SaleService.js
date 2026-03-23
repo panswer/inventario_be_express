@@ -1,4 +1,6 @@
 const Sale = require("../models/Sale");
+const StockService = require("./StockService");
+const { stockMovementEnum } = require("../enums/stockMovementEnum");
 
 class SaleService {
     /**
@@ -26,6 +28,41 @@ class SaleService {
      */
     createSale(saleData) {
         return new Sale(saleData).save();
+    }
+
+    /**
+     * Create a new sale record and update stock
+     * 
+     * @param {Object} saleData 
+     * @param {string} saleData.billId
+     * @param {string} saleData.coin
+     * @param {number} saleData.count
+     * @param {string} saleData.stockId
+     * @param {string} userId - User performing the sale
+     * @returns {Promise<import('../models/Sale')>}
+     */
+    async createSaleFlow(saleData, userId) {
+        const stockService = StockService.getInstance();
+
+        const stock = await stockService.getStockById(saleData.stockId, saleData.coin);
+        if (!stock) {
+            throw new Error("Stock not found");
+        }
+
+        if (!stock.price) {
+            throw new Error("No price defined for this product");
+        }
+
+        const saleWithPrice = {
+            ...saleData,
+            price: stock.price.amount,
+        };
+
+        const sale = await this.createSale(saleWithPrice);
+
+        await stockService.removeStock(saleData.stockId, saleData.count, userId, saleData.billId, stockMovementEnum.out);
+
+        return sale;
     }
 
     /**

@@ -1,7 +1,9 @@
 const mongoose = require("mongoose");
 const Stock = require("../models/Stock");
 const WarehouseService = require("./WarehouseService");
+const StockMovementService = require('./StockMovementService');
 const Product = require("../models/Product");
+const { stockMovementEnum } = require("../enums/stockMovementEnum");
 
 class TransferService {
   static instance;
@@ -15,6 +17,46 @@ class TransferService {
 
   static destroyInstance() {
     delete this.instance;
+  }
+
+  _logTransferMovement(fromStock, toStock, quantity, userId) {
+    const movementService = StockMovementService.getInstance();
+
+    movementService.logMovement({
+      type: stockMovementEnum.transfer,
+      quantity,
+      previousQuantity: fromStock.quantity + quantity,
+      newQuantity: fromStock.quantity,
+      productId: fromStock.productId,
+      warehouseId: fromStock.warehouseId,
+      createdBy: userId,
+      transferToWarehouseId: toStock.warehouseId,
+    }).catch((err) => {
+      const LoggerService = require('./LoggerService');
+      const logger = LoggerService.getInstance();
+      logger.error('stockMovementService@_logTransferMovement', {
+        reason: err?.message ?? 'Unknown error',
+        type: 'logic',
+      });
+    });
+
+    movementService.logMovement({
+      type: stockMovementEnum.transfer,
+      quantity,
+      previousQuantity: toStock.quantity - quantity,
+      newQuantity: toStock.quantity,
+      productId: toStock.productId,
+      warehouseId: toStock.warehouseId,
+      createdBy: userId,
+      transferFromWarehouseId: fromStock.warehouseId,
+    }).catch((err) => {
+      const LoggerService = require('./LoggerService');
+      const logger = LoggerService.getInstance();
+      logger.error('stockMovementService@_logTransferMovement', {
+        reason: err?.message ?? 'Unknown error',
+        type: 'logic',
+      });
+    });
   }
 
   async transferStock(productId, fromWarehouseId, toWarehouseId, quantity, userId) {
@@ -81,8 +123,8 @@ class TransferService {
       if (!fromStock) {
         const stock = await Stock.findOne({ productId, warehouseId: fromWarehouseId });
         const error = new Error(
-          stock 
-            ? "Insufficient stock in source warehouse" 
+          stock
+            ? "Insufficient stock in source warehouse"
             : "Stock not found in source warehouse"
         );
         error.code = 4005;
@@ -109,7 +151,9 @@ class TransferService {
 
       await session.commitTransaction();
 
-      return this._populateStocks(fromStock._id, toStock._id);
+      const populatedResult = await this._populateStocks(fromStock._id, toStock._id);
+      this._logTransferMovement(populatedResult.fromStock, populatedResult.toStock, quantity, userId);
+      return populatedResult;
     } catch (error) {
       await session.abortTransaction();
       throw error;
@@ -132,8 +176,8 @@ class TransferService {
     if (!fromStock) {
       const stock = await Stock.findOne({ productId, warehouseId: fromWarehouseId });
       const error = new Error(
-        stock 
-          ? "Insufficient stock in source warehouse" 
+        stock
+          ? "Insufficient stock in source warehouse"
           : "Stock not found in source warehouse"
       );
       error.code = 4005;
@@ -158,7 +202,9 @@ class TransferService {
       toStock = await toStock.save();
     }
 
-    return this._populateStocks(fromStock._id, toStock._id);
+    const populatedResult = await this._populateStocks(fromStock._id, toStock._id);
+    this._logTransferMovement(populatedResult.fromStock, populatedResult.toStock, quantity, userId);
+    return populatedResult;
   }
 
   async _populateStocks(fromStockId, toStockId) {
@@ -176,7 +222,7 @@ class TransferService {
     const stocks = await Stock.find({ productId })
       .populate("warehouseId")
       .populate("productId");
-    
+
     return stocks.filter(s => s.warehouseId?.isEnabled);
   }
 }

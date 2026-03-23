@@ -91,13 +91,13 @@ describe("BillService", () => {
   describe("getBillDetailById", () => {
     it("should return bill detail with sales", async () => {
       const userId = new mongoose.Types.ObjectId();
-      const productId = new mongoose.Types.ObjectId();
+      const stockId = new mongoose.Types.ObjectId();
       
       const bill = await Bill.create({ userId });
       
       await Sale.create({
         billId: bill._id,
-        productId,
+        stockId,
         count: 2,
         price: 50,
         coin: "$",

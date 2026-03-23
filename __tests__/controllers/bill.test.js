@@ -35,6 +35,7 @@ describe("BillController", () => {
 
     mockSaleService = {
       createSale: jest.fn(),
+      createSaleFlow: jest.fn(),
     };
 
     BillService.getInstance.mockReturnValue(mockBillService);
@@ -51,7 +52,7 @@ describe("BillController", () => {
         ],
       };
       mockBillService.createBill.mockResolvedValue(mockBill);
-      mockSaleService.createSale.mockResolvedValue(true);
+      mockSaleService.createSaleFlow.mockResolvedValue(true);
 
       await billController.createBill(mockReq, mockRes);
 
@@ -82,7 +83,7 @@ describe("BillController", () => {
         ],
       };
       mockBillService.createBill.mockResolvedValue(mockBill);
-      mockSaleService.createSale.mockRejectedValue(new Error("Error"));
+      mockSaleService.createSaleFlow.mockRejectedValue(new Error("Error"));
 
       await billController.createBill(mockReq, mockRes);
 

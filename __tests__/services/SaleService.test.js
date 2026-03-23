@@ -22,10 +22,10 @@ describe("SaleService", () => {
   describe("createSale", () => {
     it("should create a new sale", async () => {
       const billId = new mongoose.Types.ObjectId();
-      const productId = new mongoose.Types.ObjectId();
+      const stockId = new mongoose.Types.ObjectId();
       const saleData = {
         billId,
-        productId,
+        stockId,
         count: 2,
         price: 50,
         coin: "$",
@@ -43,11 +43,11 @@ describe("SaleService", () => {
   describe("getSalesByBillId", () => {
     it("should return sales when found", async () => {
       const billId = new mongoose.Types.ObjectId();
-      const productId = new mongoose.Types.ObjectId();
+      const stockId = new mongoose.Types.ObjectId();
       
       await Sale.create({
         billId,
-        productId,
+        stockId,
         count: 2,
         price: 50,
         coin: "$",

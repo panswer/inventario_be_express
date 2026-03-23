@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const { body } = require("express-validator");
 const { billValidation } = require("../middlewares/bill");
+const { salesValidation } = require("../middlewares/salesValidation");
 const {
   createBill,
   getAllBills,
@@ -46,6 +47,7 @@ const router = Router();
 router.post("",
   [
     body('sellers').isArray({ min: 1 }).withMessage('No se tiene ninguna venta'),
+    salesValidation,
     billValidation,
   ],
   createBill

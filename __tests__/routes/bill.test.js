@@ -50,7 +50,37 @@ describe("Bill Routes", () => {
     });
 
     it("should return 201 with valid data", async () => {
-      const productId = new mongoose.Types.ObjectId();
+      const Stock = require("../../src/models/Stock");
+      const Product = require("../../src/models/Product");
+      const Price = require("../../src/models/Price");
+      const Warehouse = require("../../src/models/Warehouse");
+
+      const warehouse = await Warehouse.create({
+        name: "Test Warehouse",
+        address: "Test Address",
+        isEnabled: true,
+        createdBy: userId,
+      });
+
+      const product = await Product.create({
+        name: "Test Product",
+        inStock: true,
+        createdBy: userId,
+      });
+
+      const price = await Price.create({
+        productId: product._id,
+        amount: 50,
+        coin: "$",
+        createdBy: userId,
+      });
+
+      const stock = await Stock.create({
+        productId: product._id,
+        warehouseId: warehouse._id,
+        quantity: 100,
+        createdBy: userId,
+      });
 
       const res = await request(app)
         .post("/api/bill")
@@ -58,9 +88,8 @@ describe("Bill Routes", () => {
         .send({
           sellers: [
             {
-              productId: productId.toString(),
+              stockId: stock._id.toString(),
               count: 2,
-              price: 50,
               coin: "$",
             },
           ],

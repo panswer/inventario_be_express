@@ -48,13 +48,12 @@ const createBill = async (req, res) => {
 
   try {
     await Promise.all(
-      sellers.map(sale => saleService.createSale({
+      sellers.map(sale => saleService.createSaleFlow({
         billId: billDb._id,
         coin: sale.coin,
         count: sale.count,
-        price: sale.price,
-        productId: sale.productId,
-      }))
+        stockId: sale.stockId,
+      }, user._id))
     );
   } catch (error) {
     loggerService.error(
