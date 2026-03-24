@@ -26,6 +26,7 @@ router.use("/stock-movement", [authorizationFn], require("./stockMovement"));
 router.use("/warehouse", [authorizationFn], require("./warehouse"));
 router.use("/transfer", [authorizationFn], require("./transfer"));
 router.use("/bill", [authorizationFn], require("./bill"));
+router.use("/report", [authorizationFn], require("./report"));
 router.use("/doc", swaggerRoutes);
 
 module.exports = router;
