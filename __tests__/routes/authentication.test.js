@@ -3,19 +3,31 @@ const request = require("supertest");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+jest.mock("../../src/services/EmailService");
+
 const createTestApp = require("../../src/testApp");
 const User = require("../../src/models/User");
+const EmailService = require("../../src/services/EmailService");
 
 describe("Authentication Routes", () => {
   let app;
   let token;
+  let mockEmailService;
 
   beforeAll(async () => {
     app = createTestApp();
     token = jwt.sign({ _id: "testuser123" }, process.env.SERVER_JWT_SESSION_SECRET);
+
+    mockEmailService = {
+      sendResetPasswordEmailFlow: jest.fn().mockResolvedValue(true),
+    };
+    EmailService.getInstance.mockReturnValue(mockEmailService);
   });
 
   beforeEach(async () => {
+    jest.clearAllMocks();
+    mockEmailService.sendResetPasswordEmailFlow.mockResolvedValue(true);
+
     const collections = mongoose.connection.collections;
     for (const key in collections) {
       await collections[key].deleteMany({});
