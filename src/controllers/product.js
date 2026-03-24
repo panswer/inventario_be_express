@@ -49,6 +49,7 @@ const createProduct = async (req, res) => {
 
   const productData = {
     name: body.name,
+    barcode: body.barcode,
     createdBy: body.session._id,
   };
 
@@ -213,7 +214,7 @@ const updateProductById = async (req, res) => {
     });
   }
 
-  const { inStock, name, categories } = req.body;
+  const { inStock, name, categories, barcode } = req.body;
   const oldImage = productDb.image;
 
   if (typeof inStock === "boolean") {
@@ -226,6 +227,10 @@ const updateProductById = async (req, res) => {
 
   if (categories && Array.isArray(categories)) {
     productDb.categories = categories.map(id => new mongoose.Types.ObjectId(id));
+  }
+
+  if (barcode) {
+    productDb.barcode = barcode;
   }
 
   if (req.files?.image) {

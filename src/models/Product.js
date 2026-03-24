@@ -13,9 +13,12 @@ const { Schema, model } = require("mongoose");
  *                  type: string
  *              inStock:
  *                  type: boolean
- *              image:
- *                  type: string
- *                  description: Path to product image
+  *              image:
+   *                  type: string
+   *                  description: Path to product image
+   *              barcode:
+   *                  type: string
+   *                  description: Product barcode (optional)
  *              categories:
  *                  type: array
  *                  items:
@@ -56,6 +59,10 @@ const ProductSchema = new Schema(
       default: true,
     },
     image: {
+      type: String,
+      default: null,
+    },
+    barcode: {
       type: String,
       default: null,
     },
