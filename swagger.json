@@ -1,0 +1,3098 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "Documentación de inventario API",
+    "version": "0.0.1",
+    "description": "Documentación de API utilizado para manejo de inventario"
+  },
+  "basePath": "/",
+  "host": "localhost:3200",
+  "paths": {
+    "/api/auth/sign-in": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Get token by username and password",
+        "description": "Get an authorization token by username and password",
+        "produces": [
+          "application/json"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignInRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignInSuccess"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/sign-up": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Sign up a new user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "example": "user@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "strongPassword123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request, invalid input"
+          },
+          "409": {
+            "description": "Conflict, user already exists"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/auth/reset-password": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Send reset password",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "example": "email@example.com"
+                  }
+                },
+                "required": [
+                  "email"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Possible token send",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Mail service is not working",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 2000
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/reset-password/verify": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Update user password by token and email",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "example": 123456
+                  },
+                  "email": {
+                    "type": "string",
+                    "example": "email@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "strongPassword123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "User password updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "token not valid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 1003
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 1004
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bill": {
+      "post": {
+        "summary": "Create a bill",
+        "description": "Create a bill",
+        "tags": [
+          "Bill"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sellers": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/SaleRequest"
+                    }
+                  }
+                },
+                "required": [
+                  "sellers"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Create a bill success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get bills",
+        "description": "Get bills",
+        "tags": [
+          "Bill"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "description": "limit",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "description": "page",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get bills",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "bills": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "$ref": "#/components/schemas/BillModel"
+                      }
+                    },
+                    "total": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bill/detail/{billId}": {
+      "get": {
+        "describe": "Get bill detail by billId",
+        "tags": [
+          "Bill",
+          "Price",
+          "Product"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "billId",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "describe": "Get bill detail by billId success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "billDetail": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/BillDetailModel"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/category": {
+      "get": {
+        "summary": "Get all categories",
+        "description": "Get all categories, optionally filter only enabled",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "tags": [
+          "Category"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "onlyEnabled",
+            "description": "Filter only enabled categories",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "categories": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "$ref": "#/components/schemas/CategoryModel"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a category",
+        "description": "Create a new category",
+        "tags": [
+          "Category"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Category created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "category": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/CategoryModel"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/category/{categoryId}": {
+      "get": {
+        "summary": "Get a category by id",
+        "description": "Get a category by id",
+        "tags": [
+          "Category"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Category",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "category": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/CategoryModel"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a category",
+        "description": "Update a category by id",
+        "tags": [
+          "Category"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Category updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "category": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/CategoryModel"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/category/{categoryId}/toggle": {
+      "patch": {
+        "summary": "Toggle category status",
+        "description": "Enable or disable a category",
+        "tags": [
+          "Category"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Category toggled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "category": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/CategoryModel"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/price/coin": {
+      "get": {
+        "summary": "Get all price coin",
+        "description": "Get all price coin",
+        "tags": [
+          "Price"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get price coins",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "coins": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "$ref": "#/components/schemas/CoinType"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/price/product/{productId}": {
+      "get": {
+        "summary": "Get a price by productId",
+        "description": "Get a price by productId",
+        "tags": [
+          "Price"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get a price by productId success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "price": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/PriceModel"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/price/{priceId}/{coin}": {
+      "put": {
+        "summary": "Update a price by id",
+        "description": "Update a price by id",
+        "tags": [
+          "Price"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "priceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "coin",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "$ref": "#/components/schemas/CoinType"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Update a price by id success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "price": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/PriceModel"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/product": {
+      "get": {
+        "summary": "Get all products",
+        "description": "Get all products with page and limit, optionally filtered by categories",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "tags": [
+          "Product"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "description": "The page number",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "description": "How many items will be return",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "categories",
+            "description": "Comma-separated category IDs to filter by (AND logic)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "list of product and total",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "products": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "$ref": "#/components/schemas/ProductModel"
+                      }
+                    },
+                    "total": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a product and price",
+        "description": "Create a product and price with optional image",
+        "tags": [
+          "Product",
+          "Price"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "amount": {
+                    "type": "number"
+                  },
+                  "coin": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/CoinType"
+                  },
+                  "categories": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Product image (jpg, jpeg, svg - max 2MB)"
+                  }
+                },
+                "required": [
+                  "name",
+                  "amount",
+                  "coin"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product and Prices created success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "product": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/ProductModel"
+                    },
+                    "price": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/PriceModel"
+                    }
+                  },
+                  "required": [
+                    "product",
+                    "price"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/product/{productId}": {
+      "get": {
+        "summary": "Get a product by id",
+        "description": "Get a product by id",
+        "tags": [
+          "Product"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "product": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/ProductModel"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a product",
+        "description": "Update a product by id with optional image",
+        "tags": [
+          "Product"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "inStock": {
+                    "type": "boolean"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "categories": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Product image (jpg, jpeg, svg - max 2MB)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Product updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "product": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/ProductModel"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/report/movements": {
+      "get": {
+        "summary": "Generate movements history report (XLSX)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "tags": [
+          "Reports"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "productId",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by product ID"
+          },
+          {
+            "in": "query",
+            "name": "warehouseId",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by warehouse ID"
+          },
+          {
+            "in": "query",
+            "name": "type",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "initial",
+                "in",
+                "out",
+                "adjust",
+                "transfer"
+              ]
+            },
+            "description": "Filter by movement type"
+          },
+          {
+            "in": "query",
+            "name": "startDate",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Start date (ISO string)"
+          },
+          {
+            "in": "query",
+            "name": "endDate",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "End date (ISO string)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "XLSX file",
+            "content": {
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/report/movements/summary": {
+      "get": {
+        "summary": "Generate movements summary report (XLSX)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "tags": [
+          "Reports"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "productId",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by product ID"
+          },
+          {
+            "in": "query",
+            "name": "warehouseId",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by warehouse ID"
+          },
+          {
+            "in": "query",
+            "name": "startDate",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Start date (ISO string)"
+          },
+          {
+            "in": "query",
+            "name": "endDate",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "End date (ISO string)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "XLSX file",
+            "content": {
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/report/movements/transfers": {
+      "get": {
+        "summary": "Generate transfers report (XLSX)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "tags": [
+          "Reports"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "productId",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by product ID"
+          },
+          {
+            "in": "query",
+            "name": "warehouseId",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by warehouse ID"
+          },
+          {
+            "in": "query",
+            "name": "startDate",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Start date (ISO string)"
+          },
+          {
+            "in": "query",
+            "name": "endDate",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "End date (ISO string)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "XLSX file",
+            "content": {
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stock": {
+      "get": {
+        "summary": "Get all stocks",
+        "description": "Get all stocks with pagination, optionally filtered by warehouse",
+        "tags": [
+          "Stock"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "warehouseId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by warehouse ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get stocks success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "stocks": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/StockModel"
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new stock entry",
+        "description": "Create a new stock entry for a product in a warehouse",
+        "tags": [
+          "Stock"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "productId": {
+                    "type": "string"
+                  },
+                  "warehouseId": {
+                    "type": "string"
+                  },
+                  "quantity": {
+                    "type": "number"
+                  },
+                  "minQuantity": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "productId",
+                  "warehouseId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Stock created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "stock": {
+                      "$ref": "#/components/schemas/StockModel"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stock/{stockId}": {
+      "get": {
+        "summary": "Get stock by ID",
+        "description": "Get a stock entry by its ID",
+        "tags": [
+          "Stock"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "stockId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get stock success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "stock": {
+                      "$ref": "#/components/schemas/StockModel"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update stock minQuantity",
+        "description": "Update stock minimum quantity threshold",
+        "tags": [
+          "Stock"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "stockId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "minQuantity": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "minQuantity"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Stock updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "stock": {
+                      "$ref": "#/components/schemas/StockModel"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stock/product/{productId}": {
+      "get": {
+        "summary": "Get stock by product ID",
+        "description": "Get stock entry for a specific product",
+        "tags": [
+          "Stock"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get stock success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "stock": {
+                      "$ref": "#/components/schemas/StockModel"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stock/{stockId}/add": {
+      "patch": {
+        "summary": "Add stock",
+        "description": "Add quantity to stock",
+        "tags": [
+          "Stock"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "stockId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "amount"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Stock added successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "stock": {
+                      "$ref": "#/components/schemas/StockModel"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stock/{stockId}/remove": {
+      "patch": {
+        "summary": "Remove stock",
+        "description": "Remove quantity from stock (cannot go below 0)",
+        "tags": [
+          "Stock"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "stockId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "amount"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Stock removed successfully"
+          },
+          "400": {
+            "description": "Insufficient stock"
+          }
+        }
+      }
+    },
+    "/api/stock-movement": {
+      "get": {
+        "summary": "Get all stock movements",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "tags": [
+          "Stock Movement"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 50
+            },
+            "description": "Items per page"
+          },
+          {
+            "in": "query",
+            "name": "productId",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by product ID"
+          },
+          {
+            "in": "query",
+            "name": "warehouseId",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by warehouse ID"
+          },
+          {
+            "in": "query",
+            "name": "type",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "initial",
+                "in",
+                "out",
+                "adjust",
+                "transfer"
+              ]
+            },
+            "description": "Filter by movement type"
+          },
+          {
+            "in": "query",
+            "name": "startDate",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filter movements from this date"
+          },
+          {
+            "in": "query",
+            "name": "endDate",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filter movements until this date"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stock movements list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "movements": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/StockMovementModel"
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stock-movement/product/{productId}": {
+      "get": {
+        "summary": "Get movements for a specific product",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "tags": [
+          "Stock Movement"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "productId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Product ID"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 50
+            },
+            "description": "Max number of movements"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product movements"
+          }
+        }
+      }
+    },
+    "/api/stock-movement/product/{productId}/warehouse/{warehouseId}": {
+      "get": {
+        "summary": "Get movements for a product in a specific warehouse",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "tags": [
+          "Stock Movement"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "productId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "warehouseId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product warehouse movements"
+          }
+        }
+      }
+    },
+    "/api/supplier": {
+      "get": {
+        "summary": "Get all suppliers",
+        "description": "Get all suppliers, optionally filter only enabled",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "tags": [
+          "Supplier"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "onlyEnabled",
+            "description": "Filter only enabled suppliers",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of suppliers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "suppliers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "$ref": "#/components/schemas/SupplierModel"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a supplier",
+        "description": "Create a new supplier",
+        "tags": [
+          "Supplier"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "rif": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "contactPerson": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "rif"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Supplier created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "supplier": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/SupplierModel"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/supplier/{supplierId}": {
+      "get": {
+        "summary": "Get a supplier by id",
+        "description": "Get a supplier by id",
+        "tags": [
+          "Supplier"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "supplierId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Supplier",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "supplier": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/SupplierModel"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a supplier",
+        "description": "Update a supplier by id",
+        "tags": [
+          "Supplier"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "supplierId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "rif": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "contactPerson": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Supplier updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "supplier": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/SupplierModel"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/supplier/{supplierId}/toggle": {
+      "patch": {
+        "summary": "Toggle supplier status",
+        "description": "Enable or disable a supplier",
+        "tags": [
+          "Supplier"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "supplierId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Supplier toggled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "supplier": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/SupplierModel"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/transfer": {
+      "post": {
+        "summary": "Transfer stock between warehouses",
+        "description": "Transfer stock from one warehouse to another",
+        "tags": [
+          "Transfer"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "productId": {
+                    "type": "string"
+                  },
+                  "fromWarehouseId": {
+                    "type": "string"
+                  },
+                  "toWarehouseId": {
+                    "type": "string"
+                  },
+                  "quantity": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "productId",
+                  "fromWarehouseId",
+                  "toWarehouseId",
+                  "quantity"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transfer successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "fromStock": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/StockModel"
+                    },
+                    "toStock": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/StockModel"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Transfer failed"
+          }
+        }
+      }
+    },
+    "/api/transfer/product/{productId}": {
+      "get": {
+        "summary": "Get stock by product across all warehouses",
+        "description": "Get all stock entries for a product across all warehouses",
+        "tags": [
+          "Transfer"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stock by warehouse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "stocks": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "$ref": "#/components/schemas/StockModel"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get all users (admin only)",
+        "description": "Returns a list of all users with their roles",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "users": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/UserModel"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/users/{id}/role": {
+      "patch": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Update user role (admin only)",
+        "description": "Update the role of a specific user",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "admin",
+                      "manager",
+                      "user"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid role"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        }
+      }
+    },
+    "/api/warehouse": {
+      "get": {
+        "summary": "Get all warehouses",
+        "description": "Get all warehouses with pagination",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "tags": [
+          "Warehouse"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "description": "The page number",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "description": "How many items will be returned",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of warehouses and total",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "warehouses": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "$ref": "#/components/schemas/WarehouseModel"
+                      }
+                    },
+                    "total": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a warehouse",
+        "description": "Create a new warehouse",
+        "tags": [
+          "Warehouse"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "address"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Warehouse created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "warehouse": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/WarehouseModel"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/warehouse/{warehouseId}": {
+      "get": {
+        "summary": "Get a warehouse by id",
+        "description": "Get a warehouse by id",
+        "tags": [
+          "Warehouse"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "warehouseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Warehouse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "warehouse": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/WarehouseModel"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a warehouse",
+        "description": "Update a warehouse by id",
+        "tags": [
+          "Warehouse"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "warehouseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "isEnabled": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Warehouse updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "warehouse": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/WarehouseModel"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a warehouse",
+        "description": "Soft delete a warehouse by id",
+        "tags": [
+          "Warehouse"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "warehouseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Warehouse deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "warehouse": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/WarehouseModel"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SignInSuccess": {
+        "type": "object",
+        "properties": {
+          "authorization": {
+            "type": "string"
+          }
+        }
+      },
+      "SignInRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "BillModel": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "number"
+          },
+          "updatedAt": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "_id",
+          "userId",
+          "sellers",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "BillDetailModel": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BillModel"
+          }
+        ],
+        "properties": {
+          "sales": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/SaleModel"
+                }
+              ],
+              "properties": {
+                "productId": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/ProductModel"
+                }
+              }
+            }
+          },
+          "total": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "sales",
+          "total"
+        ]
+      },
+      "CategoryModel": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "integer"
+          },
+          "updatedAt": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "_id",
+          "name",
+          "isEnabled",
+          "createdBy",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "PasswordResetModel": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "69adbab2699262aa01e9d36e"
+          },
+          "userId": {
+            "type": "string",
+            "example": "6805887a4368ad575e37be5f"
+          },
+          "token": {
+            "type": "string",
+            "example": "abc654"
+          },
+          "createdAt": {
+            "type": "integer",
+            "example": 1745250570613
+          }
+        }
+      },
+      "CoinType": {
+        "type": "string",
+        "enum": [
+          "$",
+          "Brs."
+        ]
+      },
+      "PriceModel": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "coin": {
+            "type": "string",
+            "$ref": "#/components/schemas/CoinType"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "integer"
+          },
+          "updatedAt": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "_id",
+          "amount",
+          "coin",
+          "isActive",
+          "productId",
+          "createdBy",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "ProductModel": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "inStock": {
+            "type": "boolean"
+          },
+          "image": {
+            "type": "string",
+            "description": "Path to product image"
+          },
+          "barcode": {
+            "type": "string",
+            "description": "Product barcode (optional)"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "$ref": "#/components/schemas/CategoryModel"
+            }
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "integer"
+          },
+          "updatedAt": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "_id",
+          "name",
+          "createdBy",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "ProductPriceModel": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ProductModel"
+          }
+        ],
+        "properties": {
+          "prices": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "$ref": "#/components/schemas/PriceModel"
+            }
+          }
+        }
+      },
+      "SaleRequest": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "number"
+          },
+          "stockId": {
+            "type": "string"
+          },
+          "coin": {
+            "type": "string",
+            "$ref": "#/components/schemas/CoinType"
+          }
+        },
+        "required": [
+          "count",
+          "stockId",
+          "coin"
+        ]
+      },
+      "SaleModel": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "count": {
+            "type": "number"
+          },
+          "stockId": {
+            "type": "string"
+          },
+          "price": {
+            "type": "string"
+          },
+          "billId": {
+            "type": "string"
+          },
+          "coin": {
+            "type": "string",
+            "$ref": "#/components/schemas/CoinType"
+          },
+          "createdAt": {
+            "type": "number"
+          },
+          "updatedAt": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "_id",
+          "count",
+          "stockId",
+          "price",
+          "billId",
+          "coin",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "StockModel": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "minQuantity": {
+            "type": "number"
+          },
+          "warehouseId": {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "address": {
+                "type": "string"
+              },
+              "isEnabled": {
+                "type": "boolean"
+              }
+            }
+          },
+          "productId": {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "inStock": {
+                "type": "boolean"
+              },
+              "categories": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "isEnabled": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              },
+              "createdBy": {
+                "type": "string"
+              },
+              "createdAt": {
+                "type": "integer"
+              },
+              "updatedAt": {
+                "type": "integer"
+              }
+            }
+          },
+          "createdAt": {
+            "type": "integer"
+          },
+          "updatedAt": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "_id",
+          "quantity",
+          "productId",
+          "warehouseId",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "StockMovementModel": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "initial",
+              "in",
+              "out",
+              "adjust",
+              "transfer"
+            ]
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "previousQuantity": {
+            "type": "number"
+          },
+          "newQuantity": {
+            "type": "number"
+          },
+          "productId": {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "warehouseId": {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "billId": {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string"
+              }
+            }
+          },
+          "reason": {
+            "type": "string"
+          },
+          "transferToWarehouseId": {
+            "type": "object",
+            "description": "For transfer movements (source warehouse), the destination warehouse",
+            "properties": {
+              "_id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "transferFromWarehouseId": {
+            "type": "object",
+            "description": "For transfer movements (destination warehouse), the source warehouse",
+            "properties": {
+              "_id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "integer"
+          },
+          "updatedAt": {
+            "type": "integer"
+          }
+        }
+      },
+      "SupplierModel": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "rif": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "contactPerson": {
+            "type": "string"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "integer"
+          },
+          "updatedAt": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "_id",
+          "name",
+          "rif",
+          "isEnabled",
+          "createdBy",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "UserModel": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "6805887a4368ad575e37be5f"
+          },
+          "username": {
+            "type": "string",
+            "example": "example@mailinator.com"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "manager",
+              "cashier",
+              "user"
+            ],
+            "example": "admin"
+          },
+          "createdAt": {
+            "type": "integer",
+            "example": 1745250570613
+          },
+          "updatedAt": {
+            "type": "integer",
+            "example": 1745250570613
+          },
+          "__v": {
+            "type": "number",
+            "example": 0
+          }
+        },
+        "required": [
+          "_id",
+          "username",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "WarehouseModel": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "createdBy": {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string"
+              },
+              "username": {
+                "type": "string"
+              }
+            }
+          },
+          "createdAt": {
+            "type": "integer"
+          },
+          "updatedAt": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "_id",
+          "name",
+          "address",
+          "createdBy",
+          "createdAt",
+          "updatedAt"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Enter your bearer token in the format **Bearer &lt;token&gt;**"
+      }
+    }
+  },
+  "tags": []
+}
