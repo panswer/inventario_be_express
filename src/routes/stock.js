@@ -52,7 +52,12 @@ const router = Router();
  *                              stocks:
  *                                  type: array
  *                                  items:
- *                                      $ref: "#/components/schemas/StockModel"
+ *                                      allOf:
+ *                                          - $ref: "#/components/schemas/StockModel"
+ *                                          - type: object
+ *                                            properties:
+ *                                              price:
+ *                                                $ref: "#/components/schemas/PriceModel"
  *                              total:
  *                                  type: integer
  */
@@ -83,7 +88,12 @@ router.get("", [authorizationFn, isCashierOrHigher], getStocks);
  *                          type: object
  *                          properties:
  *                              stock:
- *                                  $ref: "#/components/schemas/StockModel"
+ *                                  allOf:
+ *                                      - $ref: "#/components/schemas/StockModel"
+ *                                      - type: object
+ *                                        properties:
+ *                                          price:
+ *                                            $ref: "#/components/schemas/PriceModel"
  */
 router.get("/:stockId", [authorizationFn, isCashierOrHigher], getStockById);
 
@@ -112,7 +122,12 @@ router.get("/:stockId", [authorizationFn, isCashierOrHigher], getStockById);
  *                          type: object
  *                          properties:
  *                              stock:
- *                                  $ref: "#/components/schemas/StockModel"
+ *                                  allOf:
+ *                                      - $ref: "#/components/schemas/StockModel"
+ *                                      - type: object
+ *                                        properties:
+ *                                          price:
+ *                                            $ref: "#/components/schemas/PriceModel"
  */
 router.get("/product/:productId", [authorizationFn, isCashierOrHigher], getStockByProductId);
 

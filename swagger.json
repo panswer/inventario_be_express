@@ -1246,7 +1246,19 @@
                     "stocks": {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/StockModel"
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/StockModel"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "price": {
+                                "$ref": "#/components/schemas/PriceModel"
+                              }
+                            }
+                          }
+                        ]
                       }
                     },
                     "total": {
@@ -1348,7 +1360,19 @@
                   "type": "object",
                   "properties": {
                     "stock": {
-                      "$ref": "#/components/schemas/StockModel"
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/StockModel"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "price": {
+                              "$ref": "#/components/schemas/PriceModel"
+                            }
+                          }
+                        }
+                      ]
                     }
                   }
                 }
@@ -1446,7 +1470,19 @@
                   "type": "object",
                   "properties": {
                     "stock": {
-                      "$ref": "#/components/schemas/StockModel"
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/StockModel"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "price": {
+                              "$ref": "#/components/schemas/PriceModel"
+                            }
+                          }
+                        }
+                      ]
                     }
                   }
                 }
