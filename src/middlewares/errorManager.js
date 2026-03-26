@@ -1,3 +1,5 @@
+const LoggerService = require("../services/LoggerService");
+
 /**
  * Middleware to catch general error
  *
@@ -9,7 +11,20 @@
  * @returns {void}
  */
 const errorManager = (err, req, res, next) => {
+    const loggerService = LoggerService.getInstance();
+
     res.locals.errorMessage = err.message;
+
+    loggerService.error(
+        "errorManager",
+        {
+            requestId: req.requestId,
+            userIp: req.userIp,
+            body: req.body,
+            reason: err.message ?? "unknown error",
+            type: "logic"
+        }
+    );
 
     const status = err.status || 500;
 

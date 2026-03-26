@@ -57,7 +57,7 @@ class StockService {
      * @returns {Array}
      */
     buildAggregationPipeline(pipeline = [], coin = null) {
-        const priceMatchStage = coin 
+        const priceMatchStage = coin
             ? { $match: { $expr: { $eq: ['$productId', '$$pid'] }, coin } }
             : { $match: { $expr: { $eq: ['$productId', '$$pid'] } } };
 
@@ -89,7 +89,7 @@ class StockService {
             {
                 $lookup: {
                     from: 'categories',
-                    let: { catIds: '$productId.categories' },
+                    let: { catIds: { $ifNull: ['$productId.categories', []] } },
                     pipeline: [
                         {
                             $match: {
