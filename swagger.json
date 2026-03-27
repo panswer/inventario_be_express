@@ -830,6 +830,10 @@
                   "name": {
                     "type": "string"
                   },
+                  "barcode": {
+                    "type": "string",
+                    "description": "Product barcode (optional)"
+                  },
                   "amount": {
                     "type": "number"
                   },
@@ -958,6 +962,9 @@
                     "type": "boolean"
                   },
                   "name": {
+                    "type": "string"
+                  },
+                  "barcode": {
                     "type": "string"
                   },
                   "categories": {

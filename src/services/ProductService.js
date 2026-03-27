@@ -56,6 +56,10 @@ class ProductService {
         return Product.findById(productId).populate('categories');
     }
 
+    findByBarcode(barcode) {
+        return Product.findOne({ barcode });
+    }
+
     /**
      * Create a new product
      * 

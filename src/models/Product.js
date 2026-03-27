@@ -92,4 +92,9 @@ const ProductSchema = new Schema(
   }
 );
 
+ProductSchema.index(
+  { barcode: 1 },
+  { unique: true, partialFilterExpression: { barcode: { $ne: null } } }
+);
+
 module.exports = model("product", ProductSchema);

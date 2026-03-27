@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const { body } = require('express-validator');
 const { getProducts, createProduct, updateProductById, getProductById } = require("../controllers/product");
+const ProductService = require("../services/ProductService");
 const { authorizationFn } = require("../middlewares/authorization");
 const { isAdminOrManager, isCashierOrHigher } = require("../middlewares/roleAuthorization");
 const { productValidation } = require("../middlewares/product");
@@ -73,6 +74,9 @@ router.get("", [authorizationFn, isCashierOrHigher], getProducts);
  *                      properties:
  *                          name:
  *                              type: string
+ *                          barcode:
+ *                              type: string
+ *                              description: Product barcode (optional)
  *                          amount:
  *                              type: number
  *                          coin:
@@ -114,6 +118,15 @@ router.post("", [
     body('amount').isFloat({ min: 0.01 }).withMessage('El monto debe ser mayor a 0.01'),
     body('coin').isIn(Object.values(coinEnum)).withMessage('La moneda no es válida'),
     body('name').isLength({ min: 3 }).withMessage('El nombre debe tener al menos 3 caracteres'),
+    body('barcode').custom(async (value) => {
+        if (!value) return true;
+        const productService = ProductService.getInstance();
+        const existing = await productService.findByBarcode(value);
+        if (existing) {
+            throw new Error('El código de barras ya está registrado');
+        }
+        return true;
+    }),
     productValidation,
     validateCategories,
     imageValidation
@@ -175,6 +188,8 @@ router.get("/:productId", [authorizationFn, isCashierOrHigher], getProductById);
  *                              type: boolean
  *                          name:
  *                              type: string
+ *                          barcode:
+ *                              type: string
  *                          categories:
  *                              type: array
  *                              items:
@@ -199,6 +214,15 @@ router.put("/:productId", [
     authorizationFn,
     isAdminOrManager,
     body('name').isLength({ min: 3 }).withMessage('El nombre debe tener al menos 3 caracteres'),
+    body('barcode').custom(async (value, { req }) => {
+        if (!value) return true;
+        const productService = ProductService.getInstance();
+        const existing = await productService.findByBarcode(value);
+        if (existing && existing._id.toString() !== req.params.productId) {
+            throw new Error('El código de barras ya está registrado');
+        }
+        return true;
+    }),
     productValidation,
     validateCategories,
     imageValidation
