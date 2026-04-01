@@ -1,4 +1,4 @@
-const { Schema, model } = require("mongoose");
+const { Schema, model } = require('mongoose');
 
 /**
  * @typedef {object} BillSchema
@@ -55,17 +55,17 @@ const BillSchema = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: "user",
+      ref: 'user',
       required: [true, "user's id is required"],
     },
   },
   {
     timestamps: {
-      createdAt: "createdAt",
-      updatedAt: "updatedAt",
+      createdAt: 'createdAt',
+      updatedAt: 'updatedAt',
     },
     toJSON: {
-      transform: function (billSch, bill) {
+      transform(billSch, bill) {
         bill.createdAt = billSch.createdAt.getTime();
         bill.updatedAt = billSch.updatedAt.getTime();
 
@@ -75,4 +75,4 @@ const BillSchema = new Schema(
   }
 );
 
-module.exports = model("bill", BillSchema);
+module.exports = model('bill', BillSchema);

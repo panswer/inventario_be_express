@@ -7,37 +7,34 @@ const LoggerService = require('../services/LoggerService');
  * @param {import('express').Request} req
  * @param {import('express').Response} res
  * @param {import('express').NextFunction} next
- * 
+ *
  * @returns {void}
  */
 const priceValidation = (req, res, next) => {
-    const result = validationResult(req);
-    const loggerService = LoggerService.getInstance();
+  const result = validationResult(req);
+  const loggerService = LoggerService.getInstance();
 
-    if (result.isEmpty()) {
-        return next();
-    }
+  if (result.isEmpty()) {
+    return next();
+  }
 
-    const errors = result.array();
+  const errors = result.array();
 
-    const reason = errors.map(error => error.msg).join(', ');
+  const reason = errors.map(error => error.msg).join(', ');
 
-    loggerService.warn(
-        'middleware@priceValidation',
-        {
-            requestId: req.requestId,
-            userIp: req.userIp,
-            body: req.body,
-            reason,
-            type: 'logic'
-        }
-    );
+  loggerService.warn('middleware@priceValidation', {
+    requestId: req.requestId,
+    userIp: req.userIp,
+    body: req.body,
+    reason,
+    type: 'logic',
+  });
 
-    res.status(400).json({
-        code: 1002,
-    });
-}
+  res.status(400).json({
+    code: 1002,
+  });
+};
 
 module.exports = {
-    priceValidation,
-}
+  priceValidation,
+};

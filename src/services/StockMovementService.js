@@ -1,12 +1,12 @@
-const mongoose = require("mongoose");
-const StockMovement = require("../models/StockMovement");
+const mongoose = require('mongoose');
+const StockMovement = require('../models/StockMovement');
 
 class StockMovementService {
   static instance;
 
   /**
    * Get an instance
-   * 
+   *
    * @returns {StockMovementService}
    */
   static getInstance() {
@@ -121,69 +121,69 @@ class StockMovementService {
             { $limit: limit },
             {
               $lookup: {
-                from: "products",
-                localField: "productId",
-                foreignField: "_id",
-                as: "productId",
+                from: 'products',
+                localField: 'productId',
+                foreignField: '_id',
+                as: 'productId',
               },
             },
-            { $unwind: "$productId" },
+            { $unwind: '$productId' },
             {
               $lookup: {
-                from: "warehouses",
-                localField: "warehouseId",
-                foreignField: "_id",
-                as: "warehouseId",
+                from: 'warehouses',
+                localField: 'warehouseId',
+                foreignField: '_id',
+                as: 'warehouseId',
               },
             },
-            { $unwind: "$warehouseId" },
+            { $unwind: '$warehouseId' },
             {
               $lookup: {
-                from: "bills",
-                localField: "billId",
-                foreignField: "_id",
-                as: "billId",
+                from: 'bills',
+                localField: 'billId',
+                foreignField: '_id',
+                as: 'billId',
               },
             },
             {
               $unwind: {
-                path: "$billId",
+                path: '$billId',
                 preserveNullAndEmptyArrays: true,
               },
             },
             {
               $lookup: {
-                from: "warehouses",
-                localField: "transferToWarehouseId",
-                foreignField: "_id",
-                as: "transferToWarehouseId",
+                from: 'warehouses',
+                localField: 'transferToWarehouseId',
+                foreignField: '_id',
+                as: 'transferToWarehouseId',
               },
             },
             {
               $unwind: {
-                path: "$transferToWarehouseId",
+                path: '$transferToWarehouseId',
                 preserveNullAndEmptyArrays: true,
               },
             },
             {
               $lookup: {
-                from: "warehouses",
-                localField: "transferFromWarehouseId",
-                foreignField: "_id",
-                as: "transferFromWarehouseId",
+                from: 'warehouses',
+                localField: 'transferFromWarehouseId',
+                foreignField: '_id',
+                as: 'transferFromWarehouseId',
               },
             },
             {
               $unwind: {
-                path: "$transferFromWarehouseId",
+                path: '$transferFromWarehouseId',
                 preserveNullAndEmptyArrays: true,
               },
             },
           ],
-          total: [{ $count: "count" }],
+          total: [{ $count: 'count' }],
         },
       },
-    ]).then((result) => {
+    ]).then(result => {
       const movements = result[0].data;
       const total = result[0].total[0]?.count || 0;
       return { movements, total };
@@ -201,11 +201,11 @@ class StockMovementService {
     return StockMovement.find({ productId })
       .sort({ createdAt: -1 })
       .limit(limit)
-      .populate("warehouseId")
-      .populate("productId")
-      .populate("billId")
-      .populate("transferToWarehouseId")
-      .populate("transferFromWarehouseId");
+      .populate('warehouseId')
+      .populate('productId')
+      .populate('billId')
+      .populate('transferToWarehouseId')
+      .populate('transferFromWarehouseId');
   }
 
   /**
@@ -220,11 +220,11 @@ class StockMovementService {
     return StockMovement.find({ productId, warehouseId })
       .sort({ createdAt: -1 })
       .limit(limit)
-      .populate("warehouseId")
-      .populate("productId")
-      .populate("billId")
-      .populate("transferToWarehouseId")
-      .populate("transferFromWarehouseId");
+      .populate('warehouseId')
+      .populate('productId')
+      .populate('billId')
+      .populate('transferToWarehouseId')
+      .populate('transferFromWarehouseId');
   }
 }
 

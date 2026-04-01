@@ -1,17 +1,17 @@
-const { Router } = require("express");
+const { Router } = require('express');
 const { body } = require('express-validator');
 const {
-    getStocks,
-    getStockById,
-    getStockByProductId,
-    createStock,
-    updateStock,
-    addStock,
-    removeStock,
-} = require("../controllers/stock");
-const { authorizationFn } = require("../middlewares/authorization");
-const { isAdminOrManager, isCashierOrHigher } = require("../middlewares/roleAuthorization");
-const { stockValidation } = require("../middlewares/stock");
+  getStocks,
+  getStockById,
+  getStockByProductId,
+  createStock,
+  updateStock,
+  addStock,
+  removeStock,
+} = require('../controllers/stock');
+const { authorizationFn } = require('../middlewares/authorization');
+const { isAdminOrManager, isCashierOrHigher } = require('../middlewares/roleAuthorization');
+const { stockValidation } = require('../middlewares/stock');
 
 const router = Router();
 
@@ -61,7 +61,7 @@ const router = Router();
  *                              total:
  *                                  type: integer
  */
-router.get("", [authorizationFn, isCashierOrHigher], getStocks);
+router.get('', [authorizationFn, isCashierOrHigher], getStocks);
 
 /**
  * @swagger
@@ -95,7 +95,7 @@ router.get("", [authorizationFn, isCashierOrHigher], getStocks);
  *                                          price:
  *                                            $ref: "#/components/schemas/PriceModel"
  */
-router.get("/:stockId", [authorizationFn, isCashierOrHigher], getStockById);
+router.get('/:stockId', [authorizationFn, isCashierOrHigher], getStockById);
 
 /**
  * @swagger
@@ -129,7 +129,7 @@ router.get("/:stockId", [authorizationFn, isCashierOrHigher], getStockById);
  *                                          price:
  *                                            $ref: "#/components/schemas/PriceModel"
  */
-router.get("/product/:productId", [authorizationFn, isCashierOrHigher], getStockByProductId);
+router.get('/product/:productId', [authorizationFn, isCashierOrHigher], getStockByProductId);
 
 /**
  * @swagger
@@ -170,7 +170,9 @@ router.get("/product/:productId", [authorizationFn, isCashierOrHigher], getStock
  *                              stock:
  *                                  $ref: "#/components/schemas/StockModel"
  */
-router.post("", [
+router.post(
+  '',
+  [
     authorizationFn,
     isAdminOrManager,
     body('productId').notEmpty().withMessage('productId is required'),
@@ -178,7 +180,9 @@ router.post("", [
     body('quantity').optional().isFloat({ min: 0 }).withMessage('quantity must be >= 0'),
     body('minQuantity').optional().isFloat({ min: 0 }).withMessage('minQuantity must be >= 0'),
     stockValidation,
-], createStock);
+  ],
+  createStock
+);
 
 /**
  * @swagger
@@ -218,12 +222,16 @@ router.post("", [
  *                              stock:
  *                                  $ref: "#/components/schemas/StockModel"
  */
-router.put("/:stockId", [
+router.put(
+  '/:stockId',
+  [
     authorizationFn,
     isAdminOrManager,
     body('minQuantity').isFloat({ min: 0 }).withMessage('minQuantity must be >= 0'),
     stockValidation,
-], updateStock);
+  ],
+  updateStock
+);
 
 /**
  * @swagger
@@ -263,12 +271,16 @@ router.put("/:stockId", [
  *                              stock:
  *                                  $ref: "#/components/schemas/StockModel"
  */
-router.patch("/:stockId/add", [
+router.patch(
+  '/:stockId/add',
+  [
     authorizationFn,
     isAdminOrManager,
     body('amount').isFloat({ min: 0.01 }).withMessage('amount must be > 0'),
     stockValidation,
-], addStock);
+  ],
+  addStock
+);
 
 /**
  * @swagger
@@ -303,11 +315,15 @@ router.patch("/:stockId/add", [
  *          400:
  *              description: Insufficient stock
  */
-router.patch("/:stockId/remove", [
+router.patch(
+  '/:stockId/remove',
+  [
     authorizationFn,
     isAdminOrManager,
     body('amount').isFloat({ min: 0.01 }).withMessage('amount must be > 0'),
     stockValidation,
-], removeStock);
+  ],
+  removeStock
+);
 
 module.exports = router;

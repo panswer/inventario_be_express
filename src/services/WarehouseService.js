@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const Warehouse = require("../models/Warehouse");
+const mongoose = require('mongoose');
+const Warehouse = require('../models/Warehouse');
 
 class WarehouseService {
   static instance;
@@ -21,10 +21,7 @@ class WarehouseService {
    * @returns {Promise<Array<import('../models/Warehouse')>>}
    */
   getWarehouses(skip, limit) {
-    return Warehouse.find({ isEnabled: true })
-      .populate("createdBy")
-      .skip(skip)
-      .limit(limit);
+    return Warehouse.find({ isEnabled: true }).populate('createdBy').skip(skip).limit(limit);
   }
 
   /**
@@ -73,11 +70,9 @@ class WarehouseService {
     if (data.address !== undefined) updateData.address = data.address;
     if (data.isEnabled !== undefined) updateData.isEnabled = data.isEnabled;
 
-    return Warehouse.findOneAndUpdate(
-      { _id: warehouseId, isEnabled: true },
-      updateData,
-      { new: true }
-    );
+    return Warehouse.findOneAndUpdate({ _id: warehouseId, isEnabled: true }, updateData, {
+      new: true,
+    });
   }
 
   /**

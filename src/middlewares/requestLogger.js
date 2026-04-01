@@ -1,7 +1,6 @@
 const { randomUUID } = require('node:crypto');
 const LoggerService = require('../services/LoggerService');
 
-
 /**
  * Middleware to logger request
  *
@@ -12,63 +11,54 @@ const LoggerService = require('../services/LoggerService');
  * @returns {void}
  */
 const requestLoggerMiddleware = (req, res, next) => {
-    const loggerService = LoggerService.getInstance();
-    const userIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-    const requestId = randomUUID();
-    const start = Date.now();
+  const loggerService = LoggerService.getInstance();
+  const userIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+  const requestId = randomUUID();
+  const start = Date.now();
 
-    req.requestId = requestId;
-    req.userIp = userIp;
+  req.requestId = requestId;
+  req.userIp = userIp;
 
-    loggerService.info(
-        `${req.method} ${req.url}`,
-        {
-            type: 'in',
-            requestId,
-            userIp,
-            method: req.method,
-            path: req.url,
-            body: { ...req.body }
-        }
-    );
+  loggerService.info(`${req.method} ${req.url}`, {
+    type: 'in',
+    requestId,
+    userIp,
+    method: req.method,
+    path: req.url,
+    body: { ...req.body },
+  });
 
-    res.on('finish', () => {
-        const duration = Date.now() - start;
+  res.on('finish', () => {
+    const duration = Date.now() - start;
 
-        if (res.statusCode >= 400) {
-            loggerService.error(
-                `${req.method} ${req.url}`,
-                {
-                    type: 'out',
-                    requestId,
-                    userIp,
-                    method: req.method,
-                    path: req.url,
-                    statusCode: res.statusCode,
-                    duration: `${duration}ms`,
-                    body: req.body,
-                    errorMessage: res.locals.errorMessage || null
-                }
-            );
-        } else {
-            loggerService.info(
-                `${req.method} ${req.url}`,
-                {
-                    type: 'out',
-                    requestId,
-                    userIp,
-                    method: req.method,
-                    path: req.url,
-                    statusCode: res.statusCode,
-                    duration: `${duration}ms`,
-                    body: req.body,
-                    errorMessage: res.locals.errorMessage || null
-                }
-            );
-        }
-    });
+    if (res.statusCode >= 400) {
+      loggerService.error(`${req.method} ${req.url}`, {
+        type: 'out',
+        requestId,
+        userIp,
+        method: req.method,
+        path: req.url,
+        statusCode: res.statusCode,
+        duration: `${duration}ms`,
+        body: req.body,
+        errorMessage: res.locals.errorMessage || null,
+      });
+    } else {
+      loggerService.info(`${req.method} ${req.url}`, {
+        type: 'out',
+        requestId,
+        userIp,
+        method: req.method,
+        path: req.url,
+        statusCode: res.statusCode,
+        duration: `${duration}ms`,
+        body: req.body,
+        errorMessage: res.locals.errorMessage || null,
+      });
+    }
+  });
 
-    next();
+  next();
 };
 
 module.exports = requestLoggerMiddleware;

@@ -1,5 +1,5 @@
-const WarehouseService = require("../services/WarehouseService");
-const LoggerService = require("../services/LoggerService");
+const WarehouseService = require('../services/WarehouseService');
+const LoggerService = require('../services/LoggerService');
 
 /**
  * Get warehouse list
@@ -13,22 +13,22 @@ const getWarehouses = async (req, res) => {
   const loggerService = LoggerService.getInstance();
 
   try {
-    const skipItems = Number(page || "1") - 1;
-    const limitNum = Number(limit || "10");
+    const skipItems = Number(page || '1') - 1;
+    const limitNum = Number(limit || '10');
 
     const warehouses = await warehouseService.getWarehouses(skipItems, limitNum);
-    
+
     const total = await warehouseService.countWarehouses();
 
     return res.status(200).json({ warehouses, total });
   } catch (error) {
-    loggerService.error("warehouseService@getWarehouses", {
+    loggerService.error('warehouseService@getWarehouses', {
       requestId: req.requestId,
       userIp: req.userIp,
-      reason: error?.message ?? "Unknown error",
-      type: "logic"
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
     });
-    return res.status(500).json({ message: "Internal error" });
+    return res.status(500).json({ message: 'Internal error' });
   }
 };
 
@@ -52,13 +52,13 @@ const getWarehouseById = async (req, res) => {
 
     return res.status(200).json({ warehouse });
   } catch (error) {
-    loggerService.error("warehouseService@getWarehouseById", {
+    loggerService.error('warehouseService@getWarehouseById', {
       requestId: req.requestId,
       userIp: req.userIp,
-      reason: error?.message ?? "Unknown error",
-      type: "logic"
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
     });
-    return res.status(500).json({ message: "Internal error" });
+    return res.status(500).json({ message: 'Internal error' });
   }
 };
 
@@ -75,20 +75,16 @@ const createWarehouse = async (req, res) => {
   const loggerService = LoggerService.getInstance();
 
   try {
-    const warehouse = await warehouseService.createWarehouse(
-      name,
-      address,
-      session._id
-    );
+    const warehouse = await warehouseService.createWarehouse(name, address, session._id);
 
     return res.status(201).json({ warehouse });
   } catch (error) {
-    loggerService.error("warehouseService@createWarehouse", {
+    loggerService.error('warehouseService@createWarehouse', {
       requestId: req.requestId,
       userIp: req.userIp,
       body: req.body,
-      reason: error?.message ?? "Unknown error",
-      type: "logic"
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
     });
     return res.status(400).json({ code: 4000 });
   }
@@ -110,7 +106,7 @@ const updateWarehouse = async (req, res) => {
     const warehouse = await warehouseService.updateWarehouse(warehouseId, {
       name,
       address,
-      isEnabled
+      isEnabled,
     });
 
     if (!warehouse) {
@@ -119,12 +115,12 @@ const updateWarehouse = async (req, res) => {
 
     return res.status(200).json({ warehouse });
   } catch (error) {
-    loggerService.error("warehouseService@updateWarehouse", {
+    loggerService.error('warehouseService@updateWarehouse', {
       requestId: req.requestId,
       userIp: req.userIp,
       body: req.body,
-      reason: error?.message ?? "Unknown error",
-      type: "logic"
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
     });
     return res.status(400).json({ code: 4000 });
   }
@@ -150,13 +146,13 @@ const deleteWarehouse = async (req, res) => {
 
     return res.status(200).json({ warehouse });
   } catch (error) {
-    loggerService.error("warehouseService@deleteWarehouse", {
+    loggerService.error('warehouseService@deleteWarehouse', {
       requestId: req.requestId,
       userIp: req.userIp,
-      reason: error?.message ?? "Unknown error",
-      type: "logic"
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
     });
-    return res.status(500).json({ message: "Internal error" });
+    return res.status(500).json({ message: 'Internal error' });
   }
 };
 
@@ -165,5 +161,5 @@ module.exports = {
   getWarehouseById,
   createWarehouse,
   updateWarehouse,
-  deleteWarehouse
+  deleteWarehouse,
 };

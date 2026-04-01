@@ -3,94 +3,94 @@ const Bill = require('../models/Bill');
 const Product = require('../models/Product');
 
 class BillService {
-    /**
-     * @type {BillService}
-     */
-    static instance;
+  /**
+   * @type {BillService}
+   */
+  static instance;
 
-    static getInstance() {
-        if (!this.instance) {
-            this.instance = new BillService();
-        }
-
-        return this.instance;
+  static getInstance() {
+    if (!this.instance) {
+      this.instance = new BillService();
     }
 
-    static destroyInstance() {
-        delete this.instance;
-    }
+    return this.instance;
+  }
 
-    /**
-     * Create a new bill
-     * 
-     * @param {string} userId 
-     * @returns {Promise<import('../models/Bill')>}
-     */
-    createBill(userId) {
-        return new Bill({
-            userId,
-        }).save();
-    }
+  static destroyInstance() {
+    delete this.instance;
+  }
 
-    /**
-     * Get bills with pagination
-     * 
-     * @param {number} skip 
-     * @param {number} limit 
-     * @returns {Promise<Array<import('../models/Bill')>>}
-     */
-    getBills(skip, limit) {
-        return Bill.find().skip(skip).limit(limit);
-    }
+  /**
+   * Create a new bill
+   *
+   * @param {string} userId
+   * @returns {Promise<import('../models/Bill')>}
+   */
+  createBill(userId) {
+    return new Bill({
+      userId,
+    }).save();
+  }
 
-    /**
-     * Count total bills
-     * 
-     * @returns {Promise<number>}
-     */
-    countBills() {
-        return Bill.find().countDocuments();
-    }
+  /**
+   * Get bills with pagination
+   *
+   * @param {number} skip
+   * @param {number} limit
+   * @returns {Promise<Array<import('../models/Bill')>>}
+   */
+  getBills(skip, limit) {
+    return Bill.find().skip(skip).limit(limit);
+  }
 
-    /**
-     * Get bill detail
-     * 
-     * @param {string} billId - bill's id
-     * 
-     * @returns {Promise<import('../models/Bill')>}
-     */
-    async getBillDetailById(billId) {
-        const [billDetail] = await Bill.aggregate([
-            {
-                $match: {
-                    _id: new Types.ObjectId(billId),
-                }
+  /**
+   * Count total bills
+   *
+   * @returns {Promise<number>}
+   */
+  countBills() {
+    return Bill.find().countDocuments();
+  }
+
+  /**
+   * Get bill detail
+   *
+   * @param {string} billId - bill's id
+   *
+   * @returns {Promise<import('../models/Bill')>}
+   */
+  async getBillDetailById(billId) {
+    const [billDetail] = await Bill.aggregate([
+      {
+        $match: {
+          _id: new Types.ObjectId(billId),
+        },
+      },
+      {
+        $lookup: {
+          from: 'sales',
+          localField: '_id',
+          foreignField: 'billId',
+          as: 'sales',
+        },
+      },
+      {
+        $addFields: {
+          total: {
+            $function: {
+              body: 'function (sales) {return sales.map((sale) => sale.count * sale.price).reduce((prev, curr)=>prev+curr, 0)}',
+              args: ['$sales'],
+              lang: 'js',
             },
-            {
-                $lookup: {
-                    from: "sales",
-                    localField: "_id",
-                    foreignField: "billId",
-                    as: "sales",
-                },
-            },
-            {
-                $addFields: {
-                    total: {
-                        $function: {
-                            body: "function (sales) {return sales.map((sale) => sale.count * sale.price).reduce((prev, curr)=>prev+curr, 0)}",
-                            args: ["$sales"],
-                            lang: "js",
-                        },
-                    },
-                }
-            }
-        ]);
+          },
+        },
+      },
+    ]);
 
-        await Product.populate(billDetail, { path: "sales.productId" });
+    await Product.populate(billDetail, { path: 'sales.productId' });
 
-        return billDetail;
-    }
+    return billDetail;
+  }
 }
 
 module.exports = BillService;

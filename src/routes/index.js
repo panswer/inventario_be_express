@@ -1,6 +1,6 @@
-const express = require("express");
-const swaggerRoutes = require("../api");
-const { authorizationFn } = require("../middlewares/authorization");
+const express = require('express');
+const swaggerRoutes = require('../api');
+const { authorizationFn } = require('../middlewares/authorization');
 
 const router = express.Router();
 
@@ -15,18 +15,18 @@ const router = express.Router();
  *       description: Enter your bearer token in the format **Bearer &lt;token&gt;**
  */
 
-router.use("/auth", require("./authentication"));
-router.use("/users", [authorizationFn], require("./user"));
-router.use("/product", require("./product"));
-router.use("/category", require("./category"));
-router.use("/supplier", require("./supplier"));
-router.use("/price", [authorizationFn], require("./price"));
-router.use("/stock", [authorizationFn], require("./stock"));
-router.use("/stock-movement", [authorizationFn], require("./stockMovement"));
-router.use("/warehouse", [authorizationFn], require("./warehouse"));
-router.use("/transfer", [authorizationFn], require("./transfer"));
-router.use("/bill", [authorizationFn], require("./bill"));
-router.use("/report", [authorizationFn], require("./report"));
-router.use("/doc", swaggerRoutes);
+router.use('/auth', require('./authentication'));
+router.use('/users', [authorizationFn], require('./user'));
+router.use('/product', require('./product'));
+router.use('/category', require('./category'));
+router.use('/supplier', require('./supplier'));
+router.use('/price', [authorizationFn], require('./price'));
+router.use('/stock', [authorizationFn], require('./stock'));
+router.use('/stock-movement', [authorizationFn], require('./stockMovement'));
+router.use('/warehouse', [authorizationFn], require('./warehouse'));
+router.use('/transfer', [authorizationFn], require('./transfer'));
+router.use('/bill', [authorizationFn], require('./bill'));
+router.use('/report', [authorizationFn], require('./report'));
+router.use('/doc', swaggerRoutes);
 
 module.exports = router;

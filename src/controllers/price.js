@@ -1,6 +1,6 @@
-const { coinEnum } = require("../enums/coinEnum");
-const PriceService = require("../services/PriceService");
-const LoggerService = require("../services/LoggerService");
+const { coinEnum } = require('../enums/coinEnum');
+const PriceService = require('../services/PriceService');
+const LoggerService = require('../services/LoggerService');
 
 /**
  * Get a list of coin
@@ -33,34 +33,28 @@ const getPriceByProductId = async (req, res) => {
   try {
     priceDb = await priceService.getPriceByProductId(productId);
   } catch (error) {
-    loggerService.error(
-      'priceService@getPriceByProductId',
-      {
-        requestId: req.requestId,
-        userIp: req.userIp,
-        body: req.body,
-        reason: error?.message ?? 'Unknown error',
-        type: 'logic'
-      }
-    );
+    loggerService.error('priceService@getPriceByProductId', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      body: req.body,
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
+    });
     return res.status(500).json({
-      message: "Unknown error",
+      message: 'Unknown error',
     });
   }
 
   if (!priceDb) {
-    loggerService.warn(
-      'priceService@getPriceByProductId',
-      {
-        requestId: req.requestId,
-        userIp: req.userIp,
-        body: req.body,
-        reason: "Price not found",
-        type: 'logic',
-      }
-    );
+    loggerService.warn('priceService@getPriceByProductId', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      body: req.body,
+      reason: 'Price not found',
+      type: 'logic',
+    });
     return res.status(404).json({
-      message: "Price not found",
+      message: 'Price not found',
     });
   }
 
@@ -87,34 +81,28 @@ const updatePriceById = async (req, res) => {
   try {
     priceDb = await priceService.getPriceByIdAndCoin(priceId, coin);
   } catch (error) {
-    loggerService.error(
-      'priceService@getPriceByIdAndCoin',
-      {
-        requestId: req.requestId,
-        userIp: req.userIp,
-        body: req.body,
-        reason: error?.message ?? 'Unknown error',
-        type: 'logic'
-      }
-    );
+    loggerService.error('priceService@getPriceByIdAndCoin', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      body: req.body,
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
+    });
     return res.status(404).json({
-      message: "Price not found",
+      message: 'Price not found',
     });
   }
 
   if (!priceDb) {
-    loggerService.warn(
-      'priceService@getPriceByIdAndCoin',
-      {
-        requestId: req.requestId,
-        userIp: req.userIp,
-        body: req.body,
-        reason: 'price not found',
-        type: 'logic'
-      }
-    );
+    loggerService.warn('priceService@getPriceByIdAndCoin', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      body: req.body,
+      reason: 'price not found',
+      type: 'logic',
+    });
     return res.status(404).json({
-      message: "Price not found",
+      message: 'Price not found',
     });
   }
 
@@ -128,18 +116,15 @@ const updatePriceById = async (req, res) => {
     if (Object.values(coinEnum).includes(coin)) {
       priceDb.coin = coin;
     } else {
-      loggerService.warn(
-        'priceService@updatePriceById',
-        {
-          requestId: req.requestId,
-          userIp: req.userIp,
-          body: req.body,
-          reason: 'Coin type not valid',
-          type: 'logic'
-        }
-      );
+      loggerService.warn('priceService@updatePriceById', {
+        requestId: req.requestId,
+        userIp: req.userIp,
+        body: req.body,
+        reason: 'Coin type not valid',
+        type: 'logic',
+      });
       return res.status(400).json({
-        message: "Coin type not valid",
+        message: 'Coin type not valid',
       });
     }
   }
@@ -147,16 +132,13 @@ const updatePriceById = async (req, res) => {
   try {
     await priceDb.save();
   } catch (error) {
-    loggerService.error(
-      'priceService@updatePriceById',
-      {
-        requestId: req.requestId,
-        userIp: req.userIp,
-        body: req.body,
-        reason: error?.message ?? 'Unknown error',
-        type: 'logic'
-      }
-    );
+    loggerService.error('priceService@updatePriceById', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      body: req.body,
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
+    });
     return res.status(500).json({
       message: "Couldn't update price",
     });

@@ -1,7 +1,7 @@
-const ReportService = require("../services/ReportService");
-const LoggerService = require("../services/LoggerService");
+const ReportService = require('../services/ReportService');
+const LoggerService = require('../services/LoggerService');
 
-const buildFiltersFromQuery = (query) => {
+const buildFiltersFromQuery = query => {
   const filters = {};
   const { productId, warehouseId, type, startDate, endDate } = query;
 
@@ -23,23 +23,20 @@ const getMovementsReport = async (req, res) => {
     const reportStream = await reportService.generateMovementsReport(filters);
 
     res.setHeader(
-      "Content-Type",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     );
-    res.setHeader(
-      "Content-Disposition",
-      "attachment; filename=reporte_movimientos.xlsx"
-    );
+    res.setHeader('Content-Disposition', 'attachment; filename=reporte_movimientos.xlsx');
 
-    reportStream.on("error", (err) => {
-      loggerService.error("reportService@generateMovementsReportStream", {
+    reportStream.on('error', err => {
+      loggerService.error('reportService@generateMovementsReportStream', {
         requestId: req.requestId,
         userIp: req.userIp,
-        reason: err?.message ?? "Unknown stream error",
-        type: "logic",
+        reason: err?.message ?? 'Unknown stream error',
+        type: 'logic',
       });
       if (!res.headersSent) {
-        res.status(500).json({ message: "Internal error" });
+        res.status(500).json({ message: 'Internal error' });
       } else {
         res.end();
       }
@@ -47,13 +44,13 @@ const getMovementsReport = async (req, res) => {
 
     reportStream.pipe(res);
   } catch (error) {
-    loggerService.error("reportService@generateMovementsReport", {
+    loggerService.error('reportService@generateMovementsReport', {
       requestId: req.requestId,
       userIp: req.userIp,
-      reason: error?.message ?? "Unknown error",
-      type: "logic",
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
     });
-    return res.status(500).json({ message: "Internal error" });
+    return res.status(500).json({ message: 'Internal error' });
   }
 };
 
@@ -66,23 +63,20 @@ const getSummaryReport = async (req, res) => {
     const buffer = await reportService.generateSummaryReport(filters);
 
     res.setHeader(
-      "Content-Type",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     );
-    res.setHeader(
-      "Content-Disposition",
-      "attachment; filename=reporte_resumen.xlsx"
-    );
+    res.setHeader('Content-Disposition', 'attachment; filename=reporte_resumen.xlsx');
 
     return res.status(200).send(buffer);
   } catch (error) {
-    loggerService.error("reportService@generateSummaryReport", {
+    loggerService.error('reportService@generateSummaryReport', {
       requestId: req.requestId,
       userIp: req.userIp,
-      reason: error?.message ?? "Unknown error",
-      type: "logic",
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
     });
-    return res.status(500).json({ message: "Internal error" });
+    return res.status(500).json({ message: 'Internal error' });
   }
 };
 
@@ -95,23 +89,20 @@ const getTransfersReport = async (req, res) => {
     const buffer = await reportService.generateTransfersReport(filters);
 
     res.setHeader(
-      "Content-Type",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     );
-    res.setHeader(
-      "Content-Disposition",
-      "attachment; filename=reporte_transferencias.xlsx"
-    );
+    res.setHeader('Content-Disposition', 'attachment; filename=reporte_transferencias.xlsx');
 
     return res.status(200).send(buffer);
   } catch (error) {
-    loggerService.error("reportService@generateTransfersReport", {
+    loggerService.error('reportService@generateTransfersReport', {
       requestId: req.requestId,
       userIp: req.userIp,
-      reason: error?.message ?? "Unknown error",
-      type: "logic",
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
     });
-    return res.status(500).json({ message: "Internal error" });
+    return res.status(500).json({ message: 'Internal error' });
   }
 };
 

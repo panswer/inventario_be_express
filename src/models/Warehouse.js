@@ -1,4 +1,4 @@
-const { Schema, model } = require("mongoose");
+const { Schema, model } = require('mongoose');
 
 /**
  * @swagger
@@ -39,11 +39,11 @@ const WarehouseSchema = new Schema(
   {
     name: {
       type: String,
-      required: [true, "name is required"],
+      required: [true, 'name is required'],
     },
     address: {
       type: String,
-      required: [true, "address is required"],
+      required: [true, 'address is required'],
     },
     isEnabled: {
       type: Boolean,
@@ -51,24 +51,28 @@ const WarehouseSchema = new Schema(
     },
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: "user",
-      required: [true, "createdBy is required"],
+      ref: 'user',
+      required: [true, 'createdBy is required'],
     },
   },
   {
     timestamps: {
-      createdAt: "createdAt",
-      updatedAt: "updatedAt",
+      createdAt: 'createdAt',
+      updatedAt: 'updatedAt',
     },
     toJSON: {
-      transform: function (warehouseSch, warehouse) {
+      transform(warehouseSch, warehouse) {
         if (warehouseSch.createdAt) {
           warehouse.createdAt = warehouseSch.createdAt.getTime();
         }
         if (warehouseSch.updatedAt) {
           warehouse.updatedAt = warehouseSch.updatedAt.getTime();
         }
-        if (warehouse.createdBy && typeof warehouse.createdBy === 'object' && warehouse.createdBy.password) {
+        if (
+          warehouse.createdBy &&
+          typeof warehouse.createdBy === 'object' &&
+          warehouse.createdBy.password
+        ) {
           delete warehouse.createdBy.password;
         }
         return warehouse;
@@ -77,4 +81,4 @@ const WarehouseSchema = new Schema(
   }
 );
 
-module.exports = model("warehouse", WarehouseSchema);
+module.exports = model('warehouse', WarehouseSchema);

@@ -1,6 +1,6 @@
 const coinEnum = {
-  dollar: "$",
-  bolivar: "Brs.",
+  dollar: '$',
+  bolivar: 'Brs.',
 };
 
 module.exports = {

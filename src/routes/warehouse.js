@@ -1,15 +1,15 @@
-const { Router } = require("express");
+const { Router } = require('express');
 const { body } = require('express-validator');
 const {
   getWarehouses,
   getWarehouseById,
   createWarehouse,
   updateWarehouse,
-  deleteWarehouse
-} = require("../controllers/warehouse");
-const { authorizationFn } = require("../middlewares/authorization");
-const { isAdminOrManager } = require("../middlewares/roleAuthorization");
-const { warehouseValidation } = require("../middlewares/warehouse");
+  deleteWarehouse,
+} = require('../controllers/warehouse');
+const { authorizationFn } = require('../middlewares/authorization');
+const { isAdminOrManager } = require('../middlewares/roleAuthorization');
+const { warehouseValidation } = require('../middlewares/warehouse');
 
 const router = Router();
 
@@ -50,7 +50,7 @@ const router = Router();
  *                              total:
  *                                  type: number
  */
-router.get("", [authorizationFn, isAdminOrManager], getWarehouses);
+router.get('', [authorizationFn, isAdminOrManager], getWarehouses);
 
 /**
  * @swagger
@@ -80,7 +80,7 @@ router.get("", [authorizationFn, isAdminOrManager], getWarehouses);
  *                                  type: object
  *                                  $ref: '#/components/schemas/WarehouseModel'
  */
-router.get("/:warehouseId", [authorizationFn, isAdminOrManager], getWarehouseById);
+router.get('/:warehouseId', [authorizationFn, isAdminOrManager], getWarehouseById);
 
 /**
  * @swagger
@@ -117,13 +117,19 @@ router.get("/:warehouseId", [authorizationFn, isAdminOrManager], getWarehouseByI
  *                                  type: object
  *                                  $ref: "#/components/schemas/WarehouseModel"
  */
-router.post("", [
-  authorizationFn,
-  isAdminOrManager,
-  body('name').isLength({ min: 2 }).withMessage('El nombre debe tener al menos 2 caracteres'),
-  body('address').isLength({ min: 5 }).withMessage('La direccion debe tener al menos 5 caracteres'),
-  warehouseValidation
-], createWarehouse);
+router.post(
+  '',
+  [
+    authorizationFn,
+    isAdminOrManager,
+    body('name').isLength({ min: 2 }).withMessage('El nombre debe tener al menos 2 caracteres'),
+    body('address')
+      .isLength({ min: 5 })
+      .withMessage('La direccion debe tener al menos 5 caracteres'),
+    warehouseValidation,
+  ],
+  createWarehouse
+);
 
 /**
  * @swagger
@@ -165,13 +171,23 @@ router.post("", [
  *                                  type: object
  *                                  $ref: '#/components/schemas/WarehouseModel'
  */
-router.put("/:warehouseId", [
-  authorizationFn,
-  isAdminOrManager,
-  body('name').optional().isLength({ min: 2 }).withMessage('El nombre debe tener al menos 2 caracteres'),
-  body('address').optional().isLength({ min: 5 }).withMessage('La direccion debe tener al menos 5 caracteres'),
-  warehouseValidation
-], updateWarehouse);
+router.put(
+  '/:warehouseId',
+  [
+    authorizationFn,
+    isAdminOrManager,
+    body('name')
+      .optional()
+      .isLength({ min: 2 })
+      .withMessage('El nombre debe tener al menos 2 caracteres'),
+    body('address')
+      .optional()
+      .isLength({ min: 5 })
+      .withMessage('La direccion debe tener al menos 5 caracteres'),
+    warehouseValidation,
+  ],
+  updateWarehouse
+);
 
 /**
  * @swagger
@@ -201,6 +217,6 @@ router.put("/:warehouseId", [
  *                                  type: object
  *                                  $ref: '#/components/schemas/WarehouseModel'
  */
-router.delete("/:warehouseId", [authorizationFn, isAdminOrManager], deleteWarehouse);
+router.delete('/:warehouseId', [authorizationFn, isAdminOrManager], deleteWarehouse);
 
 module.exports = router;

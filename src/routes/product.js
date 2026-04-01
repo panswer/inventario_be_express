@@ -1,13 +1,18 @@
-const { Router } = require("express");
+const { Router } = require('express');
 const { body } = require('express-validator');
-const { getProducts, createProduct, updateProductById, getProductById } = require("../controllers/product");
-const ProductService = require("../services/ProductService");
-const { authorizationFn } = require("../middlewares/authorization");
-const { isAdminOrManager, isCashierOrHigher } = require("../middlewares/roleAuthorization");
-const { productValidation } = require("../middlewares/product");
-const { validateCategories } = require("../middlewares/category");
-const { imageValidation } = require("../middlewares/imageValidation");
-const { coinEnum } = require("../enums/coinEnum");
+const {
+  getProducts,
+  createProduct,
+  updateProductById,
+  getProductById,
+} = require('../controllers/product');
+const ProductService = require('../services/ProductService');
+const { authorizationFn } = require('../middlewares/authorization');
+const { isAdminOrManager, isCashierOrHigher } = require('../middlewares/roleAuthorization');
+const { productValidation } = require('../middlewares/product');
+const { validateCategories } = require('../middlewares/category');
+const { imageValidation } = require('../middlewares/imageValidation');
+const { coinEnum } = require('../enums/coinEnum');
 
 const router = Router();
 
@@ -53,7 +58,7 @@ const router = Router();
  *                              total:
  *                                  type: number
  */
-router.get("", [authorizationFn, isCashierOrHigher], getProducts);
+router.get('', [authorizationFn, isCashierOrHigher], getProducts);
 
 /**
  * @swagger
@@ -112,25 +117,29 @@ router.get("", [authorizationFn, isCashierOrHigher], getProducts);
  *                              - product
  *                              - price
  */
-router.post("", [
+router.post(
+  '',
+  [
     authorizationFn,
     isAdminOrManager,
     body('amount').isFloat({ min: 0.01 }).withMessage('El monto debe ser mayor a 0.01'),
     body('coin').isIn(Object.values(coinEnum)).withMessage('La moneda no es válida'),
     body('name').isLength({ min: 3 }).withMessage('El nombre debe tener al menos 3 caracteres'),
-    body('barcode').custom(async (value) => {
-        if (!value) return true;
-        const productService = ProductService.getInstance();
-        const existing = await productService.findByBarcode(value);
-        if (existing) {
-            throw new Error('El código de barras ya está registrado');
-        }
-        return true;
+    body('barcode').custom(async value => {
+      if (!value) return true;
+      const productService = ProductService.getInstance();
+      const existing = await productService.findByBarcode(value);
+      if (existing) {
+        throw new Error('El código de barras ya está registrado');
+      }
+      return true;
     }),
     productValidation,
     validateCategories,
-    imageValidation
-], createProduct);
+    imageValidation,
+  ],
+  createProduct
+);
 
 /**
  * @swagger
@@ -160,7 +169,7 @@ router.post("", [
  *                                  type: object
  *                                  $ref: '#/components/schemas/ProductModel'
  */
-router.get("/:productId", [authorizationFn, isCashierOrHigher], getProductById);
+router.get('/:productId', [authorizationFn, isCashierOrHigher], getProductById);
 
 /**
  * @swagger
@@ -210,22 +219,26 @@ router.get("/:productId", [authorizationFn, isCashierOrHigher], getProductById);
  *                                  type: object
  *                                  $ref: '#/components/schemas/ProductModel'
  */
-router.put("/:productId", [
+router.put(
+  '/:productId',
+  [
     authorizationFn,
     isAdminOrManager,
     body('name').isLength({ min: 3 }).withMessage('El nombre debe tener al menos 3 caracteres'),
     body('barcode').custom(async (value, { req }) => {
-        if (!value) return true;
-        const productService = ProductService.getInstance();
-        const existing = await productService.findByBarcode(value);
-        if (existing && existing._id.toString() !== req.params.productId) {
-            throw new Error('El código de barras ya está registrado');
-        }
-        return true;
+      if (!value) return true;
+      const productService = ProductService.getInstance();
+      const existing = await productService.findByBarcode(value);
+      if (existing && existing._id.toString() !== req.params.productId) {
+        throw new Error('El código de barras ya está registrado');
+      }
+      return true;
     }),
     productValidation,
     validateCategories,
-    imageValidation
-], updateProductById);
+    imageValidation,
+  ],
+  updateProductById
+);
 
 module.exports = router;

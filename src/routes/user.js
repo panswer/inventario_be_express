@@ -1,7 +1,7 @@
-const { Router } = require("express");
-const { body } = require("express-validator");
-const { isAdmin } = require("../middlewares/roleAuthorization");
-const { getUsers, updateUserRole } = require("../controllers/user");
+const { Router } = require('express');
+const { body } = require('express-validator');
+const { isAdmin } = require('../middlewares/roleAuthorization');
+const { getUsers, updateUserRole } = require('../controllers/user');
 
 const router = Router();
 
@@ -32,7 +32,7 @@ const router = Router();
  *          401:
  *              description: Unauthorized
  */
-router.get("", isAdmin, getUsers);
+router.get('', isAdmin, getUsers);
 
 /**
  * @swagger
@@ -76,8 +76,15 @@ router.get("", isAdmin, getUsers);
  *          400:
  *              description: Invalid role
  */
-router.patch("/:id/role", isAdmin, [
-    body("role").isIn(["admin", "manager", "user"]).withMessage("Role must be admin, manager, or user"),
-], updateUserRole);
+router.patch(
+  '/:id/role',
+  isAdmin,
+  [
+    body('role')
+      .isIn(['admin', 'manager', 'user'])
+      .withMessage('Role must be admin, manager, or user'),
+  ],
+  updateUserRole
+);
 
 module.exports = router;

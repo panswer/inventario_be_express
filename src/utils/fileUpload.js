@@ -1,40 +1,36 @@
-const path = require("path");
-const fs = require("fs");
-const { uploadDir } = require("../config");
+const path = require('path');
+const fs = require('fs');
+const { uploadDir } = require('../config');
 
-const ALLOWED_MIME_TYPES = [
-  "image/jpeg",
-  "image/jpg",
-  "image/svg+xml",
-];
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/jpg', 'image/svg+xml'];
 
-const ALLOWED_EXTENSIONS = [".jpg", ".jpeg", ".svg"];
+const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.svg'];
 
 const generateUUID = () => {
-  const uuid = require("node:crypto").randomUUID();
+  const uuid = require('node:crypto').randomUUID();
   return uuid;
 };
 
-const isValidImageFormat = (mimeType) => {
+const isValidImageFormat = mimeType => {
   return ALLOWED_MIME_TYPES.includes(mimeType);
 };
 
-const getExtensionFromMimeType = (mimeType) => {
+const getExtensionFromMimeType = mimeType => {
   const mimeToExt = {
-    "image/jpeg": ".jpg",
-    "image/jpg": ".jpg",
-    "image/svg+xml": ".svg",
+    'image/jpeg': '.jpg',
+    'image/jpg': '.jpg',
+    'image/svg+xml': '.svg',
   };
-  return mimeToExt[mimeType] || ".jpg";
+  return mimeToExt[mimeType] || '.jpg';
 };
 
-const saveProductImage = (file) => {
+const saveProductImage = file => {
   if (!file || !file.tempFilePath) {
-    throw new Error("Invalid file object");
+    throw new Error('Invalid file object');
   }
 
   if (!isValidImageFormat(file.mimetype)) {
-    throw new Error("Invalid image format. Allowed: jpg, jpeg, svg");
+    throw new Error('Invalid image format. Allowed: jpg, jpeg, svg');
   }
 
   const extension = getExtensionFromMimeType(file.mimetype);
@@ -48,7 +44,7 @@ const saveProductImage = (file) => {
   return filename;
 };
 
-const deleteProductImage = (filename) => {
+const deleteProductImage = filename => {
   if (!filename) {
     return;
   }

@@ -9,7 +9,10 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "generate-docs": "swagger-jsdoc -d src/swaggerDef.js src/routes/*.js src/models/*.js -o swagger.json"
+    "generate-docs": "swagger-jsdoc -d src/swaggerDef.js src/routes/*.js src/models/*.js -o swagger.json",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "format": "prettier --write ."
   },
   "keywords": [
     "express",
@@ -31,9 +34,13 @@
     "winston": "^3.19.0"
   },
   "devDependencies": {
+    "eslint": "^10.1.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
     "jest": "^30.3.0",
     "mongodb-memory-server": "^11.0.1",
     "nodemon": "^3.1.9",
+    "prettier": "^3.8.1",
     "supertest": "^7.2.2",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"

@@ -1,13 +1,13 @@
-require("dotenv").config();
-const { version } = require("../package.json");
+require('dotenv').config();
+const { version } = require('../package.json');
 
 module.exports = {
-  openapi: "3.0.4",
+  openapi: '3.0.4',
   info: {
-    title: "Documentación de inventario API",
+    title: 'Documentación de inventario API',
     version,
-    description: "Documentación de API utilizado para manejo de inventario",
+    description: 'Documentación de API utilizado para manejo de inventario',
   },
-  basePath: "/",
+  basePath: '/',
   host: `localhost:${process.env.SERVER_PORT || 3000}`,
 };

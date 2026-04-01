@@ -1,7 +1,7 @@
-const { errorText } = require("../utils/color");
-const BillService = require("../services/BillService");
-const SaleService = require("../services/SaleService");
-const LoggerService = require("../services/LoggerService");
+const { errorText } = require('../utils/color');
+const BillService = require('../services/BillService');
+const SaleService = require('../services/SaleService');
+const LoggerService = require('../services/LoggerService');
 
 /**
  * Create a bill
@@ -30,45 +30,44 @@ const createBill = async (req, res) => {
   try {
     billDb = await billService.createBill(user._id);
   } catch (e) {
-    loggerService.error(
-      "billService@createBill",
-      {
-        requestId: req.requestId,
-        userIp: req.userIp,
-        body: req.body,
-        reason: e?.message ?? "Unknown error",
-        type: 'logic'
-      }
-    );
+    loggerService.error('billService@createBill', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      body: req.body,
+      reason: e?.message ?? 'Unknown error',
+      type: 'logic',
+    });
 
     return res.status(500).json({
-      message: "Unknown error",
+      message: 'Unknown error',
     });
   }
 
   try {
     await Promise.all(
-      sellers.map(sale => saleService.createSaleFlow({
-        billId: billDb._id,
-        coin: sale.coin,
-        count: sale.count,
-        stockId: sale.stockId,
-      }, user._id))
+      sellers.map(sale =>
+        saleService.createSaleFlow(
+          {
+            billId: billDb._id,
+            coin: sale.coin,
+            count: sale.count,
+            stockId: sale.stockId,
+          },
+          user._id
+        )
+      )
     );
   } catch (error) {
-    loggerService.error(
-      'saleService@createSale',
-      {
-        requestId: req.requestId,
-        userIp: req.userIp,
-        body,
-        reason: error?.message ?? 'Unknown error',
-        type: 'logic'
-      }
-    );
+    loggerService.error('saleService@createSale', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      body,
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
+    });
 
     return res.status(500).json({
-      message: "Unknown error",
+      message: 'Unknown error',
     });
   }
 
@@ -87,8 +86,8 @@ const createBill = async (req, res) => {
  */
 const getAllBills = async (req, res) => {
   const query = req.query;
-  const limit = query.limit || "10";
-  const page = query.page || "1";
+  const limit = query.limit || '10';
+  const page = query.page || '1';
 
   const limitNum = Number(limit);
   const skipItems = (Number(page) - 1) * limitNum;
@@ -122,31 +121,25 @@ const getBillDetailByBillId = async (req, res) => {
   try {
     billDetail = await billService.getBillDetailById(billId);
   } catch (e) {
-    loggerService.error(
-      'billService@getBillDetailById',
-      {
-        requestId: req.requestId,
-        userIp: req.userIp,
-        body: req.body,
-        reason: e?.message ?? 'Unknown error',
-        type: 'logic',
-      }
-    );
-    return res.status(500).json({ message: "Unknown error" });
+    loggerService.error('billService@getBillDetailById', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      body: req.body,
+      reason: e?.message ?? 'Unknown error',
+      type: 'logic',
+    });
+    return res.status(500).json({ message: 'Unknown error' });
   }
 
   if (!billDetail) {
-    loggerService.warn(
-      'billService@getBillDetailById',
-      {
-        requestId: req.requestId,
-        userIp: req.userIp,
-        body: req.body,
-        reason: "Bill not found",
-        type: 'logic',
-      }
-    );
-    return res.status(404).json({ message: "Bill not found" });
+    loggerService.warn('billService@getBillDetailById', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      body: req.body,
+      reason: 'Bill not found',
+      type: 'logic',
+    });
+    return res.status(404).json({ message: 'Bill not found' });
   }
 
   res.status(200).json({

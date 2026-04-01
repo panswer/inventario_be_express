@@ -1,5 +1,5 @@
-const { Schema, model } = require("mongoose");
-const { userRoleEnum } = require("../enums/userRoleEnum");
+const { Schema, model } = require('mongoose');
+const { userRoleEnum } = require('../enums/userRoleEnum');
 
 const roles = Object.values(userRoleEnum);
 
@@ -48,29 +48,29 @@ const UserSchema = new Schema(
   {
     username: {
       type: String,
-      required: [true, "username is required"],
+      required: [true, 'username is required'],
       unique: true,
     },
     password: {
       type: String,
-      required: [true, "password is required"],
+      required: [true, 'password is required'],
     },
     role: {
       type: String,
       enum: {
         values: roles,
-        message: "role must be one of: admin, manager, cashier, user",
+        message: 'role must be one of: admin, manager, cashier, user',
       },
       default: userRoleEnum.user,
     },
   },
   {
     timestamps: {
-      createdAt: "createdAt",
-      updatedAt: "updatedAt",
+      createdAt: 'createdAt',
+      updatedAt: 'updatedAt',
     },
     toJSON: {
-      transform: function (userSch, user) {
+      transform(userSch, user) {
         delete user.password;
         delete user.__v;
         user.createdAt = userSch.createdAt.getTime();
@@ -80,7 +80,7 @@ const UserSchema = new Schema(
       },
     },
     toObject: {
-      transform: function (_, user) {
+      transform(_, user) {
         delete user.password;
         return user;
       },
@@ -88,4 +88,4 @@ const UserSchema = new Schema(
   }
 );
 
-module.exports = model("user", UserSchema);
+module.exports = model('user', UserSchema);

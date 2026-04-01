@@ -1,5 +1,5 @@
-const { Schema, model } = require("mongoose");
-const { coinEnum } = require("../enums/coinEnum");
+const { Schema, model } = require('mongoose');
+const { coinEnum } = require('../enums/coinEnum');
 
 /**
  * @typedef {object} SaleSchema
@@ -11,7 +11,7 @@ const { coinEnum } = require("../enums/coinEnum");
  * @property {string} coin
  * @property {number} createdAt
  * @property {number} updatedAt
- * 
+ *
  * @typedef {object} SaleRequest
  * @property {number} count
  * @property {string} stockId
@@ -77,30 +77,30 @@ const SaleSchema = new Schema(
     },
     stockId: {
       type: Schema.Types.ObjectId,
-      required: [true, "stockId is required"],
-      ref: "stock",
+      required: [true, 'stockId is required'],
+      ref: 'stock',
     },
     price: {
       type: Number,
-      required: [true, "The price is required"],
+      required: [true, 'The price is required'],
     },
     billId: {
       type: Schema.Types.ObjectId,
       required: [true, "bill's id is required"],
-      ref: "bill",
+      ref: 'bill',
     },
     coin: {
       type: String,
-      required: [true, "coin is required"],
+      required: [true, 'coin is required'],
       enum: Object.values(coinEnum),
     },
   },
   {
     timestamps: {
-      createdAt: "createdAt",
-      updatedAt: "updatedAt",
+      createdAt: 'createdAt',
+      updatedAt: 'updatedAt',
     },
   }
 );
 
-module.exports = model("sale", SaleSchema);
+module.exports = model('sale', SaleSchema);

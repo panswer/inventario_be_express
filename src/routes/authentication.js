@@ -1,7 +1,12 @@
-const { Router } = require("express");
+const { Router } = require('express');
 const { body } = require('express-validator');
 const { signUpValidator, resetPasswordVerifyValidator } = require('../middlewares/authorization');
-const { signIn, signUp, resetPassword, resetPasswordVerify } = require("../controllers/authentication");
+const {
+  signIn,
+  signUp,
+  resetPassword,
+  resetPasswordVerify,
+} = require('../controllers/authentication');
 
 const router = Router();
 
@@ -50,7 +55,7 @@ const router = Router();
  *                      schema:
  *                          $ref: "#/components/schemas/SignInSuccess"
  */
-router.post("/sign-in", signIn);
+router.post('/sign-in', signIn);
 
 /**
  * @swagger
@@ -89,11 +94,15 @@ router.post("/sign-in", signIn);
  *       500:
  *         description: Internal server error
  */
-router.post("/sign-up", [
-    body('email').isEmail().withMessage("Email is not valid"),
-    body('password').isLength({ min: 8 }).withMessage("Password must be at least 8 characters"),
+router.post(
+  '/sign-up',
+  [
+    body('email').isEmail().withMessage('Email is not valid'),
+    body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
     signUpValidator,
-], signUp);
+  ],
+  signUp
+);
 
 /**
  * @swagger
@@ -132,7 +141,7 @@ router.post("/sign-up", [
  *                                  type: integer
  *                                  example: 2000
  */
-router.post("/reset-password", resetPassword);
+router.post('/reset-password', resetPassword);
 
 /**
  * @swagger
@@ -185,14 +194,15 @@ router.post("/reset-password", resetPassword);
  *                                  type: integer
  *                                  example: 1004
  */
-router.post("/reset-password/verify",
-    [
-        body('email').isEmail().withMessage("Email is not valid"),
-        body('password').isLength({ min: 8 }).withMessage("Password must be at least 8 characters"),
-        body('token').isLength({ min: 6 }).withMessage("Token must be at least 6 characters"),
-        resetPasswordVerifyValidator,
-    ],
-    resetPasswordVerify
+router.post(
+  '/reset-password/verify',
+  [
+    body('email').isEmail().withMessage('Email is not valid'),
+    body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
+    body('token').isLength({ min: 6 }).withMessage('Token must be at least 6 characters'),
+    resetPasswordVerifyValidator,
+  ],
+  resetPasswordVerify
 );
 
 module.exports = router;

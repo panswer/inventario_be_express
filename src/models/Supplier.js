@@ -1,4 +1,4 @@
-const { Schema, model } = require("mongoose");
+const { Schema, model } = require('mongoose');
 
 /**
  * @swagger
@@ -41,11 +41,11 @@ const SupplierSchema = new Schema(
   {
     name: {
       type: String,
-      required: [true, "name is required"],
+      required: [true, 'name is required'],
     },
     rif: {
       type: String,
-      required: [true, "rif is required"],
+      required: [true, 'rif is required'],
       unique: true,
     },
     phone: {
@@ -63,17 +63,17 @@ const SupplierSchema = new Schema(
     },
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: "user",
-      required: [true, "createdBy is required"],
+      ref: 'user',
+      required: [true, 'createdBy is required'],
     },
   },
   {
     timestamps: {
-      createdAt: "createdAt",
-      updatedAt: "updatedAt",
+      createdAt: 'createdAt',
+      updatedAt: 'updatedAt',
     },
     toJSON: {
-      transform: function (supplierSch, supplier) {
+      transform(supplierSch, supplier) {
         supplier.createdAt = supplierSch.createdAt.getTime();
         supplier.updatedAt = supplierSch.updatedAt.getTime();
 
@@ -83,4 +83,4 @@ const SupplierSchema = new Schema(
   }
 );
 
-module.exports = model("supplier", SupplierSchema);
+module.exports = model('supplier', SupplierSchema);

@@ -3,41 +3,38 @@ const LoggerService = require('../services/LoggerService');
 
 /**
  * Middleware to validate product error
- * 
+ *
  * @param {import('express').Request} req
  * @param {import('express').Response} res
  * @param {import('express').NextFunction} next
- * 
+ *
  * @returns {void}
  */
 const productValidation = (req, res, next) => {
-    const result = validationResult(req);
-    const loggerService = LoggerService.getInstance();
+  const result = validationResult(req);
+  const loggerService = LoggerService.getInstance();
 
-    if (result.isEmpty()) {
-        return next();
-    }
+  if (result.isEmpty()) {
+    return next();
+  }
 
-    const errors = result.array();
+  const errors = result.array();
 
-    const reason = errors.map(error => error.msg).join(', ');
+  const reason = errors.map(error => error.msg).join(', ');
 
-    loggerService.warn(
-        'middleware@productValidation',
-        {
-            requestId: req.requestId,
-            userIp: req.userIp,
-            body: req.body,
-            reason,
-            type: 'logic'
-        }
-    );
+  loggerService.warn('middleware@productValidation', {
+    requestId: req.requestId,
+    userIp: req.userIp,
+    body: req.body,
+    reason,
+    type: 'logic',
+  });
 
-    res.status(400).json({
-        code: 1002,
-    });
-}
+  res.status(400).json({
+    code: 1002,
+  });
+};
 
 module.exports = {
-    productValidation
+  productValidation,
 };

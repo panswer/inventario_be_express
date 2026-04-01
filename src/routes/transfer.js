@@ -1,9 +1,9 @@
-const { Router } = require("express");
+const { Router } = require('express');
 const { body } = require('express-validator');
-const { transferStock, getProductStockByWarehouse } = require("../controllers/transfer");
-const { authorizationFn } = require("../middlewares/authorization");
-const { isAdminOrManager } = require("../middlewares/roleAuthorization");
-const { warehouseValidation } = require("../middlewares/warehouse");
+const { transferStock, getProductStockByWarehouse } = require('../controllers/transfer');
+const { authorizationFn } = require('../middlewares/authorization');
+const { isAdminOrManager } = require('../middlewares/roleAuthorization');
+const { warehouseValidation } = require('../middlewares/warehouse');
 
 const router = Router();
 
@@ -53,15 +53,19 @@ const router = Router();
  *          400:
  *              description: Transfer failed
  */
-router.post("", [
-  authorizationFn,
-  isAdminOrManager,
-  body('productId').notEmpty().withMessage('productId es requerido'),
-  body('fromWarehouseId').notEmpty().withMessage('fromWarehouseId es requerido'),
-  body('toWarehouseId').notEmpty().withMessage('toWarehouseId es requerido'),
-  body('quantity').isInt({ min: 1 }).withMessage('La cantidad debe ser al menos 1'),
-  warehouseValidation
-], transferStock);
+router.post(
+  '',
+  [
+    authorizationFn,
+    isAdminOrManager,
+    body('productId').notEmpty().withMessage('productId es requerido'),
+    body('fromWarehouseId').notEmpty().withMessage('fromWarehouseId es requerido'),
+    body('toWarehouseId').notEmpty().withMessage('toWarehouseId es requerido'),
+    body('quantity').isInt({ min: 1 }).withMessage('La cantidad debe ser al menos 1'),
+    warehouseValidation,
+  ],
+  transferStock
+);
 
 /**
  * @swagger
@@ -93,6 +97,6 @@ router.post("", [
  *                                      type: object
  *                                      $ref: '#/components/schemas/StockModel'
  */
-router.get("/product/:productId", [authorizationFn, isAdminOrManager], getProductStockByWarehouse);
+router.get('/product/:productId', [authorizationFn, isAdminOrManager], getProductStockByWarehouse);
 
 module.exports = router;

@@ -1,4 +1,4 @@
-const LoggerService = require("../services/LoggerService");
+const LoggerService = require('../services/LoggerService');
 
 /**
  * Middleware to catch general error
@@ -11,26 +11,23 @@ const LoggerService = require("../services/LoggerService");
  * @returns {void}
  */
 const errorManager = (err, req, res, next) => {
-    const loggerService = LoggerService.getInstance();
+  const loggerService = LoggerService.getInstance();
 
-    res.locals.errorMessage = err.message;
+  res.locals.errorMessage = err.message;
 
-    loggerService.error(
-        "errorManager",
-        {
-            requestId: req.requestId,
-            userIp: req.userIp,
-            body: req.body,
-            reason: err.message ?? "unknown error",
-            type: "logic"
-        }
-    );
+  loggerService.error('errorManager', {
+    requestId: req.requestId,
+    userIp: req.userIp,
+    body: req.body,
+    reason: err.message ?? 'unknown error',
+    type: 'logic',
+  });
 
-    const status = err.status || 500;
+  const status = err.status || 500;
 
-    res.status(status).json({
-        code: -1
-    });
-}
+  res.status(status).json({
+    code: -1,
+  });
+};
 
 module.exports = errorManager;

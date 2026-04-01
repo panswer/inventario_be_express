@@ -1,9 +1,9 @@
-const { Router } = require("express");
-const { query } = require("express-validator");
-const controller = require("../controllers/stockMovement");
-const { authorizationFn } = require("../middlewares/authorization");
-const { isAdminOrManager } = require("../middlewares/roleAuthorization");
-const { stockMovementValidation } = require("../middlewares/stockMovement");
+const { Router } = require('express');
+const { query } = require('express-validator');
+const controller = require('../controllers/stockMovement');
+const { authorizationFn } = require('../middlewares/authorization');
+const { isAdminOrManager } = require('../middlewares/roleAuthorization');
+const { stockMovementValidation } = require('../middlewares/stockMovement');
 
 const router = Router();
 
@@ -73,11 +73,11 @@ const router = Router();
  *                    type: integer
  */
 router.get(
-  "",
+  '',
   [
     authorizationFn,
     isAdminOrManager,
-    query("type").optional().isIn(["initial", "in", "out", "adjust", "transfer"]),
+    query('type').optional().isIn(['initial', 'in', 'out', 'adjust', 'transfer']),
     stockMovementValidation,
   ],
   controller.getMovements
@@ -110,7 +110,7 @@ router.get(
  *          description: Product movements
  */
 router.get(
-  "/product/:productId",
+  '/product/:productId',
   [authorizationFn, isAdminOrManager],
   controller.getMovementsByProduct
 );
@@ -145,7 +145,7 @@ router.get(
  *          description: Product warehouse movements
  */
 router.get(
-  "/product/:productId/warehouse/:warehouseId",
+  '/product/:productId/warehouse/:warehouseId',
   [authorizationFn, isAdminOrManager],
   controller.getMovementsByProductAndWarehouse
 );

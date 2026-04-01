@@ -1,7 +1,7 @@
-const { Router } = require("express");
-const { query } = require("express-validator");
-const controller = require("../controllers/report");
-const { authorizationFn } = require("../middlewares/authorization");
+const { Router } = require('express');
+const { query } = require('express-validator');
+const controller = require('../controllers/report');
+const { authorizationFn } = require('../middlewares/authorization');
 
 const router = Router();
 
@@ -53,11 +53,8 @@ const router = Router();
  *                format: binary
  */
 router.get(
-  "/movements",
-  [
-    authorizationFn,
-    query("type").optional().isIn(["initial", "in", "out", "adjust", "transfer"]),
-  ],
+  '/movements',
+  [authorizationFn, query('type').optional().isIn(['initial', 'in', 'out', 'adjust', 'transfer'])],
   controller.getMovementsReport
 );
 
@@ -102,11 +99,7 @@ router.get(
  *                type: string
  *                format: binary
  */
-router.get(
-  "/movements/summary",
-  [authorizationFn],
-  controller.getSummaryReport
-);
+router.get('/movements/summary', [authorizationFn], controller.getSummaryReport);
 
 /**
  * @swagger
@@ -149,10 +142,6 @@ router.get(
  *                type: string
  *                format: binary
  */
-router.get(
-  "/movements/transfers",
-  [authorizationFn],
-  controller.getTransfersReport
-);
+router.get('/movements/transfers', [authorizationFn], controller.getTransfersReport);
 
 module.exports = router;

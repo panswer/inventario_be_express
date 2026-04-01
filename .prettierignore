@@ -1,0 +1,6 @@
+node_modules/
+coverage/
+swagger.json
+__tests__/
+*.test.js
+mongo_db/

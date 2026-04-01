@@ -1,5 +1,5 @@
-const { validationResult } = require("express-validator");
-const LoggerService = require("../services/LoggerService");
+const { validationResult } = require('express-validator');
+const LoggerService = require('../services/LoggerService');
 
 /**
  * Middleware to validate stock movement errors
@@ -19,14 +19,14 @@ const stockMovementValidation = (req, res, next) => {
   }
 
   const errors = result.array();
-  const reason = errors.map((error) => error.msg).join(", ");
+  const reason = errors.map(error => error.msg).join(', ');
 
-  loggerService.warn("middleware@stockMovementValidation", {
+  loggerService.warn('middleware@stockMovementValidation', {
     requestId: req.requestId,
     userIp: req.userIp,
     body: req.body,
     reason,
-    type: "logic",
+    type: 'logic',
   });
 
   res.status(400).json({

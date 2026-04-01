@@ -1,8 +1,8 @@
-const ProductService = require("../services/ProductService");
-const PriceService = require("../services/PriceService");
-const LoggerService = require("../services/LoggerService");
-const mongoose = require("mongoose");
-const { saveProductImage, deleteProductImage } = require("../utils/fileUpload");
+const ProductService = require('../services/ProductService');
+const PriceService = require('../services/PriceService');
+const LoggerService = require('../services/LoggerService');
+const mongoose = require('mongoose');
+const { saveProductImage, deleteProductImage } = require('../utils/fileUpload');
 
 /**
  * Get product list
@@ -14,8 +14,8 @@ const { saveProductImage, deleteProductImage } = require("../utils/fileUpload");
  */
 const getProducts = async (req, res) => {
   const query = req.query;
-  const page = query.page || "1";
-  const limit = query.limit || "10";
+  const page = query.page || '1';
+  const limit = query.limit || '10';
   const categories = query.categories ? query.categories.split(',') : undefined;
 
   const skipItems = Number(page) - 1;
@@ -61,16 +61,13 @@ const createProduct = async (req, res) => {
     try {
       productData.image = saveProductImage(req.files.image);
     } catch (error) {
-      loggerService.error(
-        "fileUpload@saveProductImage",
-        {
-          requestId: req.requestId,
-          userIp: req.userIp,
-          body: req.body,
-          reason: error?.message ?? 'Unknown error',
-          type: 'logic'
-        }
-      );
+      loggerService.error('fileUpload@saveProductImage', {
+        requestId: req.requestId,
+        userIp: req.userIp,
+        body: req.body,
+        reason: error?.message ?? 'Unknown error',
+        type: 'logic',
+      });
       return res.status(400).json({
         code: 2001,
       });
@@ -84,16 +81,13 @@ const createProduct = async (req, res) => {
     if (productData.image) {
       deleteProductImage(productData.image);
     }
-    loggerService.error(
-      "productService@createProduct",
-      {
-        requestId: req.requestId,
-        userIp: req.userIp,
-        body: req.body,
-        reason: error?.message ?? 'Unknown error',
-        type: 'logic'
-      }
-    );
+    loggerService.error('productService@createProduct', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      body: req.body,
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
+    });
     return res.status(400).json({
       code: 2000,
     });
@@ -108,16 +102,13 @@ const createProduct = async (req, res) => {
       createdBy: body.session._id,
     });
   } catch (error) {
-    loggerService.error(
-      "priceService@createPrice",
-      {
-        requestId: req.requestId,
-        userIp: req.userIp,
-        body: req.body,
-        reason: error?.message ?? 'Unknown error',
-        type: 'logic'
-      }
-    );
+    loggerService.error('priceService@createPrice', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      body: req.body,
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
+    });
     return res.status(400).json({
       code: 3000,
     });
@@ -146,18 +137,15 @@ const getProductById = async (req, res) => {
   try {
     productDb = await productService.getProductById(productId);
   } catch (error) {
-    loggerService.error(
-      'productService@getProductById',
-      {
-        requestId: req.requestId,
-        userIp: req.user,
-        body: req.body,
-        reason: error?.message ?? 'Unknown error',
-        type: 'logic'
-      }
-    );
+    loggerService.error('productService@getProductById', {
+      requestId: req.requestId,
+      userIp: req.user,
+      body: req.body,
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
+    });
     return res.status(404).json({
-      message: "Product not found",
+      message: 'Product not found',
     });
   }
 
@@ -183,41 +171,35 @@ const updateProductById = async (req, res) => {
   try {
     productDb = await productService.getProductById(productId);
   } catch (error) {
-    loggerService.error(
-      'productService@getProductById',
-      {
-        requestId: req.requestId,
-        userIp: req.userIp,
-        body: req.body,
-        reason: error?.message ?? 'Unknown error',
-        type: 'logic'
-      }
-    );
+    loggerService.error('productService@getProductById', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      body: req.body,
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
+    });
     return res.status(404).json({
-      message: "Product not found",
+      message: 'Product not found',
     });
   }
 
   if (!productDb) {
-    loggerService.warn(
-      'productService@getProductById',
-      {
-        requestId: req.requestId,
-        userIp: req.userIp,
-        body: req.body,
-        reason: "Product not found",
-        type: 'logic'
-      }
-    );
+    loggerService.warn('productService@getProductById', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      body: req.body,
+      reason: 'Product not found',
+      type: 'logic',
+    });
     return res.status(404).json({
-      message: "Product not found",
+      message: 'Product not found',
     });
   }
 
   const { inStock, name, categories, barcode } = req.body;
   const oldImage = productDb.image;
 
-  if (typeof inStock === "boolean") {
+  if (typeof inStock === 'boolean') {
     productDb.inStock = inStock;
   }
 
@@ -237,16 +219,13 @@ const updateProductById = async (req, res) => {
     try {
       productDb.image = saveProductImage(req.files.image);
     } catch (error) {
-      loggerService.error(
-        "fileUpload@saveProductImage",
-        {
-          requestId: req.requestId,
-          userIp: req.userIp,
-          body: req.body,
-          reason: error?.message ?? 'Unknown error',
-          type: 'logic'
-        }
-      );
+      loggerService.error('fileUpload@saveProductImage', {
+        requestId: req.requestId,
+        userIp: req.userIp,
+        body: req.body,
+        reason: error?.message ?? 'Unknown error',
+        type: 'logic',
+      });
       return res.status(400).json({
         code: 2001,
       });
@@ -259,18 +238,15 @@ const updateProductById = async (req, res) => {
     if (productDb.image !== oldImage && oldImage) {
       deleteProductImage(productDb.image);
     }
-    loggerService.error(
-      'productService@updateProductById',
-      {
-        requestId: req.requestId,
-        userIp: req.userIp,
-        body: req.body,
-        reason: error?.message ?? 'Unknown error',
-        type: 'logic'
-      }
-    );
+    loggerService.error('productService@updateProductById', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      body: req.body,
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
+    });
     return res.status(500).json({
-      message: "Internal error",
+      message: 'Internal error',
     });
   }
 

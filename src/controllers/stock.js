@@ -1,5 +1,5 @@
-const StockService = require("../services/StockService");
-const LoggerService = require("../services/LoggerService");
+const StockService = require('../services/StockService');
+const LoggerService = require('../services/LoggerService');
 
 /**
  * Get all stocks with pagination
@@ -10,22 +10,22 @@ const LoggerService = require("../services/LoggerService");
  * @returns {Promise<void>}
  */
 const getStocks = async (req, res) => {
-    const query = req.query;
-    const page = query.page || "1";
-    const limit = query.limit || "10";
-    const warehouseId = query.warehouseId;
+  const query = req.query;
+  const page = query.page || '1';
+  const limit = query.limit || '10';
+  const warehouseId = query.warehouseId;
 
-    const skipItems = Number(page) - 1;
-    const limitNum = Number(limit);
+  const skipItems = Number(page) - 1;
+  const limitNum = Number(limit);
 
-    const stockService = StockService.getInstance();
+  const stockService = StockService.getInstance();
 
-    const { stocks, total } = await stockService.getStocks(skipItems, limitNum, warehouseId);
+  const { stocks, total } = await stockService.getStocks(skipItems, limitNum, warehouseId);
 
-    return res.status(200).json({
-        stocks,
-        total,
-    });
+  return res.status(200).json({
+    stocks,
+    total,
+  });
 };
 
 /**
@@ -37,48 +37,42 @@ const getStocks = async (req, res) => {
  * @returns {Promise<void>}
  */
 const getStockById = async (req, res) => {
-    const stockId = req.params.stockId;
-    const stockService = StockService.getInstance();
-    const loggerService = LoggerService.getInstance();
+  const stockId = req.params.stockId;
+  const stockService = StockService.getInstance();
+  const loggerService = LoggerService.getInstance();
 
-    let stockDb;
-    try {
-        stockDb = await stockService.getStockById(stockId);
-    } catch (error) {
-        loggerService.error(
-            'stockService@getStockById',
-            {
-                requestId: req.requestId,
-                userIp: req.userIp,
-                body: req.body,
-                reason: error?.message ?? 'Unknown error',
-                type: 'logic'
-            }
-        );
-        return res.status(404).json({
-            message: "Stock not found",
-        });
-    }
-
-    if (!stockDb) {
-        loggerService.warn(
-            'stockService@getStockById',
-            {
-                requestId: req.requestId,
-                userIp: req.userIp,
-                body: req.body,
-                reason: "Stock not found",
-                type: 'logic'
-            }
-        );
-        return res.status(404).json({
-            message: "Stock not found",
-        });
-    }
-
-    return res.status(200).json({
-        stock: stockDb,
+  let stockDb;
+  try {
+    stockDb = await stockService.getStockById(stockId);
+  } catch (error) {
+    loggerService.error('stockService@getStockById', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      body: req.body,
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
     });
+    return res.status(404).json({
+      message: 'Stock not found',
+    });
+  }
+
+  if (!stockDb) {
+    loggerService.warn('stockService@getStockById', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      body: req.body,
+      reason: 'Stock not found',
+      type: 'logic',
+    });
+    return res.status(404).json({
+      message: 'Stock not found',
+    });
+  }
+
+  return res.status(200).json({
+    stock: stockDb,
+  });
 };
 
 /**
@@ -90,38 +84,35 @@ const getStockById = async (req, res) => {
  * @returns {Promise<void>}
  */
 const getStockByProductId = async (req, res) => {
-    const productId = req.params.productId;
-    const stockService = StockService.getInstance();
-    const loggerService = LoggerService.getInstance();
+  const productId = req.params.productId;
+  const stockService = StockService.getInstance();
+  const loggerService = LoggerService.getInstance();
 
-    let stockDb;
-    try {
-        stockDb = await stockService.getStockByProductId(productId);
-    } catch (error) {
-        loggerService.error(
-            'stockService@getStockByProductId',
-            {
-                requestId: req.requestId,
-                userIp: req.userIp,
-                body: req.body,
-                reason: error?.message ?? 'Unknown error',
-                type: 'logic'
-            }
-        );
-        return res.status(500).json({
-            code: 4000,
-        });
-    }
-
-    if (!stockDb) {
-        return res.status(404).json({
-            message: "Stock not found",
-        });
-    }
-
-    return res.status(200).json({
-        stock: stockDb,
+  let stockDb;
+  try {
+    stockDb = await stockService.getStockByProductId(productId);
+  } catch (error) {
+    loggerService.error('stockService@getStockByProductId', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      body: req.body,
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
     });
+    return res.status(500).json({
+      code: 4000,
+    });
+  }
+
+  if (!stockDb) {
+    return res.status(404).json({
+      message: 'Stock not found',
+    });
+  }
+
+  return res.status(200).json({
+    stock: stockDb,
+  });
 };
 
 /**
@@ -133,40 +124,37 @@ const getStockByProductId = async (req, res) => {
  * @returns {Promise<void>}
  */
 const createStock = async (req, res) => {
-    const body = req.body;
-    const stockService = StockService.getInstance();
-    const loggerService = LoggerService.getInstance();
+  const body = req.body;
+  const stockService = StockService.getInstance();
+  const loggerService = LoggerService.getInstance();
 
-    const stockData = {
-        productId: body.productId,
-        warehouseId: body.warehouseId,
-        quantity: body.quantity || 0,
-        minQuantity: body.minQuantity || 0,
-        createdBy: body.session._id,
-    };
+  const stockData = {
+    productId: body.productId,
+    warehouseId: body.warehouseId,
+    quantity: body.quantity || 0,
+    minQuantity: body.minQuantity || 0,
+    createdBy: body.session._id,
+  };
 
-    let stock;
-    try {
-        stock = await stockService.createStock(stockData);
-    } catch (error) {
-        loggerService.error(
-            'stockService@createStock',
-            {
-                requestId: req.requestId,
-                userIp: req.userIp,
-                body: req.body,
-                reason: error?.message ?? 'Unknown error',
-                type: 'logic'
-            }
-        );
-        return res.status(400).json({
-            code: 4000,
-        });
-    }
-
-    res.status(201).json({
-        stock,
+  let stock;
+  try {
+    stock = await stockService.createStock(stockData);
+  } catch (error) {
+    loggerService.error('stockService@createStock', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      body: req.body,
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
     });
+    return res.status(400).json({
+      code: 4000,
+    });
+  }
+
+  res.status(201).json({
+    stock,
+  });
 };
 
 /**
@@ -178,41 +166,38 @@ const createStock = async (req, res) => {
  * @returns {Promise<void>}
  */
 const updateStock = async (req, res) => {
-    const stockId = req.params.stockId;
-    const body = req.body;
-    const stockService = StockService.getInstance();
-    const loggerService = LoggerService.getInstance();
+  const stockId = req.params.stockId;
+  const body = req.body;
+  const stockService = StockService.getInstance();
+  const loggerService = LoggerService.getInstance();
 
-    const minQuantity = body.minQuantity;
+  const minQuantity = body.minQuantity;
 
-    let stockDb;
-    try {
-        stockDb = await stockService.updateStock(stockId, minQuantity);
-    } catch (error) {
-        loggerService.error(
-            'stockService@updateStock',
-            {
-                requestId: req.requestId,
-                userIp: req.userIp,
-                body: req.body,
-                reason: error?.message ?? 'Unknown error',
-                type: 'logic'
-            }
-        );
-        return res.status(400).json({
-            code: 4000,
-        });
-    }
-
-    if (!stockDb) {
-        return res.status(404).json({
-            message: "Stock not found",
-        });
-    }
-
-    res.status(200).json({
-        stock: stockDb,
+  let stockDb;
+  try {
+    stockDb = await stockService.updateStock(stockId, minQuantity);
+  } catch (error) {
+    loggerService.error('stockService@updateStock', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      body: req.body,
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
     });
+    return res.status(400).json({
+      code: 4000,
+    });
+  }
+
+  if (!stockDb) {
+    return res.status(404).json({
+      message: 'Stock not found',
+    });
+  }
+
+  res.status(200).json({
+    stock: stockDb,
+  });
 };
 
 /**
@@ -224,49 +209,43 @@ const updateStock = async (req, res) => {
  * @returns {Promise<void>}
  */
 const addStock = async (req, res) => {
-    const stockId = req.params.stockId;
-    const body = req.body;
-    const stockService = StockService.getInstance();
-    const loggerService = LoggerService.getInstance();
+  const stockId = req.params.stockId;
+  const body = req.body;
+  const stockService = StockService.getInstance();
+  const loggerService = LoggerService.getInstance();
 
-    let stockDb;
-    try {
-        stockDb = await stockService.addStock(stockId, body.amount);
-    } catch (error) {
-        loggerService.error(
-            'stockService@addStock',
-            {
-                requestId: req.requestId,
-                userIp: req.userIp,
-                body: req.body,
-                reason: error?.message ?? 'Unknown error',
-                type: 'logic'
-            }
-        );
-        return res.status(400).json({
-            code: 4000,
-        });
-    }
-
-    if (!stockDb) {
-        loggerService.warn(
-            'stockService@addStock',
-            {
-                requestId: req.requestId,
-                userIp: req.userIp,
-                body: req.body,
-                reason: 'Stock not found',
-                type: 'logic'
-            }
-        );
-        return res.status(404).json({
-            message: "Stock not found",
-        });
-    }
-
-    res.status(200).json({
-        stock: stockDb,
+  let stockDb;
+  try {
+    stockDb = await stockService.addStock(stockId, body.amount);
+  } catch (error) {
+    loggerService.error('stockService@addStock', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      body: req.body,
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
     });
+    return res.status(400).json({
+      code: 4000,
+    });
+  }
+
+  if (!stockDb) {
+    loggerService.warn('stockService@addStock', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      body: req.body,
+      reason: 'Stock not found',
+      type: 'logic',
+    });
+    return res.status(404).json({
+      message: 'Stock not found',
+    });
+  }
+
+  res.status(200).json({
+    stock: stockDb,
+  });
 };
 
 /**
@@ -279,58 +258,52 @@ const addStock = async (req, res) => {
  * @returns {Promise<void>}
  */
 const removeStock = async (req, res) => {
-    const stockId = req.params.stockId;
-    const body = req.body;
-    const stockService = StockService.getInstance();
-    const loggerService = LoggerService.getInstance();
+  const stockId = req.params.stockId;
+  const body = req.body;
+  const stockService = StockService.getInstance();
+  const loggerService = LoggerService.getInstance();
 
-    let stockDb;
-    try {
-        stockDb = await stockService.removeStock(stockId, body.amount, body.session._id);
-    } catch (error) {
-        loggerService.error(
-            'stockService@removeStock',
-            {
-                requestId: req.requestId,
-                userIp: req.userIp,
-                body: req.body,
-                reason: error?.message ?? 'Unknown error',
-                type: 'logic'
-            }
-        );
-        return res.status(400).json({
-            code: 4000,
-        });
-    }
-
-    if (!stockDb) {
-        loggerService.warn(
-            'stockService@removeStock',
-            {
-                requestId: req.requestId,
-                userIp: req.userIp,
-                body: req.body,
-                reason: 'Stock not found or would go below minimum',
-                type: 'logic'
-            }
-        );
-        return res.status(400).json({
-            code: 4002,
-            message: "Cannot remove: would go below minimum stock",
-        });
-    }
-
-    res.status(200).json({
-        stock: stockDb,
+  let stockDb;
+  try {
+    stockDb = await stockService.removeStock(stockId, body.amount, body.session._id);
+  } catch (error) {
+    loggerService.error('stockService@removeStock', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      body: req.body,
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
     });
+    return res.status(400).json({
+      code: 4000,
+    });
+  }
+
+  if (!stockDb) {
+    loggerService.warn('stockService@removeStock', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      body: req.body,
+      reason: 'Stock not found or would go below minimum',
+      type: 'logic',
+    });
+    return res.status(400).json({
+      code: 4002,
+      message: 'Cannot remove: would go below minimum stock',
+    });
+  }
+
+  res.status(200).json({
+    stock: stockDb,
+  });
 };
 
 module.exports = {
-    getStocks,
-    getStockById,
-    getStockByProductId,
-    createStock,
-    updateStock,
-    addStock,
-    removeStock,
+  getStocks,
+  getStockById,
+  getStockByProductId,
+  createStock,
+  updateStock,
+  addStock,
+  removeStock,
 };

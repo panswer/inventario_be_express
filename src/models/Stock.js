@@ -1,4 +1,4 @@
-const { Schema, model } = require("mongoose");
+const { Schema, model } = require('mongoose');
 
 /**
  * @swagger
@@ -67,9 +67,9 @@ const StockSchema = new Schema(
   {
     quantity: {
       type: Number,
-      required: [true, "quantity is required"],
+      required: [true, 'quantity is required'],
       default: 0,
-      min: [0, "quantity cannot be negative"],
+      min: [0, 'quantity cannot be negative'],
     },
     minQuantity: {
       type: Number,
@@ -77,27 +77,27 @@ const StockSchema = new Schema(
     },
     productId: {
       type: Schema.Types.ObjectId,
-      ref: "product",
-      required: [true, "productId is required"],
+      ref: 'product',
+      required: [true, 'productId is required'],
     },
     warehouseId: {
       type: Schema.Types.ObjectId,
-      ref: "warehouse",
-      required: [true, "warehouseId is required"],
+      ref: 'warehouse',
+      required: [true, 'warehouseId is required'],
     },
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: "user",
-      required: [true, "createdBy is required"],
+      ref: 'user',
+      required: [true, 'createdBy is required'],
     },
   },
   {
     timestamps: {
-      createdAt: "createdAt",
-      updatedAt: "updatedAt",
+      createdAt: 'createdAt',
+      updatedAt: 'updatedAt',
     },
     toJSON: {
-      transform: function (stockSch, stock) {
+      transform(stockSch, stock) {
         stock.createdAt = stockSch.createdAt.getTime();
         stock.updatedAt = stockSch.updatedAt.getTime();
         return stock;
@@ -108,4 +108,4 @@ const StockSchema = new Schema(
 
 StockSchema.index({ productId: 1, warehouseId: 1 }, { unique: true });
 
-module.exports = model("stock", StockSchema);
+module.exports = model('stock', StockSchema);

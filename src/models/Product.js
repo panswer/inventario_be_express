@@ -1,4 +1,4 @@
-const { Schema, model } = require("mongoose");
+const { Schema, model } = require('mongoose');
 
 /**
  * @swagger
@@ -13,12 +13,12 @@ const { Schema, model } = require("mongoose");
  *                  type: string
  *              inStock:
  *                  type: boolean
-  *              image:
-   *                  type: string
-   *                  description: Path to product image
-   *              barcode:
-   *                  type: string
-   *                  description: Product barcode (optional)
+ *              image:
+ *                  type: string
+ *                  description: Path to product image
+ *              barcode:
+ *                  type: string
+ *                  description: Product barcode (optional)
  *              categories:
  *                  type: array
  *                  items:
@@ -52,7 +52,7 @@ const ProductSchema = new Schema(
   {
     name: {
       type: String,
-      required: [true, "name is required"],
+      required: [true, 'name is required'],
     },
     inStock: {
       type: Boolean,
@@ -66,23 +66,25 @@ const ProductSchema = new Schema(
       type: String,
       default: null,
     },
-    categories: [{
-      type: Schema.Types.ObjectId,
-      ref: "category",
-    }],
+    categories: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'category',
+      },
+    ],
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: "user",
-      required: [true, "createdBy is required"],
+      ref: 'user',
+      required: [true, 'createdBy is required'],
     },
   },
   {
     timestamps: {
-      createdAt: "createdAt",
-      updatedAt: "updatedAt",
+      createdAt: 'createdAt',
+      updatedAt: 'updatedAt',
     },
     toJSON: {
-      transform: function (productSch, product) {
+      transform(productSch, product) {
         product.createdAt = productSch.createdAt.getTime();
         product.updatedAt = productSch.updatedAt.getTime();
 
@@ -97,4 +99,4 @@ ProductSchema.index(
   { unique: true, partialFilterExpression: { barcode: { $ne: null } } }
 );
 
-module.exports = model("product", ProductSchema);
+module.exports = model('product', ProductSchema);

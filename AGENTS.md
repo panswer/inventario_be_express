@@ -14,6 +14,10 @@ npm ci                  # Install dependencies
 npm run dev             # Dev mode (nodemon)
 npm start               # Production mode
 docker-compose up -d   # Start MongoDB
+npm run generate-docs  # Generate Swagger docs
+npm run lint           # Run ESLint
+npm run lint:fix       # Fix ESLint issues
+npm run format         # Format with Prettier
 ```
 
 ### Testing
@@ -25,7 +29,6 @@ npm run test:coverage   # Coverage report (target: >90%)
 # Single test files
 npx jest __tests__/utils/date.test.js
 npx jest __tests__/controllers/product.test.js
-npx jest __tests__/services/ProductService.test.js
 
 # Run by test name pattern
 npx jest --testNamePattern="getProducts"
@@ -155,7 +158,7 @@ DB_NAME=<database>
 ```
 
 ## Notes
-- No ESLint/Prettier configured
+- ESLint + Prettier configured (flat config)
 - API docs at `/api/doc/`
 - `requestLogger` middleware adds `requestId`, `userIp` to req
 - Swagger JSDoc annotations required on all endpoints

@@ -1,13 +1,9 @@
-const { Router } = require("express");
+const { Router } = require('express');
 const { body } = require('express-validator');
-const {
-  getPriceCoinAll,
-  getPriceByProductId,
-  updatePriceById,
-} = require("../controllers/price");
-const { authorizationFn } = require("../middlewares/authorization");
-const { isAdminOrManager, isCashierOrHigher } = require("../middlewares/roleAuthorization");
-const { billValidation } = require("../middlewares/bill");
+const { getPriceCoinAll, getPriceByProductId, updatePriceById } = require('../controllers/price');
+const { authorizationFn } = require('../middlewares/authorization');
+const { isAdminOrManager, isCashierOrHigher } = require('../middlewares/roleAuthorization');
+const { billValidation } = require('../middlewares/bill');
 
 const router = Router();
 
@@ -35,7 +31,7 @@ const router = Router();
  *                                      type: object
  *                                      $ref: "#/components/schemas/CoinType"
  */
-router.get("/coin", getPriceCoinAll);
+router.get('/coin', getPriceCoinAll);
 
 /**
  * @swagger
@@ -65,7 +61,7 @@ router.get("/coin", getPriceCoinAll);
  *                                  type: object
  *                                  $ref: "#/components/schemas/PriceModel"
  */
-router.get("/product/:productId", [authorizationFn, isCashierOrHigher], getPriceByProductId);
+router.get('/product/:productId', [authorizationFn, isCashierOrHigher], getPriceByProductId);
 
 /**
  * @swagger
@@ -109,11 +105,15 @@ router.get("/product/:productId", [authorizationFn, isCashierOrHigher], getPrice
  *                  type: object
  *                  $ref: "#/components/schemas/PriceModel"
  */
-router.put("/:priceId/:coin", [
-  authorizationFn,
-  isAdminOrManager,
-  body('amount').isFloat({ min: 0.01 }).withMessage('El monto debe ser mayor a 0.01'),
-  billValidation
-], updatePriceById);
+router.put(
+  '/:priceId/:coin',
+  [
+    authorizationFn,
+    isAdminOrManager,
+    body('amount').isFloat({ min: 0.01 }).withMessage('El monto debe ser mayor a 0.01'),
+    billValidation,
+  ],
+  updatePriceById
+);
 
 module.exports = router;

@@ -1,5 +1,5 @@
-const StockMovementService = require("../services/StockMovementService");
-const LoggerService = require("../services/LoggerService");
+const StockMovementService = require('../services/StockMovementService');
+const LoggerService = require('../services/LoggerService');
 
 /**
  * Get stock movements with pagination
@@ -12,7 +12,7 @@ const getMovements = async (req, res) => {
   const { page, limit, productId, warehouseId, type, startDate, endDate } = req.query;
   const stockMovementService = StockMovementService.getInstance();
 
-  const skipItems = (Number(page) - 1) || 0;
+  const skipItems = Number(page) - 1 || 0;
   const limitNum = Number(limit) || 50;
 
   const filters = {};
@@ -23,17 +23,21 @@ const getMovements = async (req, res) => {
   if (endDate) filters.endDate = endDate;
 
   try {
-    const { movements, total } = await stockMovementService.getMovements(skipItems, limitNum, filters);
+    const { movements, total } = await stockMovementService.getMovements(
+      skipItems,
+      limitNum,
+      filters
+    );
     return res.status(200).json({ movements, total });
   } catch (error) {
     const loggerService = LoggerService.getInstance();
-    loggerService.error("stockMovementService@getMovements", {
+    loggerService.error('stockMovementService@getMovements', {
       requestId: req.requestId,
       userIp: req.userIp,
-      reason: error?.message ?? "Unknown error",
-      type: "logic",
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
     });
-    return res.status(500).json({ message: "Internal error" });
+    return res.status(500).json({ message: 'Internal error' });
   }
 };
 
@@ -51,16 +55,19 @@ const getMovementsByProduct = async (req, res) => {
   const loggerService = LoggerService.getInstance();
 
   try {
-    const movements = await stockMovementService.getMovementsByProductId(productId, Number(limit) || 50);
+    const movements = await stockMovementService.getMovementsByProductId(
+      productId,
+      Number(limit) || 50
+    );
     return res.status(200).json({ movements });
   } catch (error) {
-    loggerService.error("stockMovementService@getMovementsByProduct", {
+    loggerService.error('stockMovementService@getMovementsByProduct', {
       requestId: req.requestId,
       userIp: req.userIp,
-      reason: error?.message ?? "Unknown error",
-      type: "logic",
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
     });
-    return res.status(500).json({ message: "Internal error" });
+    return res.status(500).json({ message: 'Internal error' });
   }
 };
 
@@ -85,13 +92,13 @@ const getMovementsByProductAndWarehouse = async (req, res) => {
     );
     return res.status(200).json({ movements });
   } catch (error) {
-    loggerService.error("stockMovementService@getMovementsByProductAndWarehouse", {
+    loggerService.error('stockMovementService@getMovementsByProductAndWarehouse', {
       requestId: req.requestId,
       userIp: req.userIp,
-      reason: error?.message ?? "Unknown error",
-      type: "logic",
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
     });
-    return res.status(500).json({ message: "Internal error" });
+    return res.status(500).json({ message: 'Internal error' });
   }
 };
 

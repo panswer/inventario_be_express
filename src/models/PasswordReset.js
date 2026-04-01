@@ -28,20 +28,23 @@ const { Schema, model } = require('mongoose');
  *                  example: 1745250570613
  */
 
-const PasswordResetSchema = new Schema({
+const PasswordResetSchema = new Schema(
+  {
     userId: {
-        type: Schema.Types.ObjectId,
-        ref: 'user',
-        required: [true, 'user id is required'],
+      type: Schema.Types.ObjectId,
+      ref: 'user',
+      required: [true, 'user id is required'],
     },
     token: {
-        type: String,
-        required: [true, 'token is required'],
+      type: String,
+      required: [true, 'token is required'],
     },
-}, {
+  },
+  {
     timestamps: {
-        createdAt: 'createdAt',
+      createdAt: 'createdAt',
     },
-});
+  }
+);
 
 module.exports = model('passwordReset', PasswordResetSchema);

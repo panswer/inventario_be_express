@@ -1,5 +1,5 @@
-const { Schema, model } = require("mongoose");
-const { coinEnum } = require("../enums/coinEnum");
+const { Schema, model } = require('mongoose');
+const { coinEnum } = require('../enums/coinEnum');
 
 /**
  * @swagger
@@ -44,31 +44,31 @@ const PriceSchema = new Schema(
   {
     amount: {
       type: Number,
-      required: [true, "amount is required"],
+      required: [true, 'amount is required'],
     },
     coin: {
       type: String,
       enum: Object.values(coinEnum),
-      required: [true, "coin is required"],
+      required: [true, 'coin is required'],
     },
     productId: {
       type: Schema.Types.ObjectId,
-      ref: "product",
-      required: [true, "productId is required"],
+      ref: 'product',
+      required: [true, 'productId is required'],
     },
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: "user",
-      required: [true, "createdBy is required"],
+      ref: 'user',
+      required: [true, 'createdBy is required'],
     },
   },
   {
     timestamps: {
-      createdAt: "createdAt",
-      updatedAt: "updatedAt",
+      createdAt: 'createdAt',
+      updatedAt: 'updatedAt',
     },
     toJSON: {
-      transform: function (priceSch, price) {
+      transform(priceSch, price) {
         price.createdAt = priceSch.createdAt.getTime();
         price.updatedAt = priceSch.updatedAt.getTime();
 
@@ -78,4 +78,4 @@ const PriceSchema = new Schema(
   }
 );
 
-module.exports = model("price", PriceSchema);
+module.exports = model('price', PriceSchema);

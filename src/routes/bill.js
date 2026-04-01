@@ -1,14 +1,10 @@
-const { Router } = require("express");
-const { body } = require("express-validator");
-const { billValidation } = require("../middlewares/bill");
-const { salesValidation } = require("../middlewares/salesValidation");
-const { authorizationFn } = require("../middlewares/authorization");
-const { isAdminOrManager, isAdminOrManagerOrCashier } = require("../middlewares/roleAuthorization");
-const {
-  createBill,
-  getAllBills,
-  getBillDetailByBillId,
-} = require("../controllers/bill");
+const { Router } = require('express');
+const { body } = require('express-validator');
+const { billValidation } = require('../middlewares/bill');
+const { salesValidation } = require('../middlewares/salesValidation');
+const { authorizationFn } = require('../middlewares/authorization');
+const { isAdminOrManager, isAdminOrManagerOrCashier } = require('../middlewares/roleAuthorization');
+const { createBill, getAllBills, getBillDetailByBillId } = require('../controllers/bill');
 
 const router = Router();
 
@@ -46,7 +42,8 @@ const router = Router();
  *                  ok:
  *                    type: boolean
  */
-router.post("",
+router.post(
+  '',
   [
     authorizationFn,
     isAdminOrManagerOrCashier,
@@ -94,7 +91,7 @@ router.post("",
  *                              total:
  *                                  type: number
  */
-router.get("", [authorizationFn, isAdminOrManager], getAllBills);
+router.get('', [authorizationFn, isAdminOrManager], getAllBills);
 
 /**
  * @swagger
@@ -124,6 +121,6 @@ router.get("", [authorizationFn, isAdminOrManager], getAllBills);
  *                                  type: object
  *                                  $ref: '#/components/schemas/BillDetailModel'
  */
-router.get("/detail/:billId", [authorizationFn, isAdminOrManager], getBillDetailByBillId);
+router.get('/detail/:billId', [authorizationFn, isAdminOrManager], getBillDetailByBillId);
 
 module.exports = router;

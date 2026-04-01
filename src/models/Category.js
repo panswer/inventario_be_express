@@ -1,4 +1,4 @@
-const { Schema, model } = require("mongoose");
+const { Schema, model } = require('mongoose');
 
 /**
  * @swagger
@@ -32,7 +32,7 @@ const CategorySchema = new Schema(
   {
     name: {
       type: String,
-      required: [true, "name is required"],
+      required: [true, 'name is required'],
     },
     isEnabled: {
       type: Boolean,
@@ -40,17 +40,17 @@ const CategorySchema = new Schema(
     },
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: "user",
-      required: [true, "createdBy is required"],
+      ref: 'user',
+      required: [true, 'createdBy is required'],
     },
   },
   {
     timestamps: {
-      createdAt: "createdAt",
-      updatedAt: "updatedAt",
+      createdAt: 'createdAt',
+      updatedAt: 'updatedAt',
     },
     toJSON: {
-      transform: function (categorySch, category) {
+      transform(categorySch, category) {
         category.createdAt = categorySch.createdAt.getTime();
         category.updatedAt = categorySch.updatedAt.getTime();
 
@@ -60,4 +60,4 @@ const CategorySchema = new Schema(
   }
 );
 
-module.exports = model("category", CategorySchema);
+module.exports = model('category', CategorySchema);

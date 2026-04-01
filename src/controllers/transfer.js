@@ -1,5 +1,5 @@
-const TransferService = require("../services/TransferService");
-const LoggerService = require("../services/LoggerService");
+const TransferService = require('../services/TransferService');
+const LoggerService = require('../services/LoggerService');
 
 /**
  * Transfer stock between warehouses
@@ -24,16 +24,16 @@ const transferStock = async (req, res) => {
 
     return res.status(200).json(result);
   } catch (error) {
-    loggerService.error("transferService@transferStock", {
+    loggerService.error('transferService@transferStock', {
       requestId: req.requestId,
       userIp: req.userIp,
       body: req.body,
-      reason: error?.message ?? "Unknown error",
-      type: "logic"
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
     });
     return res.status(400).json({
       code: error?.code ?? 4000,
-      message: error?.message
+      message: error?.message,
     });
   }
 };
@@ -53,17 +53,17 @@ const getProductStockByWarehouse = async (req, res) => {
     const stocks = await transferService.getProductStockByWarehouse(productId);
     return res.status(200).json({ stocks });
   } catch (error) {
-    loggerService.error("transferService@getProductStockByWarehouse", {
+    loggerService.error('transferService@getProductStockByWarehouse', {
       requestId: req.requestId,
       userIp: req.userIp,
-      reason: error?.message ?? "Unknown error",
-      type: "logic"
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
     });
-    return res.status(500).json({ message: "Internal error" });
+    return res.status(500).json({ message: 'Internal error' });
   }
 };
 
 module.exports = {
   transferStock,
-  getProductStockByWarehouse
+  getProductStockByWarehouse,
 };
