@@ -34,10 +34,12 @@ describe("ProductController", () => {
       getProductById: jest.fn(),
       createProduct: jest.fn(),
       countProducts: jest.fn(),
+      findByBarcode: jest.fn(),
     };
 
     mockPriceService = {
       createPrice: jest.fn(),
+      getPriceByProductId: jest.fn(),
     };
 
     ProductService.getInstance.mockReturnValue(mockProductService);
@@ -275,6 +277,53 @@ describe("ProductController", () => {
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
       expect(mockRes.json).toHaveBeenCalledWith({ code: 2001 });
+    });
+  });
+
+  describe("getProductByBarcode", () => {
+    it("should return 404 if product not found", async () => {
+      mockReq.params.barcode = "nonexistent";
+      mockProductService.findByBarcode.mockResolvedValue(null);
+
+      await productController.getProductByBarcode(mockReq, mockRes);
+
+      expect(mockRes.status).toHaveBeenCalledWith(404);
+      expect(mockRes.json).toHaveBeenCalledWith({ message: "Product not found" });
+    });
+
+    it("should return product and price if found", async () => {
+      const mockProduct = { _id: "1", name: "Test Product", barcode: "123" };
+      const mockPrice = { _id: "price1", amount: 100 };
+      mockReq.params.barcode = "123";
+      mockProductService.findByBarcode.mockResolvedValue(mockProduct);
+      mockPriceService.getPriceByProductId.mockResolvedValue(mockPrice);
+
+      await productController.getProductByBarcode(mockReq, mockRes);
+
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith({ product: mockProduct, price: mockPrice });
+    });
+
+    it("should return product without price if price lookup fails", async () => {
+      const mockProduct = { _id: "1", name: "Test Product", barcode: "123" };
+      mockReq.params.barcode = "123";
+      mockProductService.findByBarcode.mockResolvedValue(mockProduct);
+      mockPriceService.getPriceByProductId.mockRejectedValue(new Error("Error"));
+
+      await productController.getProductByBarcode(mockReq, mockRes);
+
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith({ product: mockProduct, price: undefined });
+    });
+
+    it("should return 500 if findByBarcode throws error", async () => {
+      mockReq.params.barcode = "123";
+      mockProductService.findByBarcode.mockRejectedValue(new Error("DB Error"));
+
+      await productController.getProductByBarcode(mockReq, mockRes);
+
+      expect(mockRes.status).toHaveBeenCalledWith(500);
+      expect(mockRes.json).toHaveBeenCalledWith({ message: "Internal error" });
     });
   });
 });
