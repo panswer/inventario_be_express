@@ -65,6 +65,7 @@ const ProductSchema = new Schema(
     barcode: {
       type: String,
       default: null,
+      unique: true,
     },
     categories: [
       {

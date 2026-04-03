@@ -6,10 +6,9 @@ const {
   updateProductById,
   getProductById,
 } = require('../controllers/product');
-const ProductService = require('../services/ProductService');
 const { authorizationFn } = require('../middlewares/authorization');
 const { isAdminOrManager, isCashierOrHigher } = require('../middlewares/roleAuthorization');
-const { productValidation } = require('../middlewares/product');
+const { productValidation, productBarcodeValidation } = require('../middlewares/product');
 const { validateCategories } = require('../middlewares/category');
 const { imageValidation } = require('../middlewares/imageValidation');
 const { coinEnum } = require('../enums/coinEnum');
@@ -125,15 +124,7 @@ router.post(
     body('amount').isFloat({ min: 0.01 }).withMessage('El monto debe ser mayor a 0.01'),
     body('coin').isIn(Object.values(coinEnum)).withMessage('La moneda no es válida'),
     body('name').isLength({ min: 3 }).withMessage('El nombre debe tener al menos 3 caracteres'),
-    body('barcode').custom(async value => {
-      if (!value) return true;
-      const productService = ProductService.getInstance();
-      const existing = await productService.findByBarcode(value);
-      if (existing) {
-        throw new Error('El código de barras ya está registrado');
-      }
-      return true;
-    }),
+    productBarcodeValidation,
     productValidation,
     validateCategories,
     imageValidation,
@@ -225,15 +216,7 @@ router.put(
     authorizationFn,
     isAdminOrManager,
     body('name').isLength({ min: 3 }).withMessage('El nombre debe tener al menos 3 caracteres'),
-    body('barcode').custom(async (value, { req }) => {
-      if (!value) return true;
-      const productService = ProductService.getInstance();
-      const existing = await productService.findByBarcode(value);
-      if (existing && existing._id.toString() !== req.params.productId) {
-        throw new Error('El código de barras ya está registrado');
-      }
-      return true;
-    }),
+    productBarcodeValidation,
     productValidation,
     validateCategories,
     imageValidation,

@@ -1,5 +1,6 @@
-const { validationResult } = require('express-validator');
+const { validationResult, body } = require('express-validator');
 const LoggerService = require('../services/LoggerService');
+const ProductService = require('../services/ProductService');
 
 /**
  * Middleware to validate product error
@@ -35,6 +36,23 @@ const productValidation = (req, res, next) => {
   });
 };
 
+const productBarcodeValidation = body('barcode').custom(async (value, { req }) => {
+  if (!value) return true;
+  const productService = ProductService.getInstance();
+  const existing = await productService.findByBarcode(value);
+
+  if (!req.params.productId && existing) {
+    throw new Error('El código de barras ya está registrado');
+  }
+
+  if (existing && existing._id.toString() !== req.params.productId) {
+    throw new Error('El código de barras ya está registrado');
+  }
+
+  return true;
+});
+
 module.exports = {
   productValidation,
+  productBarcodeValidation,
 };
