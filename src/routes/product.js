@@ -5,6 +5,7 @@ const {
   createProduct,
   updateProductById,
   getProductById,
+  getProductByBarcode,
 } = require('../controllers/product');
 const { authorizationFn } = require('../middlewares/authorization');
 const { isAdminOrManager, isCashierOrHigher } = require('../middlewares/roleAuthorization');
@@ -58,6 +59,41 @@ const router = Router();
  *                                  type: number
  */
 router.get('', [authorizationFn, isCashierOrHigher], getProducts);
+
+/**
+ * @swagger
+ * /api/product/barcode/{barcode}:
+ *  get:
+ *      summary: Get a product by barcode
+ *      description: Get a product and its current price by barcode
+ *      tags:
+ *          - Product
+ *      security:
+ *          - BearerAuth: []
+ *      parameters:
+ *          - name: barcode
+ *            in: path
+ *            required: true
+ *            schema:
+ *              type: string
+ *      responses:
+ *          200:
+ *              description: Product and price
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              product:
+ *                                  type: object
+ *                                  $ref: '#/components/schemas/ProductModel'
+ *                              price:
+ *                                  type: object
+ *                                  $ref: '#/components/schemas/PriceModel'
+ *          404:
+ *              description: Product not found
+ */
+router.get('/barcode/:barcode', [authorizationFn, isCashierOrHigher], getProductByBarcode);
 
 /**
  * @swagger

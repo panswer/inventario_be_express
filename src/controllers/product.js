@@ -5,6 +5,51 @@ const mongoose = require('mongoose');
 const { saveProductImage, deleteProductImage } = require('../utils/fileUpload');
 
 /**
+ * Get product by barcode
+ *
+ * @param {import('express').Request} req - request
+ * @param {import('express').Response} res - response
+ * @returns {Promise<void>}
+ */
+const getProductByBarcode = async (req, res) => {
+  const { barcode } = req.params;
+  const productService = ProductService.getInstance();
+  const priceService = PriceService.getInstance();
+  const loggerService = LoggerService.getInstance();
+
+  let product;
+  try {
+    product = await productService.findByBarcode(barcode);
+  } catch (error) {
+    loggerService.error('productService@findByBarcode', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
+    });
+    return res.status(500).json({ message: 'Internal error' });
+  }
+
+  if (!product) {
+    return res.status(404).json({ message: 'Product not found' });
+  }
+
+  let price;
+  try {
+    price = await priceService.getPriceByProductId(product._id);
+  } catch (error) {
+    loggerService.error('priceService@getPriceByBarcode', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
+    });
+  }
+
+  return res.status(200).json({ product, price });
+};
+
+/**
  * Get product list
  *
  * @param {import('express').Request} req - request
@@ -262,4 +307,5 @@ module.exports = {
   createProduct,
   getProductById,
   updateProductById,
+  getProductByBarcode,
 };
