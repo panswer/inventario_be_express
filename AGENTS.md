@@ -3,6 +3,7 @@
 Guidelines for agents working on this codebase.
 
 ## Project Overview
+
 - **Name**: CompraVentaBe
 - **Type**: Node.js/Express REST API with MongoDB
 - **Module System**: CommonJS (uses `require()`)
@@ -10,7 +11,7 @@ Guidelines for agents working on this codebase.
 ## Commands
 
 ```bash
-npm ci                  # Install dependencies
+npm ci                  # Install dependencies (clean install)
 npm run dev             # Dev mode (nodemon)
 npm start               # Production mode
 docker-compose up -d   # Start MongoDB
@@ -21,6 +22,7 @@ npm run format         # Format with Prettier
 ```
 
 ### Testing
+
 ```bash
 npm test                # Run all tests
 npm run test:watch      # Watch mode
@@ -46,6 +48,7 @@ npx jest --testNamePattern="should create" --testPathPattern="product"
 **Important**: Call `service.destroyInstance()` in `beforeEach`/`afterEach`. Clear collections in `afterEach`.
 
 ## File Structure
+
 ```
 src/
 ├── controllers/   # Async request handlers (camelCase)
@@ -63,18 +66,29 @@ __tests__/         # Mirror of src/ structure
 
 ## Code Style
 
+### Formatting (Prettier)
+
+- Semi: `true`
+- Single quotes: `true`
+- Tab width: `2`
+- Print width: `100`
+- Trailing commas: `es5`
+- Arrow parens: `avoid`
+
 ### Naming Conventions
-| Type | Convention | Example |
-|------|------------|---------|
-| Files (controllers) | camelCase | `product.js` |
-| Files (services) | PascalCase | `ProductService.js` |
-| Files (models) | PascalCase | `Product.js` |
-| Functions | camelCase | `getProducts` |
-| Routes | lowercase | `/api/product` |
-| Enums | camelCase | `coinEnum` |
-| Enum values | camelCase | `dollar`, `bolivar` |
+
+| Type                | Convention | Example             |
+| ------------------- | ---------- | ------------------- |
+| Files (controllers) | camelCase  | `product.js`        |
+| Files (services)    | PascalCase | `ProductService.js` |
+| Files (models)      | PascalCase | `Product.js`        |
+| Functions           | camelCase  | `getProducts`       |
+| Routes              | lowercase  | `/api/product`      |
+| Enums               | camelCase  | `coinEnum`          |
+| Enum values         | camelCase  | `dollar`, `bolivar` |
 
 ### Import Order
+
 1. External libs (express, mongoose, jwt, etc.)
 2. Internal models (Product, User, etc.)
 3. Internal services
@@ -82,10 +96,25 @@ __tests__/         # Mirror of src/ structure
 5. Enums
 6. Utils
 
-### Controller Pattern
+### JSDoc Types
+
+Use JSDoc `@param` and `@returns` annotations for all exported functions:
+
 ```javascript
-const ProductService = require("../services/ProductService");
-const LoggerService = require("../services/LoggerService");
+/**
+ * Get product list
+ *
+ * @param {import('express').Request} req - request
+ * @param {import('express').Response} res - response
+ * @returns {Promise<void>}
+ */
+```
+
+### Controller Pattern
+
+```javascript
+const ProductService = require('../services/ProductService');
+const LoggerService = require('../services/LoggerService');
 
 const getProducts = async (req, res) => {
   const { page, limit } = req.query;
@@ -96,11 +125,13 @@ const getProducts = async (req, res) => {
     const products = await productService.getProducts(Number(page) - 1, Number(limit));
     return res.status(200).json({ products });
   } catch (error) {
-    loggerService.error("productService@getProducts", {
-      requestId: req.requestId, userIp: req.userIp,
-      reason: error?.message ?? "Unknown error", type: "logic"
+    loggerService.error('productService@getProducts', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
     });
-    return res.status(500).json({ message: "Internal error" });
+    return res.status(500).json({ message: 'Internal error' });
   }
 };
 
@@ -108,48 +139,63 @@ module.exports = { getProducts };
 ```
 
 ### Service Layer (Singleton Pattern)
+
 ```javascript
 class ProductService {
   static instance;
+
   static getInstance() {
     if (!this.instance) this.instance = new ProductService();
     return this.instance;
   }
-  static destroyInstance() { delete this.instance; }
+
+  static destroyInstance() {
+    delete this.instance;
+  }
 }
 ```
 
 ### Mongoose Models
+
 - Always include `createdBy` referencing User
 - Use `timestamps` for automatic dates
 - Convert dates to timestamps in `toJSON`: `ret.createdAt = doc.createdAt.getTime()`
 - For User model, remove password in transform: `delete user.password`
 
 ### Routes Definition
+
 ```javascript
-router.post("", [
-  authorizationFn,
-  body('name').isLength({ min: 3 }).withMessage("Min 3 chars"),
-  validationMiddleware,
-], controllerFn);
+router.post(
+  '',
+  [
+    authorizationFn,
+    body('name').isLength({ min: 3 }).withMessage('Min 3 chars'),
+    validationMiddleware,
+  ],
+  controllerFn
+);
 ```
 
 ### Error Handling
+
 - Use `async/await` + `try/catch`
 - Log errors via `LoggerService.getInstance().error()` or `.warn()`
 - Include `requestId`, `userIp` in logs
 - Error Codes: 1000-1999 (User/Auth), 2000 (Product), 3000 (Price), 4000+ (Custom)
 
 ### Response Patterns
+
 - 200: `{ products, total }`
-- 201: `{ product }`
+- 201: `{ product }` or `{ product, price }`
 - 400: `{ code: 2000 }`
-- 404: `{ message: "Not found" }`
+- 404: `{ message: 'Not found' }`
 
 ## Authentication
+
 Protected routes use `authorizationFn` middleware. Header: `Authorization: Bearer <token>`. Adds `session` to `req.body`.
 
 ## Environment Variables
+
 ```
 SERVER_PORT=3000
 SERVER_JWT_SESSION_SECRET=<secret>
@@ -158,6 +204,7 @@ DB_NAME=<database>
 ```
 
 ## Notes
+
 - ESLint + Prettier configured (flat config)
 - API docs at `/api/doc/`
 - `requestLogger` middleware adds `requestId`, `userIp` to req
