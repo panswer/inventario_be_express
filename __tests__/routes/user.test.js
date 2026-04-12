@@ -95,7 +95,6 @@ describe("User Routes", () => {
         .set("Authorization", `Bearer ${adminToken}`)
         .send({ role: "manager" });
 
-      console.log('Response:', res.status, res.body);
       expect(res.status).toBe(200);
       expect(res.body.user.role).toBe("manager");
     });
