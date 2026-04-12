@@ -105,4 +105,29 @@ describe("UserService", () => {
       expect(instance1).not.toBe(instance2);
     });
   });
+
+  describe("assignWarehouse", () => {
+    it("should assign warehouse to user", async () => {
+      const warehouseId = new mongoose.Types.ObjectId();
+      const user = await User.create({
+        username: "test@test.com",
+        password: "hashed_password",
+      });
+
+      const service = UserService.getInstance();
+      const result = await service.assignWarehouse(user._id.toString(), warehouseId.toString());
+
+      expect(result).toBeTruthy();
+      expect(result.warehouseId.toString()).toBe(warehouseId.toString());
+    });
+
+    it("should throw error if user not found", async () => {
+      const warehouseId = new mongoose.Types.ObjectId();
+      const service = UserService.getInstance();
+
+      await expect(
+        service.assignWarehouse("nonexistentid", warehouseId.toString())
+      ).rejects.toThrow("User not found");
+    });
+  });
 });

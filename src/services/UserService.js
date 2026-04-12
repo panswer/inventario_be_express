@@ -101,17 +101,47 @@ class UserService {
       throw new Error('Invalid role');
     }
 
-    const user = await User.findByIdAndUpdate(userId, { role }, { new: true });
+    try {
+      const user = await User.findByIdAndUpdate(userId, { role }, { new: true });
 
-    if (!user) {
-      throw new Error('User not found');
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      return user;
+    } catch (error) {
+      if (error.name === 'CastError') {
+        throw new Error('User not found');
+      }
+      throw error;
     }
-
-    return user;
   }
 
   async updateUserPassword(email, password) {
     await User.findOneAndUpdate({ username: email }, { password: bcrypt.hashSync(password, 12) });
+  }
+
+  /**
+   * Assign warehouse to user
+   *
+   * @param {string} userId - user ID
+   * @param {string} warehouseId - warehouse ID
+   */
+  async assignWarehouse(userId, warehouseId) {
+    try {
+      const user = await User.findByIdAndUpdate(userId, { warehouseId }, { new: true });
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      return user;
+    } catch (error) {
+      if (error.name === 'CastError') {
+        throw new Error('User not found');
+      }
+      throw error;
+    }
   }
 }
 

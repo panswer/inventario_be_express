@@ -29,6 +29,9 @@ const roles = Object.values(userRoleEnum);
  *          type: string
  *          enum: [admin, manager, cashier, user]
  *          example: admin
+ *        warehouseId:
+ *          type: string
+ *          example: 6805887a4368ad575e37be5f
  *        createdAt:
  *          type: integer
  *          example: 1745250570613
@@ -62,6 +65,11 @@ const UserSchema = new Schema(
         message: 'role must be one of: admin, manager, cashier, user',
       },
       default: userRoleEnum.user,
+    },
+    warehouseId: {
+      type: Schema.Types.ObjectId,
+      ref: 'warehouse',
+      default: null,
     },
   },
   {

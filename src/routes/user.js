@@ -1,7 +1,8 @@
 const { Router } = require('express');
 const { body } = require('express-validator');
 const { isAdmin } = require('../middlewares/roleAuthorization');
-const { getUsers, updateUserRole } = require('../controllers/user');
+const { userValidation } = require('../middlewares/user');
+const { getUsers, updateUserRole, assignWarehouse } = require('../controllers/user');
 
 const router = Router();
 
@@ -84,7 +85,58 @@ router.patch(
       .isIn(['admin', 'manager', 'user'])
       .withMessage('Role must be admin, manager, or user'),
   ],
+  userValidation,
   updateUserRole
+);
+
+/**
+ * @swagger
+ * /api/users/{id}/role:
+ *  patch:
+ *      tags:
+ *          - Users
+ *      summary: Update user role (admin only)
+ *      description: Update the role of a specific user
+ *      security:
+ *          - bearerAuth: []
+ *      parameters:
+ *          - in: path
+ *            name: id
+ *            required: true
+ *            schema:
+ *                type: string
+ *      requestBody:
+ *          required: true
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      type: object
+ *                      properties:
+ *                          role:
+ *                              type: string
+ *                              enum: [admin, manager, user]
+ *      responses:
+ *          200:
+ *              description: Success
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          $ref: "#/components/schemas/UserModel"
+ *          403:
+ *              description: Forbidden
+ *          401:
+ *              description: Unauthorized
+ *          404:
+ *              description: User not found
+ *          400:
+ *              description: Invalid role
+ */
+router.patch(
+  '/:id/warehouse',
+  isAdmin,
+  [body('warehouseId').isMongoId().withMessage('Invalid warehouseId')],
+  userValidation,
+  assignWarehouse
 );
 
 module.exports = router;

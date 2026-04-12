@@ -63,7 +63,41 @@ const updateUserRole = async (req, res) => {
   }
 };
 
+/**
+ * Assign warehouse to user
+ *
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ *
+ * @returns {Promise<void>}
+ */
+const assignWarehouse = async (req, res) => {
+  const { id } = req.params;
+  const { warehouseId } = req.body;
+  const userService = UserService.getInstance();
+  const loggerService = LoggerService.getInstance();
+
+  try {
+    const user = await userService.assignWarehouse(id, warehouseId);
+    return res.status(200).json({ user });
+  } catch (error) {
+    loggerService.error('userService@assignWarehouse', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
+    });
+
+    if (error.message === 'User not found') {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    return res.status(500).json({ message: 'Internal error' });
+  }
+};
+
 module.exports = {
   getUsers,
   updateUserRole,
+  assignWarehouse,
 };
