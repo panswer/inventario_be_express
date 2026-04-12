@@ -201,6 +201,10 @@ SERVER_PORT=3000
 SERVER_JWT_SESSION_SECRET=<secret>
 DB_HOST=<mongodb-uri>
 DB_NAME=<database>
+SMTP_HOST=<mail-server>
+SMTP_PORT=<port>
+SMTP_USER=<user>
+SMTP_PASSWORD=<pass>
 ```
 
 ## Notes
@@ -209,3 +213,5 @@ DB_NAME=<database>
 - API docs at `/api/doc/`
 - `requestLogger` middleware adds `requestId`, `userIp` to req
 - Swagger JSDoc annotations required on all endpoints
+- MongoDB data persisted in `./mongo_db` volume
+- Docker Compose starts MongoDB + optional monitoring (Elasticsearch, Filebeat, Grafana)
