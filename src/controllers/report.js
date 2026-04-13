@@ -3,13 +3,29 @@ const LoggerService = require('../services/LoggerService');
 
 const buildFiltersFromQuery = query => {
   const filters = {};
-  const { productId, warehouseId, type, startDate, endDate } = query;
+  const { productId, warehouseId, type, startDate, endDate, houre } = query;
 
   if (productId) filters.productId = productId;
   if (warehouseId) filters.warehouseId = warehouseId;
   if (type) filters.type = type;
-  if (startDate) filters.startDate = startDate;
-  if (endDate) filters.endDate = endDate;
+
+  if (houre === 'false' || houre === false) {
+    if (startDate) filters.startDate = startDate;
+    if (endDate) filters.endDate = endDate;
+  } else {
+    if (startDate) {
+      filters.startDate = startDate.includes('T') ? startDate : `${startDate}T00:00:00`;
+    } else {
+      const today = new Date().toISOString().split('T')[0];
+      filters.startDate = `${today}T00:00:00`;
+    }
+    if (endDate) {
+      filters.endDate = endDate.includes('T') ? endDate : `${endDate}T23:59:59`;
+    } else {
+      const today = new Date().toISOString().split('T')[0];
+      filters.endDate = `${today}T23:59:59`;
+    }
+  }
 
   return filters;
 };

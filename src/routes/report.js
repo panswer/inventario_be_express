@@ -43,6 +43,11 @@ const router = Router();
  *            type: string
  *            format: date-time
  *          description: End date (ISO string)
+ *        - in: query
+ *          name: houre
+ *          schema:
+ *            type: boolean
+ *          description: "Append time to startDate (00:00:00) and endDate (23:59:59)"
  *      responses:
  *        200:
  *          description: XLSX file
@@ -90,6 +95,11 @@ router.get(
  *            type: string
  *            format: date-time
  *          description: End date (ISO string)
+ *        - in: query
+ *          name: houre
+ *          schema:
+ *            type: boolean
+ *          description: "Append time to startDate (00:00:00) and endDate (23:59:59)"
  *      responses:
  *        200:
  *          description: XLSX file
@@ -133,6 +143,11 @@ router.get('/movements/summary', [authorizationFn], controller.getSummaryReport)
  *            type: string
  *            format: date-time
  *          description: End date (ISO string)
+ *        - in: query
+ *          name: houre
+ *          schema:
+ *            type: boolean
+ *          description: "Append time to startDate (00:00:00) and endDate (23:59:59)"
  *      responses:
  *        200:
  *          description: XLSX file
