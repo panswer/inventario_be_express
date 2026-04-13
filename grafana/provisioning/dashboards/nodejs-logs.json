@@ -80,7 +80,7 @@
             {"field": "@timestamp", "id": "2", "settings": {"interval": "auto"}, "type": "date_histogram"}
           ],
           "metrics": [{"id": "1", "type": "count"}],
-          "query": "level: error",
+          "query": "type:\"out\" AND level:\"error\"",
           "refId": "A",
           "timeField": "@timestamp"
         },
@@ -90,7 +90,7 @@
             {"field": "@timestamp", "id": "2", "settings": {"interval": "auto"}, "type": "date_histogram"}
           ],
           "metrics": [{"id": "1", "type": "count"}],
-          "query": "level: warn",
+          "query": "type:\"out\" AND level:\"warn\"",
           "refId": "B",
           "timeField": "@timestamp"
         },
@@ -100,7 +100,7 @@
             {"field": "@timestamp", "id": "2", "settings": {"interval": "auto"}, "type": "date_histogram"}
           ],
           "metrics": [{"id": "1", "type": "count"}],
-          "query": "level: info",
+          "query": "type:\"out\" AND level:\"info\"",
           "refId": "C",
           "timeField": "@timestamp"
         }
@@ -136,15 +136,17 @@
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
-        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "reduceOptions": {"calcs": ["sum"], "fields": "", "values": false},
         "textMode": "auto"
       },
       "pluginVersion": "11.4.0",
       "targets": [
         {
-          "bucketAggs": [{"id": "1", "type": "count"}],
+          "bucketAggs": [
+            {"field": "@timestamp", "id": "2", "settings": {"interval": "auto"}, "type": "date_histogram"}
+          ],
           "metrics": [{"id": "1", "type": "count"}],
-          "query": "level: error OR (type: out AND statusCode:[400 TO 599])",
+          "query": "level: error OR (type:\"out\" AND statusCode:[400 TO 599])",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -179,15 +181,17 @@
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
-        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "reduceOptions": {"calcs": ["sum"], "fields": "", "values": false},
         "textMode": "auto"
       },
       "pluginVersion": "11.4.0",
       "targets": [
         {
-          "bucketAggs": [{"id": "1", "type": "count"}],
+          "bucketAggs": [
+            {"field": "@timestamp", "id": "2", "settings": {"interval": "auto"}, "type": "date_histogram"}
+          ],
           "metrics": [{"id": "1", "type": "count"}],
-          "query": "type: out AND statusCode:[400 TO 599]",
+          "query": "type:\"out\" AND statusCode:[400 TO 599]",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -213,21 +217,24 @@
       "options": {
         "legend": {"displayMode": "list", "placement": "right", "showLegend": true},
         "pieType": "pie",
-        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "reduceOptions": {"calcs": ["sum"], "fields": "", "values": false},
         "tooltip": {"mode": "single", "sort": "none"}
       },
       "pluginVersion": "11.4.0",
       "targets": [
         {
-          "alias": "Logs",
-          "bucketAggs": [{"field": "level", "id": "2", "settings": {"minDocCount": "1", "order": "desc", "orderBy": "_count", "size": "10"}, "type": "terms"}],
+          "alias": "{{statusCode}}",
+          "bucketAggs": [
+            {"field": "statusCode", "id": "2", "settings": {"minDocCount": "1", "order": "desc", "orderBy": "_count", "size": "10"}, "type": "terms"},
+            {"field": "@timestamp", "id": "3", "settings": {"interval": "auto"}, "type": "date_histogram"}
+          ],
           "metrics": [{"id": "1", "type": "count"}],
-          "query": "",
+          "query": "type:\"out\"",
           "refId": "A",
           "timeField": "@timestamp"
         }
       ],
-      "title": "Log Levels Distribution",
+      "title": "Status Codes Distribution",
       "type": "piechart"
     },
     {
@@ -291,7 +298,7 @@
             {"field": "message", "id": "5", "source": "field"}
           ],
           "metrics": [{"id": "6", "type": "count"}],
-          "query": "level: error",
+          "query": "type:\"out\" AND level:\"error\"",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -375,7 +382,7 @@
             {"field": "@timestamp", "id": "2", "settings": {"interval": "auto"}, "type": "date_histogram"}
           ],
           "metrics": [{"id": "1", "type": "count"}],
-          "query": "type: out AND statusCode: 200",
+          "query": "type:\"out\" AND statusCode:[200 TO 299]",
           "refId": "A",
           "timeField": "@timestamp"
         },
@@ -385,7 +392,7 @@
             {"field": "@timestamp", "id": "2", "settings": {"interval": "auto"}, "type": "date_histogram"}
           ],
           "metrics": [{"id": "1", "type": "count"}],
-          "query": "type: out AND statusCode:[300 TO 399]",
+          "query": "type:\"out\" AND statusCode:[300 TO 399]",
           "refId": "B",
           "timeField": "@timestamp"
         },
@@ -395,7 +402,7 @@
             {"field": "@timestamp", "id": "2", "settings": {"interval": "auto"}, "type": "date_histogram"}
           ],
           "metrics": [{"id": "1", "type": "count"}],
-          "query": "type: out AND statusCode:[400 TO 499]",
+          "query": "type:\"out\" AND statusCode:[400 TO 499]",
           "refId": "C",
           "timeField": "@timestamp"
         },
@@ -405,7 +412,7 @@
             {"field": "@timestamp", "id": "2", "settings": {"interval": "auto"}, "type": "date_histogram"}
           ],
           "metrics": [{"id": "1", "type": "count"}],
-          "query": "type: out AND statusCode:[500 TO 599]",
+          "query": "type:\"out\" AND statusCode:[500 TO 599]",
           "refId": "D",
           "timeField": "@timestamp"
         }
@@ -457,10 +464,11 @@
         {
           "alias": "Requests",
           "bucketAggs": [
-            {"field": "path", "id": "2", "settings": {"minDocCount": "1", "order": "desc", "orderBy": "_count", "size": "10"}, "type": "terms"}
+            {"field": "path", "id": "2", "settings": {"minDocCount": "1", "order": "desc", "orderBy": "_count", "size": "10"}, "type": "terms"},
+            {"field": "@timestamp", "id": "3", "settings": {"interval": "auto"}, "type": "date_histogram"}
           ],
           "metrics": [{"id": "1", "type": "count"}],
-          "query": "type: out",
+          "query": "type:\"out\"",
           "refId": "A",
           "timeField": "@timestamp"
         }
