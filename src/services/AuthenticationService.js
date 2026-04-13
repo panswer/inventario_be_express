@@ -69,6 +69,7 @@ class AuthenticationService {
         _id: userObj._id,
         username: userObj.username,
         role: userObj.role,
+        warehouseId: userObj.warehouseId,
       },
       AuthenticationService.secret,
       {

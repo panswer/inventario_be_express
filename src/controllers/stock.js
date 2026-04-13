@@ -1,5 +1,6 @@
 const StockService = require('../services/StockService');
 const LoggerService = require('../services/LoggerService');
+const { userRoleEnum } = require('../enums/userRoleEnum');
 
 /**
  * Get all stocks with pagination
@@ -13,12 +14,28 @@ const getStocks = async (req, res) => {
   const query = req.query;
   const page = query.page || '1';
   const limit = query.limit || '10';
-  const warehouseId = query.warehouseId;
-
+  const warehouseIdQuery = query.warehouseId;
   const skipItems = Number(page) - 1;
   const limitNum = Number(limit);
-
   const stockService = StockService.getInstance();
+  const session = req.body.session;
+
+  let warehouseId = warehouseIdQuery;
+  const userRole = session?.role;
+  const userWarehouseId = session?.warehouseId;
+
+  const isManagerOrCashier = userRole === userRoleEnum.manager || userRole === userRoleEnum.cashier;
+
+  if (isManagerOrCashier && userWarehouseId) {
+    warehouseId = userWarehouseId;
+  }
+
+  if (isManagerOrCashier && !userWarehouseId) {
+    return res.status(200).json({
+      stocks: [],
+      total: 0,
+    });
+  }
 
   const { stocks, total } = await stockService.getStocks(skipItems, limitNum, warehouseId);
 
@@ -40,6 +57,7 @@ const getStockById = async (req, res) => {
   const stockId = req.params.stockId;
   const stockService = StockService.getInstance();
   const loggerService = LoggerService.getInstance();
+  const session = req.body.session;
 
   let stockDb;
   try {
@@ -70,6 +88,25 @@ const getStockById = async (req, res) => {
     });
   }
 
+  const userRole = session?.role;
+  const userWarehouseId = session?.warehouseId;
+  const stockWarehouseId = stockDb.warehouseId?.toString();
+
+  const isManagerOrCashier = userRole === userRoleEnum.manager || userRole === userRoleEnum.cashier;
+
+  if (isManagerOrCashier && userWarehouseId && stockWarehouseId !== userWarehouseId) {
+    loggerService.warn('stockService@getStockById', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      body: req.body,
+      reason: 'Access denied - warehouse mismatch',
+      type: 'security',
+    });
+    return res.status(404).json({
+      message: 'Stock not found',
+    });
+  }
+
   return res.status(200).json({
     stock: stockDb,
   });
@@ -87,6 +124,7 @@ const getStockByProductId = async (req, res) => {
   const productId = req.params.productId;
   const stockService = StockService.getInstance();
   const loggerService = LoggerService.getInstance();
+  const session = req.body.session;
 
   let stockDb;
   try {
@@ -105,6 +143,25 @@ const getStockByProductId = async (req, res) => {
   }
 
   if (!stockDb) {
+    return res.status(404).json({
+      message: 'Stock not found',
+    });
+  }
+
+  const userRole = session?.role;
+  const userWarehouseId = session?.warehouseId;
+  const stockWarehouseId = stockDb.warehouseId?.toString();
+
+  const isManagerOrCashier = userRole === userRoleEnum.manager || userRole === userRoleEnum.cashier;
+
+  if (isManagerOrCashier && userWarehouseId && stockWarehouseId !== userWarehouseId) {
+    loggerService.warn('stockService@getStockByProductId', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      body: req.body,
+      reason: 'Access denied - warehouse mismatch',
+      type: 'security',
+    });
     return res.status(404).json({
       message: 'Stock not found',
     });
