@@ -18,7 +18,6 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 4,
   "links": [],
   "panels": [
     {
@@ -119,7 +118,7 @@
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
-            "lastNotNull"
+            "sum"
           ],
           "fields": "",
           "values": false
@@ -133,8 +132,12 @@
         {
           "bucketAggs": [
             {
-              "id": "1",
-              "type": "count"
+              "field": "@timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto"
+              },
+              "type": "date_histogram"
             }
           ],
           "metrics": [
@@ -143,7 +146,7 @@
               "type": "count"
             }
           ],
-          "query": "level: error",
+          "query": "type:\"logic\" AND level:error",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -198,7 +201,7 @@
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
-            "lastNotNull"
+            "sum"
           ],
           "fields": "",
           "values": false
@@ -212,8 +215,12 @@
         {
           "bucketAggs": [
             {
-              "id": "1",
-              "type": "count"
+              "field": "@timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto"
+              },
+              "type": "date_histogram"
             }
           ],
           "metrics": [
@@ -222,7 +229,7 @@
               "type": "count"
             }
           ],
-          "query": "level: warn",
+          "query": "type:logic AND level:warn",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -277,7 +284,7 @@
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
-            "lastNotNull"
+            "sum"
           ],
           "fields": "",
           "values": false
@@ -291,8 +298,12 @@
         {
           "bucketAggs": [
             {
-              "id": "1",
-              "type": "count"
+              "field": "@timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto"
+              },
+              "type": "date_histogram"
             }
           ],
           "metrics": [
@@ -301,7 +312,7 @@
               "type": "count"
             }
           ],
-          "query": "type: out AND statusCode:[400 TO 599]",
+          "query": "type:\"out\" AND statusCode:[400 TO 599]",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -352,7 +363,7 @@
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
-            "lastNotNull"
+            "mean"
           ],
           "fields": "",
           "values": false
@@ -366,25 +377,22 @@
         {
           "bucketAggs": [
             {
-              "field": "duration",
+              "field": "@timestamp",
               "id": "2",
               "settings": {
-                "minDocCount": "1",
-                "order": "desc",
-                "orderBy": "_count",
-                "size": 1
+                "interval": "auto"
               },
-              "type": "terms"
+              "type": "date_histogram"
             }
           ],
           "metrics": [
             {
               "field": "duration",
               "id": "1",
-              "type": "average"
+              "type": "avg"
             }
           ],
-          "query": "type: out",
+          "query": "type:\"out\"",
           "refId": "A",
           "timeField": "@timestamp"
         }
@@ -896,8 +904,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "yellow",
@@ -1036,72 +1043,26 @@
     "list": [
       {
         "current": {
-          "text": "890d8391-3aa3-441a-955d-4f1f40fc6091",
-          "value": "890d8391-3aa3-441a-955d-4f1f40fc6091"
+          "text": "",
+          "value": ""
         },
         "label": "RequestId",
         "name": "requestId",
         "options": [
           {
             "selected": true,
-            "text": "890d8391-3aa3-441a-955d-4f1f40fc6091",
-            "value": "890d8391-3aa3-441a-955d-4f1f40fc6091"
+            "text": "",
+            "value": ""
           }
         ],
-        "query": "890d8391-3aa3-441a-955d-4f1f40fc6091",
+        "query": "",
         "type": "textbox"
-      },
-      {
-        "current": {
-          "text": "All",
-          "value": ""
-        },
-        "datasource": {
-          "type": "elasticsearch",
-          "uid": "elasticsearch"
-        },
-        "definition": "{\"find\": \"terms\", \"field\": \"path\"}",
-        "includeAll": true,
-        "label": "Endpoint",
-        "name": "path",
-        "options": [],
-        "query": {
-          "field": "path",
-          "find": "terms"
-        },
-        "refresh": 2,
-        "regex": "",
-        "sort": 1,
-        "type": "query"
-      },
-      {
-        "current": {
-          "text": "All",
-          "value": ""
-        },
-        "datasource": {
-          "type": "elasticsearch",
-          "uid": "elasticsearch"
-        },
-        "definition": "{\"find\": \"terms\", \"field\": \"statusCode\"}",
-        "includeAll": true,
-        "label": "Status Code",
-        "name": "statusCode",
-        "options": [],
-        "query": {
-          "field": "statusCode",
-          "find": "terms"
-        },
-        "refresh": 2,
-        "regex": "",
-        "sort": 1,
-        "type": "query"
       }
     ]
   },
   "time": {
-    "from": "now-1h",
-    "to": "now"
+    "from": "2026-04-13T12:27:13.696Z",
+    "to": "2026-04-13T16:27:13.700Z"
   },
   "timepicker": {
     "refresh_intervals": [
@@ -1119,6 +1080,6 @@
   "timezone": "browser",
   "title": "Error Dashboard & Request Tracing",
   "uid": "error-request-tracing",
-  "version": 7,
+  "version": 14,
   "weekStart": ""
 }

@@ -39,7 +39,7 @@ const requestLoggerMiddleware = (req, res, next) => {
         method: req.method,
         path: req.url,
         statusCode: res.statusCode,
-        duration: `${duration}ms`,
+        duration: duration,
         body: req.body,
         errorMessage: res.locals.errorMessage || null,
       });
