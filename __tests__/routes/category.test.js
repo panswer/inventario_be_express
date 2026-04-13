@@ -13,7 +13,8 @@ describe("Category Routes", () => {
   beforeAll(async () => {
     app = createTestApp();
     userId = new mongoose.Types.ObjectId();
-    token = jwt.sign({ _id: userId, role: "admin" }, process.env.SERVER_JWT_SESSION_SECRET);
+    token = jwt.sign({ _id: userId, role: "admin", sessionId: "test-session-category" }, process.env.SERVER_JWT_SESSION_SECRET);
+    await global.createTestSession(userId.toString(), "test-session-category");
   });
 
   beforeEach(async () => {
@@ -21,6 +22,7 @@ describe("Category Routes", () => {
     for (const key in collections) {
       await collections[key].deleteMany({});
     }
+    await global.createTestSession(userId.toString(), "test-session-category");
   });
 
   describe("GET /api/category", () => {

@@ -226,6 +226,31 @@
         }
       }
     },
+    "/api/auth/sign-out": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Sign out and invalidate session",
+        "description": "Invalidates the current session and removes it from the database",
+        "produces": [
+          "application/json"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Signed out successfully"
+          },
+          "401": {
+            "description": "Unauthorized - invalid or missing token"
+          }
+        }
+      }
+    },
     "/api/bill": {
       "post": {
         "summary": "Create a bill",

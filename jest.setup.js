@@ -1,7 +1,8 @@
-require("./src/config");
+require('./src/config');
 
-const { MongoMemoryServer } = require("mongodb-memory-server");
-const mongoose = require("mongoose");
+const { MongoMemoryServer } = require('mongodb-memory-server');
+const mongoose = require('mongoose');
+const Session = require('./src/models/Session');
 
 let mongoServer;
 
@@ -24,3 +25,7 @@ afterEach(async () => {
     await collections[key].deleteMany({});
   }
 });
+
+global.createTestSession = async (userId, sessionId) => {
+  await Session.create({ userId, sessionId });
+};

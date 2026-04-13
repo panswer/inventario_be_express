@@ -50,6 +50,7 @@ describe("AuthenticationController", () => {
     mockAuthenticationService = {
       verifyPasswordHash: jest.fn(),
       generateSessionToken: jest.fn(),
+      saveSession: jest.fn(),
     };
 
     UserService.getInstance.mockReturnValue(mockUserService);
@@ -105,16 +106,18 @@ describe("AuthenticationController", () => {
     });
 
     it("should return token if login successful", async () => {
-      const mockUser = { _id: "user123", username: "test@test.com", password: "hashed_password" };
+      const mockUser = { _id: "user123", username: "test@test.com", password: "hashed_password", toString: () => "user123" };
       mockReq.body = { email: "test@test.com", password: "password123" };
       mockUserService.getUserByEmailFlow.mockResolvedValue(mockUser);
       mockAuthenticationService.verifyPasswordHash.mockReturnValue(true);
-      mockAuthenticationService.generateSessionToken.mockReturnValue("jwt_token");
+      mockAuthenticationService.generateSessionToken.mockReturnValue({ token: "jwt_token", sessionId: "session123" });
+      mockAuthenticationService.saveSession.mockResolvedValue();
 
       await authenticationController.signIn(mockReq, mockRes);
 
       expect(mockRes.status).toHaveBeenCalledWith(201);
       expect(mockRes.json).toHaveBeenCalledWith({ authorization: "jwt_token" });
+      expect(mockAuthenticationService.saveSession).toHaveBeenCalledWith("user123", "session123");
     });
   });
 

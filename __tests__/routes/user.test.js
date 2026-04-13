@@ -17,8 +17,11 @@ describe("User Routes", () => {
     app = createTestApp();
     adminUserId = new mongoose.Types.ObjectId();
     regularUserId = new mongoose.Types.ObjectId();
-    adminToken = jwt.sign({ _id: adminUserId, role: "admin" }, process.env.SERVER_JWT_SESSION_SECRET);
-    userToken = jwt.sign({ _id: regularUserId, role: "user" }, process.env.SERVER_JWT_SESSION_SECRET);
+    adminToken = jwt.sign({ _id: adminUserId, role: "admin", sessionId: "test-session-admin" }, process.env.SERVER_JWT_SESSION_SECRET);
+    userToken = jwt.sign({ _id: regularUserId, role: "user", sessionId: "test-session-user" }, process.env.SERVER_JWT_SESSION_SECRET);
+
+    await global.createTestSession(adminUserId.toString(), "test-session-admin");
+    await global.createTestSession(regularUserId.toString(), "test-session-user");
   });
 
   beforeEach(async () => {
@@ -26,6 +29,9 @@ describe("User Routes", () => {
     for (const key in collections) {
       await collections[key].deleteMany({});
     }
+
+    await global.createTestSession(adminUserId.toString(), "test-session-admin");
+    await global.createTestSession(regularUserId.toString(), "test-session-user");
   });
 
   describe("GET /api/users", () => {

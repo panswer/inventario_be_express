@@ -16,7 +16,7 @@ describe("Authentication Routes", () => {
 
   beforeAll(async () => {
     app = createTestApp();
-    token = jwt.sign({ _id: "testuser123" }, process.env.SERVER_JWT_SESSION_SECRET);
+    token = jwt.sign({ _id: "testuser123", sessionId: "test-session-123" }, process.env.SERVER_JWT_SESSION_SECRET);
 
     mockEmailService = {
       sendResetPasswordEmailFlow: jest.fn().mockResolvedValue(true),

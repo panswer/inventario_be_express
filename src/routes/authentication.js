@@ -1,11 +1,16 @@
 const { Router } = require('express');
 const { body } = require('express-validator');
-const { signUpValidator, resetPasswordVerifyValidator } = require('../middlewares/authorization');
+const {
+  signUpValidator,
+  resetPasswordVerifyValidator,
+  authorizationFn,
+} = require('../middlewares/authorization');
 const {
   signIn,
   signUp,
   resetPassword,
   resetPasswordVerify,
+  signOut,
 } = require('../controllers/authentication');
 
 const router = Router();
@@ -204,5 +209,25 @@ router.post(
   ],
   resetPasswordVerify
 );
+
+/**
+ * @swagger
+ * /api/auth/sign-out:
+ *  post:
+ *      tags:
+ *          - Authentication
+ *      summary: Sign out and invalidate session
+ *      description: Invalidates the current session and removes it from the database
+ *      produces:
+ *          - application/json
+ *      security:
+ *          - bearerAuth: []
+ *      responses:
+ *          200:
+ *              description: Signed out successfully
+ *          401:
+ *              description: Unauthorized - invalid or missing token
+ */
+router.post('/sign-out', authorizationFn, signOut);
 
 module.exports = router;

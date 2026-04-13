@@ -79,10 +79,12 @@ const signIn = async (req, res) => {
     });
   }
 
-  const authorization = authenticationService.generateSessionToken(user);
+  const { token, sessionId } = authenticationService.generateSessionToken(user);
+
+  await authenticationService.saveSession(user._id.toString(), sessionId);
 
   res.status(201).json({
-    authorization,
+    authorization: token,
   });
 };
 
@@ -190,9 +192,41 @@ const resetPasswordVerify = async (req, res) => {
   res.status(202).json({});
 };
 
+/**
+ * Sign out controller - invalidates session
+ *
+ * @param {import('express').Request} req - request
+ * @param {import('express').Response} res - response
+ *
+ * @returns {Promise<void>}
+ */
+const signOut = async (req, res) => {
+  const { session } = req.body;
+  const authenticationService = AuthenticationService.getInstance();
+  const loggerService = LoggerService.getInstance();
+
+  try {
+    await authenticationService.deleteSession(session._id, session.sessionId);
+  } catch (error) {
+    loggerService.error('authenticationService@deleteSession', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      body: req.body,
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
+    });
+    return res.status(500).json({
+      message: 'Internal error',
+    });
+  }
+
+  res.status(200).json({});
+};
+
 module.exports = {
   signIn,
   signUp,
   resetPassword,
   resetPasswordVerify,
+  signOut,
 };

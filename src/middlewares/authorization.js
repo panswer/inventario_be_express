@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 const LoggerService = require('../services/LoggerService');
+const AuthenticationService = require('../services/AuthenticationService');
 
 /**
  * Verify Authorization token
@@ -11,7 +12,7 @@ const LoggerService = require('../services/LoggerService');
  *
  * @returns {Promise<void>}
  */
-const authorizationFn = (req, res, next) => {
+const authorizationFn = async (req, res, next) => {
   const authorizationToken = req.get('Authorization');
 
   if (!authorizationToken || typeof authorizationToken !== 'string') {
@@ -24,9 +25,22 @@ const authorizationFn = (req, res, next) => {
 
   try {
     const userAuth = jwt.verify(token, process.env.SERVER_JWT_SESSION_SECRET);
+
+    const authenticationService = AuthenticationService.getInstance();
+    const isValidSession = await authenticationService.validateSession(
+      userAuth._id,
+      userAuth.sessionId
+    );
+
+    if (!isValidSession) {
+      return res.status(401).json({
+        message: 'Unauthorized',
+      });
+    }
+
     req.body = req.body || {};
     req.body.session = userAuth;
-  } catch (error) {
+  } catch (_) {
     return res.status(401).json({
       message: 'Unauthorized',
     });

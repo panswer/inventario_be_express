@@ -13,7 +13,8 @@ describe("Bill Routes", () => {
   beforeAll(async () => {
     app = createTestApp();
     userId = new mongoose.Types.ObjectId();
-    token = jwt.sign({ _id: userId, role: "admin" }, process.env.SERVER_JWT_SESSION_SECRET);
+    token = jwt.sign({ _id: userId, role: "admin", sessionId: "test-session-bill" }, process.env.SERVER_JWT_SESSION_SECRET);
+    await global.createTestSession(userId.toString(), "test-session-bill");
   });
 
   beforeEach(async () => {
@@ -21,6 +22,7 @@ describe("Bill Routes", () => {
     for (const key in collections) {
       await collections[key].deleteMany({});
     }
+    await global.createTestSession(userId.toString(), "test-session-bill");
   });
 
   describe("GET /api/bill", () => {
