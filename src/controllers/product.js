@@ -59,18 +59,20 @@ const getProductByBarcode = async (req, res) => {
  */
 const getProducts = async (req, res) => {
   const query = req.query;
+  const { session } = req.body;
   const page = query.page || '1';
   const limit = query.limit || '10';
   const categories = query.categories ? query.categories.split(',') : undefined;
+  const warehouseId = query.warehouseId || session?.warehouseId || undefined;
 
   const skipItems = Number(page) - 1;
   const limitNum = Number(limit);
 
   const productService = ProductService.getInstance();
 
-  const products = await productService.getProducts(skipItems, limitNum, categories);
+  const products = await productService.getProducts(skipItems, limitNum, categories, warehouseId);
 
-  const total = await productService.countProducts(categories);
+  const total = await productService.countProducts(categories, warehouseId);
 
   return res.status(200).json({
     products,

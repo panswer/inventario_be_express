@@ -21,7 +21,7 @@ const router = Router();
  * /api/product:
  *  get:
  *      summary: Get all products
- *      description: Get all products with page and limit, optionally filtered by categories
+ *      description: Get all products with page and limit, optionally filtered by categories and warehouse
  *      security:
  *          - BearerAuth: []
  *      tags:
@@ -42,6 +42,11 @@ const router = Router();
  *            description: Comma-separated category IDs to filter by (AND logic)
  *            schema:
  *              type: string
+ *          - in: query
+ *            name: warehouseId
+ *            description: Filter by warehouse ID to include stock info. If not provided, uses user's assigned warehouse
+ *            schema:
+ *              type: string
  *      responses:
  *          200:
  *              description: list of product and total
@@ -54,7 +59,32 @@ const router = Router();
  *                                  type: array
  *                                  items:
  *                                      type: object
- *                                      $ref: "#/components/schemas/ProductModel"
+ *                                      properties:
+ *                                          _id:
+ *                                              type: string
+ *                                          name:
+ *                                              type: string
+ *                                          barcode:
+ *                                              type: string
+ *                                          inStock:
+ *                                              type: boolean
+ *                                          image:
+ *                                              type: string
+ *                                          categories:
+ *                                              type: array
+ *                                          createdBy:
+ *                                              type: string
+ *                                          createdAt:
+ *                                              type: integer
+ *                                          updatedAt:
+ *                                              type: integer
+ *                                          stock:
+ *                                              type: object
+ *                                              properties:
+ *                                                  quantity:
+ *                                                      type: number
+ *                                                  minQuantity:
+ *                                                      type: number
  *                              total:
  *                                  type: number
  */

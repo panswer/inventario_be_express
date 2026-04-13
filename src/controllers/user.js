@@ -2,6 +2,36 @@ const UserService = require('../services/UserService');
 const LoggerService = require('../services/LoggerService');
 
 /**
+ * Get current user profile
+ *
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ *
+ * @returns {Promise<void>}
+ */
+const getProfile = async (req, res) => {
+  const { session } = req.body;
+  const userService = UserService.getInstance();
+  const loggerService = LoggerService.getInstance();
+
+  try {
+    const user = await userService.getUserById(session._id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    return res.status(200).json({ user });
+  } catch (error) {
+    loggerService.error('userService@getProfile', {
+      requestId: req.requestId,
+      userIp: req.userIp,
+      reason: error?.message ?? 'Unknown error',
+      type: 'logic',
+    });
+    return res.status(500).json({ message: 'Internal error' });
+  }
+};
+
+/**
  * Get all users
  *
  * @param {import('express').Request} req
@@ -97,6 +127,7 @@ const assignWarehouse = async (req, res) => {
 };
 
 module.exports = {
+  getProfile,
   getUsers,
   updateUserRole,
   assignWarehouse,

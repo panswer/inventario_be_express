@@ -2,7 +2,8 @@ const { Router } = require('express');
 const { body } = require('express-validator');
 const { isAdmin } = require('../middlewares/roleAuthorization');
 const { userValidation } = require('../middlewares/user');
-const { getUsers, updateUserRole, assignWarehouse } = require('../controllers/user');
+const { getUsers, updateUserRole, assignWarehouse, getProfile } = require('../controllers/user');
+const { authorizationFn } = require('../middlewares/authorization');
 
 const router = Router();
 
@@ -15,7 +16,7 @@ const router = Router();
  *      summary: Get all users (admin only)
  *      description: Returns a list of all users with their roles
  *      security:
- *          - bearerAuth: []
+ *          - BearerAuth: []
  *      responses:
  *          200:
  *              description: Success
@@ -37,6 +38,31 @@ router.get('', isAdmin, getUsers);
 
 /**
  * @swagger
+ * /api/users/profile:
+ *  get:
+ *      tags:
+ *          - Users
+ *      summary: Get current user profile
+ *      description: Returns the profile of the authenticated user
+ *      security:
+ *          - BearerAuth: []
+ *      responses:
+ *          200:
+ *              description: Success
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              user:
+ *                                  $ref: "#/components/schemas/UserModel"
+ *          401:
+ *              description: Unauthorized
+ */
+router.get('/profile', authorizationFn, getProfile);
+
+/**
+ * @swagger
  * /api/users/{id}/role:
  *  patch:
  *      tags:
@@ -44,7 +70,7 @@ router.get('', isAdmin, getUsers);
  *      summary: Update user role (admin only)
  *      description: Update the role of a specific user
  *      security:
- *          - bearerAuth: []
+ *          - BearerAuth: []
  *      parameters:
  *          - in: path
  *            name: id
@@ -91,14 +117,14 @@ router.patch(
 
 /**
  * @swagger
- * /api/users/{id}/role:
+ * /api/users/{id}/warehouse:
  *  patch:
  *      tags:
  *          - Users
- *      summary: Update user role (admin only)
- *      description: Update the role of a specific user
+ *      summary: Assign warehouse to user (admin only)
+ *      description: Assign a warehouse to a specific user
  *      security:
- *          - bearerAuth: []
+ *          - BearerAuth: []
  *      parameters:
  *          - in: path
  *            name: id
@@ -112,9 +138,9 @@ router.patch(
  *                  schema:
  *                      type: object
  *                      properties:
- *                          role:
+ *                          warehouseId:
  *                              type: string
- *                              enum: [admin, manager, user]
+ *                              description: Warehouse ID to assign
  *      responses:
  *          200:
  *              description: Success
@@ -129,7 +155,7 @@ router.patch(
  *          404:
  *              description: User not found
  *          400:
- *              description: Invalid role
+ *              description: Invalid warehouseId
  */
 router.patch(
   '/:id/warehouse',
