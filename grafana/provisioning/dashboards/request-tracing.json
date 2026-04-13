@@ -640,7 +640,7 @@
       "pluginVersion": "11.4.0",
       "targets": [
         {
-          "alias": "Errors",
+          "alias": "{{path}}",
           "bucketAggs": [
             {
               "field": "path",
@@ -652,6 +652,14 @@
                 "size": 10
               },
               "type": "terms"
+            },
+            {
+              "field": "@timestamp",
+              "id": "3",
+              "settings": {
+                "interval": "auto"
+              },
+              "type": "date_histogram"
             }
           ],
           "metrics": [
