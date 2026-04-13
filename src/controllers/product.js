@@ -65,7 +65,7 @@ const getProducts = async (req, res) => {
   const categories = query.categories ? query.categories.split(',') : undefined;
   const warehouseId = query.warehouseId || session?.warehouseId || undefined;
 
-  const skipItems = Number(page) - 1;
+  const skipItems = (Number(page) - 1) * Number(limit);
   const limitNum = Number(limit);
 
   const productService = ProductService.getInstance();

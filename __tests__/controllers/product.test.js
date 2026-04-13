@@ -72,6 +72,36 @@ describe("ProductController", () => {
 
       expect(mockProductService.getProducts).toHaveBeenCalledWith(0, 10, undefined, undefined);
     });
+
+    it("should skip items correctly for page 2", async () => {
+      mockReq.query = { page: "2", limit: "10" };
+      mockProductService.getProducts.mockResolvedValue([]);
+      mockProductService.countProducts.mockResolvedValue(0);
+
+      await productController.getProducts(mockReq, mockRes);
+
+      expect(mockProductService.getProducts).toHaveBeenCalledWith(10, 10, undefined, undefined);
+    });
+
+    it("should skip items correctly for page 3", async () => {
+      mockReq.query = { page: "3", limit: "10" };
+      mockProductService.getProducts.mockResolvedValue([]);
+      mockProductService.countProducts.mockResolvedValue(0);
+
+      await productController.getProducts(mockReq, mockRes);
+
+      expect(mockProductService.getProducts).toHaveBeenCalledWith(20, 10, undefined, undefined);
+    });
+
+    it("should calculate skip with custom limit", async () => {
+      mockReq.query = { page: "2", limit: "20" };
+      mockProductService.getProducts.mockResolvedValue([]);
+      mockProductService.countProducts.mockResolvedValue(0);
+
+      await productController.getProducts(mockReq, mockRes);
+
+      expect(mockProductService.getProducts).toHaveBeenCalledWith(20, 20, undefined, undefined);
+    });
   });
 
   describe("getProductById", () => {
